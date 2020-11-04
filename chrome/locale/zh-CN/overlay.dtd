@@ -1,0 +1,13 @@
+<!ENTITY zotero.zotcard.zotcard.label "ZotCard">
+<!ENTITY zotero.zotcard.quotes.label "金句卡">
+<!ENTITY zotero.zotcard.concept.label "概念卡">
+<!ENTITY zotero.zotcard.character.label "人物卡">
+<!ENTITY zotero.zotcard.not_commonsense.label "反常识卡">
+<!ENTITY zotero.zotcard.skill.label "技巧卡">
+<!ENTITY zotero.zotcard.structure.label "结构卡">
+<!ENTITY zotero.zotcard.general.label "通用卡">
+<!ENTITY zotero.zotcard.card1.label "Card1">
+<!ENTITY zotero.zotcard.card2.label "Card2">
+<!ENTITY zotero.zotcard.card3.label "Card3">
+<!ENTITY zotero.zotcard.copy.label "复制">
+<!ENTITY zotero.zotcard.copyandcreate.label "复制并创建">

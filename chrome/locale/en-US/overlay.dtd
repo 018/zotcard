@@ -1,0 +1,13 @@
+<!ENTITY zotero.zotcard.zotcard.label "ZotCard">
+<!ENTITY zotero.zotcard.quotes.label "Quotes Card">
+<!ENTITY zotero.zotcard.concept.label "Concept Card">
+<!ENTITY zotero.zotcard.character.label "Character Card">
+<!ENTITY zotero.zotcard.not_commonsense.label "Not commonsense Card">
+<!ENTITY zotero.zotcard.skill.label "Skill Card">
+<!ENTITY zotero.zotcard.structure.label "Structure Card">
+<!ENTITY zotero.zotcard.general.label "General Card">
+<!ENTITY zotero.zotcard.card1.label "Card1">
+<!ENTITY zotero.zotcard.card2.label "Card2">
+<!ENTITY zotero.zotcard.card3.label "Card3">
+<!ENTITY zotero.zotcard.copy.label "Copy">
+<!ENTITY zotero.zotcard.copyandcreate.label "Copy and create">

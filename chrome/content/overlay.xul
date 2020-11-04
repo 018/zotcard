@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE overlay SYSTEM "chrome://zoterozotcard/locale/overlay.dtd">
+
+<overlay
+    id="zoterozotcard-overlay"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <stringbundleset>
+        <stringbundle
+            id="zoterozotcard-bundle"
+            src="chrome://zoterozotcard/locale/zotcard.properties"/>
+    </stringbundleset>
+
+    <script
+        type="application/x-javascript"
+        src="chrome://zoterozotcard/content/zotcard.js"/>
+
+    <popup
+        id="zotero-itemmenu">
+        <menu class="menu-iconic" id="zotero-itemmenu-zotcard" label="&zotero.zotcard.zotcard.label;">
+            <menupopup id="zotero-itemmenu-zotcard-menupopup">
+                <menuitem
+                    id="zotero-itemmenu-zotcard-quotes"
+                    label="&zotero.zotcard.quotes.label;"
+                    oncommand="Zotero.ZotCard.quotes()"/>
+                <menuitem
+                    id="zotero-itemmenu-zotcard-concept"
+                    label="&zotero.zotcard.concept.label;"
+                    oncommand="Zotero.ZotCard.concept()"/>
+                <menuitem
+                    id="zotero-itemmenu-zotcard-character"
+                    label="&zotero.zotcard.character.label;"
+                    oncommand="Zotero.ZotCard.character()"/>
+                <menuitem
+                    id="zotero-itemmenu-zotcard-not_commonsense"
+                    label="&zotero.zotcard.not_commonsense.label;"
+                    oncommand="Zotero.ZotCard.not_commonsense()"/>
+                <menuitem
+                    id="zotero-itemmenu-zotcard-skill"
+                    label="&zotero.zotcard.skill.label;"
+                    oncommand="Zotero.ZotCard.skill()"/>
+                <menuitem
+                    id="zotero-itemmenu-zotcard-structure"
+                    label="&zotero.zotcard.structure.label;"
+                    oncommand="Zotero.ZotCard.structure()"/>
+                <menuitem
+                    id="zotero-itemmenu-zotcard-general"
+                    label="&zotero.zotcard.general.label;"
+                    oncommand="Zotero.ZotCard.general()"/>
+                <menuitem
+                    id="zotero-itemmenu-zotcard-separator"
+                    label="-"/>
+                <menuitem
+                    id="zotero-itemmenu-zotcard-card1"
+                    label="&zotero.zotcard.card1.label;"
+                    oncommand="Zotero.ZotCard.card1()"/>
+                <menuitem
+                    id="zotero-itemmenu-zotcard-card2"
+                    label="&zotero.zotcard.card2.label;"
+                    oncommand="Zotero.ZotCard.card2()"/>
+                <menuitem
+                    id="zotero-itemmenu-zotcard-card3"
+                    label="&zotero.zotcard.card3.label;"
+                    oncommand="Zotero.ZotCard.card3()"/>
+                <menuitem
+                    id="zotero-itemmenu-zotcard-separator"
+                    label="-"/>
+                <menuitem
+                    id="zotero-itemmenu-zotcard-copy"
+                    label="&zotero.zotcard.copy.label;"
+                    oncommand="Zotero.ZotCard.copy()"/>
+                <menuitem
+                    id="zotero-itemmenu-zotcard-copyandcreate"
+                    label="&zotero.zotcard.copyandcreate.label;"
+                    oncommand="Zotero.ZotCard.copyandcreate()"/>
+            </menupopup>
+        </menu>
+    </popup>
+</overlay>

@@ -1,0 +1,8 @@
+*~
+Thumbs.db
+logs
+bin
+/build
+/*/build
+out
+target
