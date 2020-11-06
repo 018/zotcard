@@ -6,6 +6,14 @@ let isDebug = function () {
   return typeof Zotero !== 'undefined' && typeof Zotero.Debug !== 'undefined' && Zotero.Debug.enabled
 }
 
+function debug(msg, err) {
+  if (err) {
+    Zotero.debug(`{Zutilo} ${new Date()} error: ${msg} (${err} ${err.stack})`)
+  } else {
+    Zotero.debug(`{Zutilo} ${new Date()}: ${msg}`)
+  }
+}
+
 zotcard.init = function () {
   // Register the callback in Zotero as an item observer
   let notifierID = Zotero.Notifier.registerObserver(this.notifierCallback, ['item'])
@@ -116,11 +124,11 @@ zotcard.notifierCallback = {
   }
 }
 
-zotcard.newCard = function (name) {
-  var zitems = this.getSelectedItems(['book'])
+zotcard.newCard = async function (name) {
+  var zitems = this.getSelectedItems('regular')
   if (!zitems || zitems.length <= 0) {
     var ps = Components.classes['@mozilla.org/embedcomp/prompt-service;1'].getService(Components.interfaces.nsIPromptService)
-    ps.alert(window, this.getString('zotcard.warning'), this.getString('zotcard.only_book'))
+    ps.alert(window, this.getString('zotcard.warning'), this.getString('zotcard.unsupported_entries'))
     return
   }
   if (zitems.length !== 1) {
@@ -164,7 +172,9 @@ zotcard.newCard = function (name) {
     .replace('{numPages}', zitem.getField('numPages'))
     .replace('\\n', '\n'))
   item.parentKey = zitem.getField('key')
-  item.saveTx()
+  var itemID = await item.saveTx()
+  if (isDebug()) Zotero.debug('item.id: ' + itemID)
+  ZoteroPane.selectItem(itemID)
 }
 
 zotcard.quotes = function () {
@@ -245,6 +255,19 @@ zotcard.copyandcreate = function () {
   item.parentKey = zitem.parentKey
   if (isDebug()) Zotero.debug('item.parentKey: ' + item.parentKey)
   item.saveTx()
+}
+
+zotcard.open = function () {
+  var zitems = this.getSelectedItems(['note'])
+  if (!zitems || zitems.length <= 0) {
+    var ps = Components.classes['@mozilla.org/embedcomp/prompt-service;1'].getService(Components.interfaces.nsIPromptService)
+    ps.alert(window, this.getString('zotcard.warning'), this.getString('zotcard.only_note'))
+    return
+  }
+
+  zitems.forEach(zitem => {
+    ZoteroPane.openNoteWindow(zitem.id)
+  })
 }
 
 zotcard.copyHtmlToClipboard = function (textHtml) {
@@ -377,11 +400,12 @@ if (typeof window !== 'undefined') {
   window.Zotero.ZotCard.skill = function () { zotcard.skill() }
   window.Zotero.ZotCard.structure = function () { zotcard.structure() }
   window.Zotero.ZotCard.general = function () { zotcard.general() }
-  window.Zotero.ZotCard.copy = function () { zotcard.copy() }
-  window.Zotero.ZotCard.copyandcreate = function () { zotcard.copyandcreate() }
   window.Zotero.ZotCard.card1 = function () { zotcard.card1() }
   window.Zotero.ZotCard.card2 = function () { zotcard.card2() }
   window.Zotero.ZotCard.card3 = function () { zotcard.card3() }
+  window.Zotero.ZotCard.copy = function () { zotcard.copy() }
+  window.Zotero.ZotCard.copyandcreate = function () { zotcard.copyandcreate() }
+  window.Zotero.ZotCard.open = function () { zotcard.open() }
 }
 
 if (typeof module !== 'undefined') module.exports = zotcard
