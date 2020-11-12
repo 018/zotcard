@@ -47,7 +47,8 @@
                     id="zotero-itemmenu-zotcard-general"
                     label="&zotero.zotcard.general.label;"
                     oncommand="Zotero.ZotCard.general()"/>
-                <menuseparator/>
+                <menuseparator
+                    id="zotero-itemmenu-zotcard-separator1"/>
                 <menuitem
                     id="zotero-itemmenu-zotcard-card1"
                     label="&zotero.zotcard.card1.label;"
@@ -60,7 +61,20 @@
                     id="zotero-itemmenu-zotcard-card3"
                     label="&zotero.zotcard.card3.label;"
                     oncommand="Zotero.ZotCard.card3()"/>
-                <menuseparator/>
+                <menuitem
+                    id="zotero-itemmenu-zotcard-card4"
+                    label="&zotero.zotcard.card4.label;"
+                    oncommand="Zotero.ZotCard.card4()"/>
+                <menuitem
+                    id="zotero-itemmenu-zotcard-card5"
+                    label="&zotero.zotcard.card5.label;"
+                    oncommand="Zotero.ZotCard.card5()"/>
+                <menuitem
+                    id="zotero-itemmenu-zotcard-card6"
+                    label="&zotero.zotcard.card6.label;"
+                    oncommand="Zotero.ZotCard.card6()"/>
+                <menuseparator
+                    id="zotero-itemmenu-zotcard-separator2"/>
                 <menuitem
                     id="zotero-itemmenu-zotcard-copy"
                     label="&zotero.zotcard.copy.label;"

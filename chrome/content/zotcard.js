@@ -18,12 +18,52 @@ zotcard.init = function () {
   // Register the callback in Zotero as an item observer
   let notifierID = Zotero.Notifier.registerObserver(this.notifierCallback, ['item'])
 
+  document.getElementById('zotero-itemmenu').addEventListener('popupshowing', this.refreshZoteroItemPopup.bind(this), false)
+
   this.initPrefs()
 
   // Unregister callback when the window closes (important to avoid a memory leak)
   window.addEventListener('unload', function (e) {
     Zotero.Notifier.unregisterObserver(notifierID)
+
+    document.getElementById('zotero-itemmenu').removeEventListener('popupshowing', this.refreshZoteroItemPopup.bind(this), false)
   }, false)
+}
+
+zotcard.refreshZoteroItemPopup = function () {
+  var zitems1 = this.getSelectedItems('regular')
+  var zitems2 = this.getSelectedItems(['note'])
+  var isRegular = zitems1 && zitems1.length > 0
+  var onlyOne = zitems1 && zitems1.length === 1
+  var hasNotes = zitems2 && zitems2.length > 0
+
+  document.getElementById('zotero-itemmenu-zotcard-card1').setAttribute('label', Zotero.Prefs.get('zotcard.card1.label'))
+  document.getElementById('zotero-itemmenu-zotcard-card2').setAttribute('label', Zotero.Prefs.get('zotcard.card2.label'))
+  document.getElementById('zotero-itemmenu-zotcard-card3').setAttribute('label', Zotero.Prefs.get('zotcard.card3.label'))
+  document.getElementById('zotero-itemmenu-zotcard-card4').setAttribute('label', Zotero.Prefs.get('zotcard.card4.label'))
+  document.getElementById('zotero-itemmenu-zotcard-card5').setAttribute('label', Zotero.Prefs.get('zotcard.card5.label'))
+  document.getElementById('zotero-itemmenu-zotcard-card6').setAttribute('label', Zotero.Prefs.get('zotcard.card6.label'))
+
+  document.getElementById('zotero-itemmenu-zotcard-quotes').hidden = (!isRegular || !onlyOne)
+  document.getElementById('zotero-itemmenu-zotcard-concept').hidden = (!isRegular || !onlyOne)
+  document.getElementById('zotero-itemmenu-zotcard-character').hidden = (!isRegular || !onlyOne)
+  document.getElementById('zotero-itemmenu-zotcard-not_commonsense').hidden = (!isRegular || !onlyOne)
+  document.getElementById('zotero-itemmenu-zotcard-skill').hidden = (!isRegular || !onlyOne)
+  document.getElementById('zotero-itemmenu-zotcard-structure').hidden = (!isRegular || !onlyOne)
+  document.getElementById('zotero-itemmenu-zotcard-general').hidden = (!isRegular || !onlyOne)
+  document.getElementById('zotero-itemmenu-zotcard-card1').hidden = (!isRegular || !onlyOne)
+  document.getElementById('zotero-itemmenu-zotcard-card2').hidden = (!isRegular || !onlyOne)
+  document.getElementById('zotero-itemmenu-zotcard-card3').hidden = (!isRegular || !onlyOne)
+  document.getElementById('zotero-itemmenu-zotcard-card4').hidden = (!isRegular || !onlyOne)
+  document.getElementById('zotero-itemmenu-zotcard-card5').hidden = (!isRegular || !onlyOne)
+  document.getElementById('zotero-itemmenu-zotcard-card6').hidden = (!isRegular || !onlyOne)
+  
+  document.getElementById('zotero-itemmenu-zotcard-separator1').hidden = (!isRegular || !onlyOne)
+  document.getElementById('zotero-itemmenu-zotcard-separator2').hidden = (!isRegular || !onlyOne || !hasNotes)
+
+  document.getElementById('zotero-itemmenu-zotcard-copy').hidden = (!hasNotes)
+  document.getElementById('zotero-itemmenu-zotcard-copyandcreate').hidden = (!hasNotes)
+  document.getElementById('zotero-itemmenu-zotcard-open').hidden = (!hasNotes)
 }
 
 zotcard.initPrefs = function (item) {
@@ -79,21 +119,57 @@ zotcard.initPrefs = function (item) {
       }
       break
     case 'card1':
-      pref = Zotero.Prefs.get('zotcard.card1')
+      pref = Zotero.Prefs.get('zotcard.' + item)
       if (!pref) {
-        Zotero.Prefs.set('zotcard.card1', '')
+        Zotero.Prefs.set('zotcard.' + item, '')
+      }
+      if (!Zotero.Prefs.get('zotcard.' + item + '.label')) {
+        Zotero.Prefs.set('zotcard.' + item + '.label', this.getString('zotcard.' + item))
       }
       break
     case 'card2':
-      pref = Zotero.Prefs.get('zotcard.card2')
+      pref = Zotero.Prefs.get('zotcard.' + item)
       if (!pref) {
-        Zotero.Prefs.set('zotcard.card2', '')
+        Zotero.Prefs.set('zotcard.' + item, '')
+      }
+      if (!Zotero.Prefs.get('zotcard.' + item + '.label')) {
+        Zotero.Prefs.set('zotcard.' + item + '.label', this.getString('zotcard.' + item))
       }
       break
     case 'card3':
-      pref = Zotero.Prefs.get('zotcard.card3')
+      pref = Zotero.Prefs.get('zotcard.' + item)
       if (!pref) {
-        Zotero.Prefs.set('zotcard.card3', '')
+        Zotero.Prefs.set('zotcard.' + item, '')
+      }
+      if (!Zotero.Prefs.get('zotcard.' + item + '.label')) {
+        Zotero.Prefs.set('zotcard.' + item + '.label', this.getString('zotcard.' + item))
+      }
+      break
+    case 'card4':
+      pref = Zotero.Prefs.get('zotcard.' + item)
+      if (!pref) {
+        Zotero.Prefs.set('zotcard.' + item, '')
+      }
+      if (!Zotero.Prefs.get('zotcard.' + item + '.label')) {
+        Zotero.Prefs.set('zotcard.' + item + '.label', this.getString('zotcard.' + item))
+      }
+      break
+    case 'card5':
+      pref = Zotero.Prefs.get('zotcard.' + item)
+      if (!pref) {
+        Zotero.Prefs.set('zotcard.' + item, '')
+      }
+      if (!Zotero.Prefs.get('zotcard.' + item + '.label')) {
+        Zotero.Prefs.set('zotcard.' + item + '.label', this.getString('zotcard.' + item))
+      }
+      break
+    case 'card6':
+      pref = Zotero.Prefs.get('zotcard.' + item)
+      if (!pref) {
+        Zotero.Prefs.set('zotcard.' + item, '')
+      }
+      if (!Zotero.Prefs.get('zotcard.' + item + '.label')) {
+        Zotero.Prefs.set('zotcard.' + item + '.label', this.getString('zotcard.' + item))
       }
       break
     default:
@@ -104,6 +180,12 @@ zotcard.initPrefs = function (item) {
       this.initPrefs('skill')
       this.initPrefs('structure')
       this.initPrefs('general')
+      this.initPrefs('card1')
+      this.initPrefs('card2')
+      this.initPrefs('card3')
+      this.initPrefs('card4')
+      this.initPrefs('card5')
+      this.initPrefs('card6')
       break
   }
 
@@ -215,6 +297,18 @@ zotcard.card2 = function () {
 
 zotcard.card3 = function () {
   this.newCard('card3')
+}
+
+zotcard.card4 = function () {
+  this.newCard('card4')
+}
+
+zotcard.card5 = function () {
+  this.newCard('card5')
+}
+
+zotcard.card6 = function () {
+  this.newCard('card6')
 }
 
 zotcard.copy = function () {
@@ -403,6 +497,9 @@ if (typeof window !== 'undefined') {
   window.Zotero.ZotCard.card1 = function () { zotcard.card1() }
   window.Zotero.ZotCard.card2 = function () { zotcard.card2() }
   window.Zotero.ZotCard.card3 = function () { zotcard.card3() }
+  window.Zotero.ZotCard.card4 = function () { zotcard.card4() }
+  window.Zotero.ZotCard.card5 = function () { zotcard.card5() }
+  window.Zotero.ZotCard.card6 = function () { zotcard.card6() }
   window.Zotero.ZotCard.copy = function () { zotcard.copy() }
   window.Zotero.ZotCard.copyandcreate = function () { zotcard.copyandcreate() }
   window.Zotero.ZotCard.open = function () { zotcard.open() }

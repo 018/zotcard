@@ -1,5 +1,5 @@
 # zotcard
-zotcard是Zotero的一个插件，它可以帮助你快速写卡片，提供了如概念卡、人物卡、反常识卡等等卡片模版，只需一步即可直接写卡。还提供复制多张卡片，方便拼卡成文。
+zotcard是Zotero的一个插件，它可以帮助你快速写卡片，提供了如概念卡、人物卡、反常识卡等等卡片模版，只需一步即可直接写卡。还提供复制多张卡片及批量打开浮动编辑窗口，方便拼卡成文。
 
 [下载插件](https://github.com/018/zotcard/releases)
 
@@ -7,7 +7,7 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片，提供了�
 
 ![金句卡](https://raw.githubusercontent.com/018/zotcard/main/image/quotes.jpeg)
 
-`<灰色字体>`需要你替换，下同。还可以自定义模版，请阅读下方「Card1/2/3」。
+`<灰色字体>`需要你替换，下同。还可以自定义模版，请阅读下方「Card1/2/3...」。
 
 ## 概念卡
 
@@ -33,23 +33,34 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片，提供了�
 
 ![通用卡](https://raw.githubusercontent.com/018/zotcard/main/image/general.jpeg)
 
-## Card1/2/3
-预留三个卡片位，供你自定义。
+## Card1/2/3...
+预留6个卡片位，供你自定义。除了自定义模版之外还可以自定义菜单中的卡片名称。
 
-进入「首选项」-「高级」-「设置编辑器」搜索 `zotcard` 进行配置。
+进入「首选项」-「高级」-「设置编辑器」搜索 `zotcard` 进行配置。注意自定义后的配置手工复制保存进行备份。
 
 ![金句卡](https://raw.githubusercontent.com/018/zotcard/main/image/config.png)
 
-- extensions.zotero.zotcard.card1：Card1
-- extensions.zotero.zotcard.card2：Card2
-- extensions.zotero.zotcard.card3：Card3
-- extensions.zotero.zotcard.character：人物卡
-- extensions.zotero.zotcard.concept：概念卡
-- extensions.zotero.zotcard.general：通用卡
-- extensions.zotero.zotcard.not_commonsense：反常识卡
-- extensions.zotero.zotcard.quotes：金句卡
-- extensions.zotero.zotcard.skill：技巧卡
-- extensions.zotero.zotcard.structure：结构卡
+- extensions.zotero.zotcard.card1：模块
+- extensions.zotero.zotcard.card1.lable：Card1标题
+- extensions.zotero.zotcard.card2：模块
+- extensions.zotero.zotcard.card2.lable：Card2标题
+- extensions.zotero.zotcard.card3：模块
+- extensions.zotero.zotcard.card3.lable：Card3标题
+- extensions.zotero.zotcard.card4：模块
+- extensions.zotero.zotcard.card4.lable：Card4标题
+- extensions.zotero.zotcard.card5：模块
+- extensions.zotero.zotcard.card5.lable：Card5标题
+- extensions.zotero.zotcard.card6：模块
+- extensions.zotero.zotcard.card6.lable：Card6标题
+- extensions.zotero.zotcard.character：人物卡模块
+- extensions.zotero.zotcard.concept：概念卡模块
+- extensions.zotero.zotcard.general：通用卡模块
+- extensions.zotero.zotcard.not_commonsense：反常识卡模块
+- extensions.zotero.zotcard.quotes：金句卡模块
+- extensions.zotero.zotcard.skill：技巧卡模块
+- extensions.zotero.zotcard.structure：结构卡模块
+
+如需重置到默认配置，只需要保存为空即可。
 
 在对应的配置项中进行修改配置。主要都是[html](https://www.runoob.com/html/html-tutorial.html)代码，下面以人物卡为例，进行说明：
 
