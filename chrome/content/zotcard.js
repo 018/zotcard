@@ -326,6 +326,8 @@ zotcard.copy = function () {
   if (!this.copyHtmlToClipboard(notes)) {
     var ps = Components.classes['@mozilla.org/embedcomp/prompt-service;1'].getService(Components.interfaces.nsIPromptService)
     ps.alert(window, this.getString('zotcard.warning'), this.getString('zotcard.failure'))
+  } else {
+    if (isDebug()) Zotero.debug('copyHtmlToClipboard: false')
   }
 }
 
@@ -347,6 +349,7 @@ zotcard.copyandcreate = function () {
   item.setNote(zitem.getNote())
   if (isDebug()) Zotero.debug('zitem.parentKey: ' + zitem.parentKey)
   item.parentKey = zitem.parentKey
+  item.setCollections(zitem.getCollections())
   if (isDebug()) Zotero.debug('item.parentKey: ' + item.parentKey)
   item.saveTx()
 }
@@ -366,17 +369,26 @@ zotcard.open = function () {
 
 zotcard.copyHtmlToClipboard = function (textHtml) {
   var htmlstring = Components.classes['@mozilla.org/supports-string;1'].createInstance(Components.interfaces.nsISupportsString)
-  if (!htmlstring) return false
+  if (!htmlstring) {
+  if (isDebug()) Zotero.debug('htmlstring is null.')
+    return false
+  }
   htmlstring.data = textHtml
 
   var trans = Components.classes['@mozilla.org/widget/transferable;1'].createInstance(Components.interfaces.nsITransferable)
-  if (!trans) return false
+  if (!trans) {
+    if (isDebug()) Zotero.debug('trans is null.')
+    return false
+  }
 
   trans.addDataFlavor('text/html')
   trans.setTransferData('text/html', htmlstring, textHtml.length * 2)
 
   var clipboard = Components.classes['@mozilla.org/widget/clipboard;1'].getService(Components.interfaces.nsIClipboard)
-  if (!clipboard) return false
+  if (!clipboard) {
+    if (isDebug()) Zotero.debug('clipboard is null.')
+    return false
+  }
 
   clipboard.setData(trans, null, Components.interfaces.nsIClipboard.kGlobalClipboard)
   return true
@@ -407,7 +419,7 @@ zotcard.getSelectedItems = function (itemType) {
       itemType = [itemType]
     }
     var siftedItems = this.siftItems(zitems, itemType)
-    if (isDebug()) Zotero.debug('siftedItems.matched: ' + siftedItems.matched)
+    if (isDebug()) Zotero.debug('siftedItems.matched: ' + JSON.stringify(siftedItems.matched))
     return siftedItems.matched
   } else {
     return zitems
