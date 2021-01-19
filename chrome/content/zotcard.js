@@ -254,6 +254,7 @@ zotcard.newCard = async function (name) {
     .replace('{numPages}', zitem.getField('numPages'))
     .replace('\\n', '\n'))
   item.parentKey = zitem.getField('key')
+  item.libraryID = window.ZoteroPane.getSelectedLibraryID()
   var itemID = await item.saveTx()
   if (isDebug()) Zotero.debug('item.id: ' + itemID)
   ZoteroPane.selectItem(itemID)
@@ -349,6 +350,7 @@ zotcard.copyandcreate = function () {
   item.setNote(zitem.getNote())
   if (isDebug()) Zotero.debug('zitem.parentKey: ' + zitem.parentKey)
   item.parentKey = zitem.parentKey
+  item.libraryID = window.ZoteroPane.getSelectedLibraryID()
   item.setCollections(zitem.getCollections())
   if (isDebug()) Zotero.debug('item.parentKey: ' + item.parentKey)
   item.saveTx()
