@@ -70,8 +70,8 @@ zotcard.initPref = function (item, beforeDefs, def) {
   var pref
   var isDef = false
   var val = Zotero.Prefs.get('zotcard.' + item)
-  if (!val) {
-    if (beforeDefs.indexOf(val)) {
+  if (val) {
+    if (beforeDefs.indexOf(val) > -1) {
       isDef = true
     } else {
       pref = val
