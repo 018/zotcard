@@ -94,6 +94,7 @@ zotcard.initReservedPref = function (item) {
   if (!Zotero.Prefs.get('zotcard.' + item + '.label')) {
     Zotero.Prefs.set('zotcard.' + item + '.label', this.getString('zotcard.' + item))
   }
+  return pref
 }
 
 zotcard.initPrefs = function (item) {
@@ -150,7 +151,7 @@ zotcard.initPrefs = function (item) {
     case 'card4':
     case 'card5':
     case 'card6':
-      this.initReservedPref(item)
+      pref = this.initReservedPref(item)
       break
     default:
       this.initPrefs('quotes')
