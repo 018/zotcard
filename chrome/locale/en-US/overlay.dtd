@@ -12,6 +12,7 @@
 <!ENTITY zotero.zotcard.card4.label "Card4">
 <!ENTITY zotero.zotcard.card5.label "Card5">
 <!ENTITY zotero.zotcard.card6.label "Card6">
+<!ENTITY zotero.zotcard.replace.label "Replace">
 <!ENTITY zotero.zotcard.copy.label "Copy">
 <!ENTITY zotero.zotcard.copyandcreate.label "Copy and create">
 <!ENTITY zotero.zotcard.open.label "Edit in a separate window">

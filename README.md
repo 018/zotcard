@@ -91,6 +91,16 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片，提供了�
 
 ![复盘卡](https://raw.githubusercontent.com/018/zotcard/main/image/checking.jpeg)
 
+## 替换
+
+![替换](https://raw.githubusercontent.com/018/zotcard/main/image/replace.jpg)
+
+可以选择多个笔记，批量替换。
+
+- Html：由于Zotero笔记的原内容是Html（可以通过在笔记「右键」-「源代码」查看），需要一定的Html基础。如果需要替换样式可以选择此选项。如把斜体字替换成粗体为`<em>文本</em>`替换成`<b>文本</b>`。
+- 内容：仅仅只是笔记看到的内容进行替换。比如`<p>这只是个p字母</p>`把p替换成a，结果会是`<p>这只是个a字母</p>`，如果选择html选项，这结果为`<a>这只是个a字母</a>`。
+
+
 ## 复制
 
 可以选择多个笔记进行复制，然后粘贴到word或记事本，或Typora。进行拼卡成文。
@@ -102,5 +112,4 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片，提供了�
 ## 打开浮动编辑窗口
 
 可以选择多个笔记，打开浮动窗口直接进行拼卡成文。
-
 

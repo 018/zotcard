@@ -1,3 +1,6 @@
+// eslint-disable-next-line no-unused-vars
+var EXPORTED_SYMBOLS = ['zotcard'];
+
 let zotcard = {
   _bundle: Cc['@mozilla.org/intl/stringbundle;1'].getService(Components.interfaces.nsIStringBundleService).createBundle('chrome://zoterozotcard/locale/zotcard.properties')
 }
@@ -8,9 +11,9 @@ let isDebug = function () {
 
 function debug(msg, err) {
   if (err) {
-    Zotero.debug(`{Zutilo} ${new Date()} error: ${msg} (${err} ${err.stack})`)
+    Zotero.debug(`{Zotcard} ${new Date()} error: ${msg} (${err} ${err.stack})`)
   } else {
-    Zotero.debug(`{Zutilo} ${new Date()}: ${msg}`)
+    Zotero.debug(`{Zotcard} ${new Date()}: ${msg}`)
   }
 }
 
@@ -60,7 +63,8 @@ zotcard.refreshZoteroItemPopup = function () {
   
   document.getElementById('zotero-itemmenu-zotcard-separator1').hidden = (!isRegular || !onlyOne)
   document.getElementById('zotero-itemmenu-zotcard-separator2').hidden = (!isRegular || !onlyOne || !hasNotes)
-
+  
+  document.getElementById('zotero-itemmenu-zotcard-replace').hidden = (!hasNotes)
   document.getElementById('zotero-itemmenu-zotcard-copy').hidden = (!hasNotes)
   document.getElementById('zotero-itemmenu-zotcard-copyandcreate').hidden = (!hasNotes)
   document.getElementById('zotero-itemmenu-zotcard-open').hidden = (!hasNotes)
@@ -293,6 +297,34 @@ zotcard.card6 = function () {
   this.newCard('card6')
 }
 
+zotcard.replace = function () {
+  window.openDialog(
+      'chrome://zoterozotcard/content/replace.xul',
+      'zutilo-startup-upgradewindow', 'chrome, centerscreen',
+      {upgradeMessage: ''});
+}
+
+zotcard.doReplace = function (target) {
+  var zitems = this.getSelectedItems(['note'])
+  if (!zitems || zitems.length <= 0) {
+    var ps = Components.classes['@mozilla.org/embedcomp/prompt-service;1'].getService(Components.interfaces.nsIPromptService)
+    ps.alert(window, this.getString('zotcard.warning'), this.getString('zotcard.only_note'))
+    return
+  }
+
+  console.info(document.getElementById('zoterozotcard-replacedialog'));
+  var edit_text = document.getElementById('edit_text');
+  if (edit_text) {
+    var text = edit_text.value;
+    var replaceto = document.getElementById('edit_replaceto').value;
+    zitems.forEach(zitem => {
+      zitem.setNode(zitem.getNote().replaceAll(text, replaceto));
+      var itemID = zitem.saveTx();
+      if (isDebug()) Zotero.debug('item.id: ' + itemID);
+    })
+  }
+}
+
 zotcard.copy = function () {
   var zitems = this.getSelectedItems(['note'])
   if (!zitems || zitems.length <= 0) {
@@ -495,6 +527,8 @@ if (typeof window !== 'undefined') {
   window.Zotero.ZotCard.card4 = function () { zotcard.card4() }
   window.Zotero.ZotCard.card5 = function () { zotcard.card5() }
   window.Zotero.ZotCard.card6 = function () { zotcard.card6() }
+  window.Zotero.ZotCard.replace = function () { zotcard.replace() }
+  window.Zotero.ZotCard.doReplace = function () { zotcard.doReplace() }
   window.Zotero.ZotCard.copy = function () { zotcard.copy() }
   window.Zotero.ZotCard.copyandcreate = function () { zotcard.copyandcreate() }
   window.Zotero.ZotCard.open = function () { zotcard.open() }

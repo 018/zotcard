@@ -12,6 +12,7 @@
 <!ENTITY zotero.zotcard.card4.label "Card4">
 <!ENTITY zotero.zotcard.card5.label "Card5">
 <!ENTITY zotero.zotcard.card6.label "Card6">
+<!ENTITY zotero.zotcard.replace.label "替换">
 <!ENTITY zotero.zotcard.copy.label "复制">
 <!ENTITY zotero.zotcard.copyandcreate.label "复制并创建">
 <!ENTITY zotero.zotcard.open.label "打开浮动编辑窗口">

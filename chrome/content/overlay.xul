@@ -76,6 +76,10 @@
                 <menuseparator
                     id="zotero-itemmenu-zotcard-separator2"/>
                 <menuitem
+                    id="zotero-itemmenu-zotcard-replace"
+                    label="&zotero.zotcard.replace.label;"
+                    oncommand="Zotero.ZotCard.replace()"/>
+                <menuitem
                     id="zotero-itemmenu-zotcard-copy"
                     label="&zotero.zotcard.copy.label;"
                     oncommand="Zotero.ZotCard.copy()"/>
