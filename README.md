@@ -1,7 +1,7 @@
 # zotcard
 zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记，提供了如概念卡、人物卡、反常识卡等等卡片模版，只需一步即可直接写卡，无需复杂模版。还提供复制多张卡片及批量打开浮动编辑窗口，调整浮动编辑窗口，方便拼卡成文。
 
-![卡](https://raw.githubusercontent.com/018/zotcard/main/image/card.png)
+<img src="https://raw.githubusercontent.com/018/zotcard/main/image/card.png" alt="卡" width="300"/>
 
 ## 默认卡
 
@@ -141,11 +141,11 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记�
 
 ## 笔记操作
 
-![操作](https://raw.githubusercontent.com/018/zotcard/main/image/note.png)
+<img src="https://raw.githubusercontent.com/018/zotcard/main/image/note.png" alt="操作" width="300"/>
 
 **替换**
 
-![替换](https://raw.githubusercontent.com/018/zotcard/main/image/replace.jpg)
+<img src="https://raw.githubusercontent.com/018/zotcard/main/image/replace.jpg" alt="替换" width="200"/>
 
 可以选择多个笔记，批量替换。
 
@@ -181,7 +181,7 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记�
 
 ## 选项
 
-![操作](https://raw.githubusercontent.com/018/zotcard/main/image/option.png)
+<img src="https://raw.githubusercontent.com/018/zotcard/main/image/option.png" alt="选项" width="300"/>
 
 **配置**
 
@@ -211,4 +211,4 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记�
 
 ---
 
-由本人新建的网站今日优读http://uread.today已经上线，欢迎小伙伴围观。
+由本人新建的网站今日优读 [http://uread.today](http://uread.today) 已经上线，欢迎小伙伴围观。
