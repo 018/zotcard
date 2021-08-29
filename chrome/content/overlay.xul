@@ -15,8 +15,7 @@
         type="application/x-javascript"
         src="chrome://zoterozotcard/content/zotcard.js"/>
 
-    <popup
-        id="zotero-itemmenu">
+    <popup id="zotero-itemmenu">
         <menu class="menu-iconic" id="zotero-itemmenu-zotcard" label="&zotero.zotcard.zotcard.label;">
             <menupopup id="zotero-itemmenu-zotcard-menupopup">
                 <menuitem
@@ -50,32 +49,6 @@
                 <menuseparator
                     id="zotero-itemmenu-zotcard-separator1"/>
                 <menuitem
-                    id="zotero-itemmenu-zotcard-card1"
-                    label="&zotero.zotcard.card1.label;"
-                    oncommand="Zotero.ZotCard.card1()"/>
-                <menuitem
-                    id="zotero-itemmenu-zotcard-card2"
-                    label="&zotero.zotcard.card2.label;"
-                    oncommand="Zotero.ZotCard.card2()"/>
-                <menuitem
-                    id="zotero-itemmenu-zotcard-card3"
-                    label="&zotero.zotcard.card3.label;"
-                    oncommand="Zotero.ZotCard.card3()"/>
-                <menuitem
-                    id="zotero-itemmenu-zotcard-card4"
-                    label="&zotero.zotcard.card4.label;"
-                    oncommand="Zotero.ZotCard.card4()"/>
-                <menuitem
-                    id="zotero-itemmenu-zotcard-card5"
-                    label="&zotero.zotcard.card5.label;"
-                    oncommand="Zotero.ZotCard.card5()"/>
-                <menuitem
-                    id="zotero-itemmenu-zotcard-card6"
-                    label="&zotero.zotcard.card6.label;"
-                    oncommand="Zotero.ZotCard.card6()"/>
-                <menuseparator
-                    id="zotero-itemmenu-zotcard-separator2"/>
-                <menuitem
                     id="zotero-itemmenu-zotcard-replace"
                     label="&zotero.zotcard.replace.label;"
                     oncommand="Zotero.ZotCard.replace()"/>
@@ -87,10 +60,51 @@
                     id="zotero-itemmenu-zotcard-copyandcreate"
                     label="&zotero.zotcard.copyandcreate.label;"
                     oncommand="Zotero.ZotCard.copyandcreate()"/>
+                <menuseparator
+                    id="zotero-itemmenu-zotcard-separator2"/>
                 <menuitem
                     id="zotero-itemmenu-zotcard-open"
                     label="&zotero.zotcard.open.label;"
                     oncommand="Zotero.ZotCard.open()"/>
+                <menuitem
+                    id="zotero-itemmenu-zotcard-adjust"
+                    label="&zotero.zotcard.adjust.label;"
+                    oncommand="Zotero.ZotCard.adjust()"/>
+                <menuitem
+                    id="zotero-itemmenu-zotcard-close"
+                    label="&zotero.zotcard.close.label;"
+                    oncommand="Zotero.ZotCard.close()"/>
+                <menuitem
+                    id="zotero-itemmenu-zotcard-closeall"
+                    label="&zotero.zotcard.closeall.label;"
+                    oncommand="Zotero.ZotCard.closeall()"/>
+            </menupopup>
+        </menu>
+    </popup>
+
+    <popup id="menu_ToolsPopup">
+        <menu class="menu-iconic" id="zotero-toolspopup-zotcard" label="&zotero.zotcard.option.label;">
+            <menupopup id="zotero-toolspopup-zotcard-menupopup">
+                <menuitem id="zotero-toolspopup-zotcard-option-config"
+                    label="&zotero.zotcard.option.config.label;"
+                    oncommand="Zotero.ZotCard.config()" />
+                <menuseparator />
+                <menuitem id="zotero-toolspopup-zotcard-option-reset"
+                    label="&zotero.zotcard.option.reset.label;"
+                    oncommand="Zotero.ZotCard.reset()" />
+                <menuitem id="zotero-toolspopup-zotcard-option-backup"
+                    label="&zotero.zotcard.option.backup.label;"
+                    oncommand="Zotero.ZotCard.backup()" />
+                <menuitem id="zotero-toolspopup-zotcard-option-restore"
+                    label="&zotero.zotcard.option.restore.label;"
+                    oncommand="Zotero.ZotCard.restore()" />
+                <menuitem id="zotero-toolspopup-zotcard-option-transitionstyle"
+                    label="&zotero.zotcard.option.transitionstyle.label;"
+                    oncommand="Zotero.ZotCard.transitionstyle()" />
+                <menuseparator />
+                <menuitem 
+                    label="&zotero.zotcard.option.github.label;"
+                    oncommand="Zotero.launchURL('https://github.com/018/zotcard')" />
             </menupopup>
         </menu>
     </popup>

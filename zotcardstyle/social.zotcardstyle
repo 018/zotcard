@@ -1,0 +1,31 @@
+{
+    "last_updated": "2021-08-28",
+    "quotes": {
+        "card": "<h3 style='text-align: center;'>金句卡 - <span>&lt;标题&gt;</span></h3>\\n<p style='color: #999999; display: flex; justify-content: space-between;'><span>标签：[无] </span> <span>日期：{today}</span></p><hr style='height: 1px; border: none; background-color: #f0f0f0;' /><p><strong>原文</strong>：<span>&lt;摘抄&gt;</span></p><p><strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><hr style='height: 1px; border: none; background-color: #f0f0f0;' /><p style='color: #999999;'>出处：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p>",
+        "visible": true
+    },
+    "concept": {
+        "card": "<h3 style='text-align: center;'>概念卡 - <span>&lt;标题&gt;</span></h3>\\n<p style='color: #999999; display: flex; justify-content: space-between;'><span>标签：[无] </span> <span>日期：{today}</span></p><hr style='height: 1px; border: none; background-color: #f0f0f0;' /><p><strong>提出者</strong>：<span>&lt;姓名&gt;</span>, <span>&lt;年份&gt;</span></p><p><strong>描述</strong>：<span>&lt;具体描述或摘抄&gt;</span></p><p><strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><hr style='height: 1px; border: none; background-color: #f0f0f0;' /><p style='color: #999999;'>出处：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p>",
+        "visible": true
+    },
+    "character": {
+        "card": "<h3 style='text-align: center;'>人物卡 - <span>&lt;姓名&gt;</span></h3>\\n<p style='color: #999999; display: flex; justify-content: space-between;'><span>标签：[无] </span> <span>日期：{today}</span></p><hr style='height: 1px; border: none; background-color: #f0f0f0;' /><p><strong>简介</strong>：<span>&lt;出生日期，出生地，毕业院校，生平等&gt;</span></p><p><strong>作品</strong>：</p><p><strong>成就</strong>：</p><hr style='height: 1px; border: none; background-color: #f0f0f0;' /><p style='color: #999999;'>出处：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p>",
+        "visible": true
+    },
+    "not_commonsense": {
+        "card": "<h3 style='text-align: center;'>反常识卡 - <span>&lt;标题&gt;</span></h3>\\n<p style='color: #999999; display: flex; justify-content: space-between;'><span>标签：[无] </span> <span>日期：{today}</span></p><hr style='height: 1px; border: none; background-color: #f0f0f0;' /><p><strong>常识</strong>：<span>&lt;认知中的常识&gt;</span></p><p><strong>反常识</strong>：<span>&lt;需要刷新的认知&gt;</span></p><p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><hr style='height: 1px; border: none; background-color: #f0f0f0;' /><p style='color: #999999;'>出处：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p>",
+        "visible": true
+    },
+    "skill": {
+        "card": "<h3 style='text-align: center;'>技巧卡 - <span>&lt;标题&gt;</span></h3>\\n<p style='color: #999999; display: flex; justify-content: space-between;'><span>标签：[无] </span> <span>日期：{today}</span></p><hr style='height: 1px; border: none; background-color: #f0f0f0;' /><p><strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p><strong>步骤</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><hr style='height: 1px; border: none; background-color: #f0f0f0;' /><p style='color: #999999;'>出处：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p>",
+        "visible": true
+    },
+    "structure": {
+        "card": "<h3 style='text-align: center;'>结构卡 - <span>&lt;标题&gt;</span></h3>\\n<p style='color: #999999; display: flex; justify-content: space-between;'><span>标签：[无] </span> <span>日期：{today}</span></p><hr style='height: 1px; border: none; background-color: #f0f0f0;' /><p><strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p><strong>内容</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(2)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(3)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><hr style='height: 1px; border: none; background-color: #f0f0f0;' /><p style='color: #999999;'>出处：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p>",
+        "visible": true
+    },
+    "general": {
+        "card": "<h3 style='text-align: center;'>短文卡 - <span>&lt;标题&gt;</span></h3>\\n<p style='color: #999999; display: flex; justify-content: space-between;'><span>标签：[无] </span> <span>日期：{today}</span></p><hr style='height: 1px; border: none; background-color: #f0f0f0;' /><p><strong>正文</strong>：</p><hr style='height: 1px; border: none; background-color: #f0f0f0;' /><p style='color: #999999;'>出处：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p>",
+        "visible": true
+    }
+}

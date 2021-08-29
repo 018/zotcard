@@ -120,7 +120,7 @@ function replace() {
     if (mode === 'html') {
       newNote = note.replace(new RegExp(text, 'g'), replaceto);
     } else if (mode === 'content') {
-      newNote = replaceNoTag(note, 0, text, replaceto);
+      newNote = replaceNoTag(note, 0, text.replace(/</g, '&lt;').replace(/>/g, '&gt;'), replaceto.replace(/</g, '&lt;').replace(/>/g, '&gt;'));
     }
     zitem.setNote(newNote);
     var itemID = zitem.saveTx();
