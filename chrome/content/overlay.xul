@@ -102,6 +102,20 @@
                     label="&zotero.zotcard.option.transitionstyle.label;"
                     oncommand="Zotero.ZotCard.transitionstyle()" />
                 <menuseparator />
+                <menu class="menu-iconic" id="zotero-toolspopup-zotcard-option-notebackgroundcolor" label="&zotero.toolspopup.zotcard.option.notebackgroundcolor.label;">
+                    <menupopup id="zotero-toolspopup-zotcard-option-notebackgroundcolor-menupopup">
+                        <menuitem id="zotero-toolspopup-zotcard-option-notebackgroundcolor-gray"
+                            label="&zotero.toolspopup.zotcard.option.notebackgroundcolor.gray.label;"
+                            oncommand="Zotero.ZotCard.grayNoteBGColor()" />
+                        <menuitem id="zotero-toolspopup-zotcard-option-notebackgroundcolor-dark"
+                            label="&zotero.toolspopup.zotcard.option.notebackgroundcolor.dark.label;"
+                            oncommand="Zotero.ZotCard.darkNoteBGColor()" />
+                        <menuitem id="zotero-toolspopup-zotcard-option-notebackgroundcolor-reset"
+                            label="&zotero.toolspopup.zotcard.option.notebackgroundcolor.reset.label;"
+                            oncommand="Zotero.ZotCard.resetNoteBGColor()" />
+                    </menupopup>
+                </menu>
+                <menuseparator />
                 <menuitem 
                     label="&zotero.zotcard.option.github.label;"
                     oncommand="Zotero.launchURL('https://github.com/018/zotcard')" />

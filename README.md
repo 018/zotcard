@@ -31,7 +31,7 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记�
 
 可以根据自己喜好进行替换。更换默认卡样式的操作方法：「Zotero」-「工具」-「ZotCard 选项」-「更换默认卡片样式 ...」-「选择对应的下载样式文件」。
 
-当然，你也可以自定义默认卡片，操作方法：「Zotero」-「工具」-「ZotCard 选项」-「配置」- 搜索 「ZotCard」。
+当然，你也可以自定义默认卡片，操作方法：「Zotero」-「工具」-「ZotCard 选项」-「配置」。
 
 ![配置](https://raw.githubusercontent.com/018/zotcard/main/image/config1.png)
 
@@ -78,7 +78,7 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记�
 
 默认预留6个自定义卡位，自定义卡为你提供除了默认卡片的更多选择。如果你有其他卡片需要自定义，即可对这些卡片进行自定义，如复盘卡、实事卡、日记卡等等。
 
-自定义的操作方法：「Zotero」-「工具」-「ZotCard 选项」-「配置」- 搜索 「ZotCard」。
+自定义的操作方法：「Zotero」-「工具」-「ZotCard 选项」-「配置」。
 
 ![配置](https://raw.githubusercontent.com/018/zotcard/main/image/config2.png)
 
@@ -121,7 +121,7 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记�
 
 `<br />`为换行，跟`p`的区别就是行间距不一样，`br`的行间距比较小。
 
-另外还有书籍中的信息：`{authors}`为作者，`{title}`为书名，`{today}`为今天日期，`{now}`为现在时间，`{shortTitle}`为短标题，`{archiveLocation}`为归档位置，`{url}`为网址，`{date}`为日期，`{year}`为年份，`{extra}`为其他，`{publisher}`为出版社，`{ISBN}`为ISBN，`{numPages}`为总页数。
+另外还有书籍中的信息：`{authors}`为作者，`{title}`为书名，`{today}`为今天日期，`{dayOfYear}`为今年第几天，`{weekOfYear}`为今年第几周，`，`{week}`为星期几，`{now}`为现在时间，`{shortTitle}`为短标题，`{archiveLocation}`为归档位置，`{url}`为网址，`{date}`为日期，`{year}`为年份，`{extra}`为其他，`{publisher}`为出版社，`{ISBN}`为ISBN，`{numPages}`为总页数。
 
 有一个技巧，就是在Zotero的笔记中编辑好，然后右键「源代码」，复制出来也可以。
 
@@ -142,6 +142,10 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记�
 ## 笔记操作
 
 <img src="https://raw.githubusercontent.com/018/zotcard/main/image/note.png" alt="操作" width="300"/>
+
+**字数统计**
+
+选择一个笔记时，统计
 
 **替换**
 
@@ -202,6 +206,16 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记�
 **更换默认卡片样式 ...**
 
 作者为你提供了三种默认卡片样式：默认、社交和卡片。请参考上文图片，根据喜好进行下载，然后通过此功能进行替换。
+
+**笔记背景**
+
+你可以修改笔记的背景，这里设置之后会对所有笔记（卡片）的背景生效，目前只预设了三个：
+
+- 灰色：灰色背景。如果你的默认卡用卡片样式，建议你用此背景，看起来卡片相当舒服。
+
+- 黑暗：深黑背景。
+
+- 重置：重置到默认状态。默认为白色。
 
 **官网**
 

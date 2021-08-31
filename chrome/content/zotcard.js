@@ -51,46 +51,6 @@ zotcard.init = function () {
   // Register the callback in Zotero as an item observer
   let notifierID = Zotero.Notifier.registerObserver(this.notifierCallback, ['item'])
 
-  document.getElementById('zotero-items-tree').onselect = function (e) {
-    ZoteroPane_Local.itemSelected(e)
-
-    var selectedItems = ZoteroPane.getSelectedItems()
-    if (selectedItems.length === 1) {
-      let item = selectedItems[0]
-      if (item.isNote()) {
-        let label = document.getElementById('zotero-view-note-counts')
-        if (!label) {
-          label = document.createElement('label')
-          label.setAttribute('id', 'zotero-view-note-counts')
-          label.textContent = `字数: 0  \t行数: 0 \t占空间: 0`
-          let noteEditor = document.getElementById('zotero-view-note')
-          noteEditor.prepend(label)
-        }
-        let hangzis = this.hangzi(item.getNote())
-        let liness = this.lines(item.getNote())
-        label.textContent = `字数: ${hangzis}     行数: ${liness}    占空间: ${item.getNote().length}`
-        Zotero.debug(`onselect: ${hangzis} ${liness}`)
-      }
-    }
-  }.bind(this)
-
-  document.getElementById('zotero-note-editor').onkeyup = function (e) {
-    let label = document.getElementById('zotero-view-note-counts')
-    if (!label) {
-      label = document.createElement('label')
-      label.setAttribute('id', 'zotero-view-note-counts')
-      label.textContent = `字数: 0  \t行数: 0 \t占空间: 0`
-      document.getElementById('zotero-view-note').prepend(label)
-    }
-
-    let noteEditor = e.currentTarget
-    Zotero.debug(`note: ${noteEditor.value}`)
-    let hangzis = this.hangzi(noteEditor.value)
-    let liness = this.lines(noteEditor.value)
-    label.textContent = `字数: ${hangzis}  \t行数: ${liness} \t占空间: ${noteEditor.value.length}`
-    Zotero.debug(`onkeyup: ${hangzis} ${liness}`)
-  }.bind(this)
-
   Zotero.Prefs.registerObserver('zotcard.card_quantity', function () {
     var quantity = Zotero.Prefs.get('zotcard.card_quantity')
     for (let index = 0; index < quantity; index++) {
@@ -100,6 +60,8 @@ zotcard.init = function () {
     this.resetCard(quantity + 1)
   }.bind(this))
 
+  document.getElementById('zotero-items-tree').addEventListener('select', this.itemsTreeOnSelect.bind(this), false)
+  document.getElementById('zotero-note-editor').addEventListener('keyup', this.noteEditorOnKeyup.bind(this), false)
   document.getElementById('zotero-itemmenu').addEventListener('popupshowing', this.refreshZoteroItemPopup.bind(this), false)
 
   this.initPrefs()
@@ -108,8 +70,48 @@ zotcard.init = function () {
   window.addEventListener('unload', function (e) {
     Zotero.Notifier.unregisterObserver(notifierID)
 
+    document.getElementById('zotero-items-tree').removeEventListener('select', this.itemsTreeOnSelect.bind(this), false)
+    document.getElementById('zotero-note-editor').removeEventListener('keyup', this.noteEditorOnKeyup.bind(this), false)
     document.getElementById('zotero-itemmenu').removeEventListener('popupshowing', this.refreshZoteroItemPopup.bind(this), false)
   }, false)
+}
+
+zotcard.noteEditorOnKeyup = function (e) {
+  let label = document.getElementById('zotero-view-note-counts')
+  if (!label) {
+    label = document.createElement('label')
+    label.setAttribute('id', 'zotero-view-note-counts')
+    label.textContent = `字数: 0  \t行数: 0 \t占空间: 0`
+    document.getElementById('zotero-view-note').prepend(label)
+  }
+
+  let noteEditor = e.currentTarget
+  Zotero.debug(`note: ${noteEditor.value}`)
+  let hangzis = this.hangzi(noteEditor.value)
+  let liness = this.lines(noteEditor.value)
+  label.textContent = `字数: ${hangzis}  \t行数: ${liness} \t占空间: ${noteEditor.value.length}`
+  Zotero.debug(`onkeyup: ${hangzis} ${liness}`)
+}
+
+zotcard.itemsTreeOnSelect = function () {
+  var selectedItems = ZoteroPane.getSelectedItems()
+  if (selectedItems.length === 1) {
+    let item = selectedItems[0]
+    if (item.isNote()) {
+      let label = document.getElementById('zotero-view-note-counts')
+      if (!label) {
+        label = document.createElement('label')
+        label.setAttribute('id', 'zotero-view-note-counts')
+        label.textContent = `字数: 0  \t行数: 0 \t占空间: 0`
+        let noteEditor = document.getElementById('zotero-view-note')
+        noteEditor.prepend(label)
+      }
+      let hangzis = this.hangzi(item.getNote())
+      let liness = this.lines(item.getNote())
+      label.textContent = `字数: ${hangzis}     行数: ${liness}    占空间: ${item.getNote().length}`
+      Zotero.debug(`onselect: ${hangzis} ${liness}`)
+    }
+  }
 }
 
 zotcard.refreshZoteroItemPopup = function () {
@@ -385,7 +387,6 @@ zotcard.newCard = async function (name) {
       if (isDebug()) Zotero.debug('creatorData: ' + JSON.stringify(creatorData))
     }
   }
-  var date = new Date()
   var item = new Zotero.Item('note')
   var pref = this.initPrefs(name)
   if (!pref) {
@@ -393,25 +394,51 @@ zotcard.newCard = async function (name) {
     ps.alert(window, this.getString('zotcard.warning'), this.getString('zotcard.please_configure', 'zotcard.' + name))
     return
   }
-  item.setNote(pref.card.replace(/\{authors\}/g, authors.toString())
-    .replace(/\{title\}/g, zitem.getField('title'))
-    .replace(/\{today\}/g, this.formatDate(date, 'yyyy-MM-dd'))
-    .replace(/\{now\}/g, this.formatDate(date, 'yyyy-MM-dd HH:mm:ss'))
-    .replace(/\{shortTitle\}/g, zitem.getField('shortTitle'))
-    .replace(/\{archiveLocation\}/g, zitem.getField('archiveLocation'))
-    .replace(/\{url\}/g, zitem.getField('url'))
-    .replace(/\{date\}/g, zitem.getField('date'))
-    .replace(/\{year\}/g, zitem.getField('year'))
-    .replace(/\{extra\}/g, zitem.getField('extra'))
-    .replace(/\{publisher\}/g, zitem.getField('publisher'))
-    .replace(/\{ISBN\}/g, zitem.getField('ISBN'))
-    .replace(/\{numPages\}/g, zitem.getField('numPages'))
-    .replace(/\\n/g, '\n'))
-  item.parentKey = zitem.getField('key')
-  item.libraryID = window.ZoteroPane.getSelectedLibraryID()
-  var itemID = await item.saveTx()
-  if (isDebug()) Zotero.debug('item.id: ' + itemID)
-  ZoteroPane.selectItem(itemID)
+  if (!pref.card) {
+    Zotero.ZotCard.Utils.warning(`在接下来的about:config窗口中进行配置。
+    zotcard.${name}\t\t\t卡片1模版
+    zotcard.${name}.label\t卡片1标题
+    zotcard.${name}.visible\t卡片1显示
+
+  详情请访问官网: https://github.com/018/zotcard`)
+    Zotero.openInViewer(`about:config?filter=zotero.zotcard.${name}`)
+  } else {
+    let now = new Date()
+    let firstDay = new Date()
+    firstDay.setMonth(0)
+    firstDay.setDate(0)
+    firstDay.setHours(23)
+    firstDay.setMinutes(59)
+    firstDay.setSeconds(59)
+    firstDay.setMilliseconds(59)
+    let dateGap = now.getTime() - firstDay.getTime()
+    let dayOfYear = Math.ceil(dateGap / (24 * 60 * 60 * 1000))
+    let weekOfYear = Math.ceil(dateGap / (7 * 24 * 60 * 60 * 1000))
+    let week = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'][now.getDay()]
+
+    item.setNote(pref.card.replace(/\{authors\}/g, authors.toString())
+      .replace(/\{title\}/g, zitem.getField('title'))
+      .replace(/\{today\}/g, this.formatDate(now, 'yyyy-MM-dd'))
+      .replace(/\{dayOfYear\}/g, dayOfYear)
+      .replace(/\{weekOfYear\}/g, weekOfYear)
+      .replace(/\{week\}/g, week)
+      .replace(/\{now\}/g, this.formatDate(now, 'yyyy-MM-dd HH:mm:ss'))
+      .replace(/\{shortTitle\}/g, zitem.getField('shortTitle'))
+      .replace(/\{archiveLocation\}/g, zitem.getField('archiveLocation'))
+      .replace(/\{url\}/g, zitem.getField('url'))
+      .replace(/\{date\}/g, zitem.getField('date'))
+      .replace(/\{year\}/g, zitem.getField('year'))
+      .replace(/\{extra\}/g, zitem.getField('extra'))
+      .replace(/\{publisher\}/g, zitem.getField('publisher'))
+      .replace(/\{ISBN\}/g, zitem.getField('ISBN'))
+      .replace(/\{numPages\}/g, zitem.getField('numPages'))
+      .replace(/\\n/g, '\n'))
+    item.parentKey = zitem.getField('key')
+    item.libraryID = window.ZoteroPane.getSelectedLibraryID()
+    var itemID = await item.saveTx()
+    if (isDebug()) Zotero.debug('item.id: ' + itemID)
+    ZoteroPane.selectItem(itemID)
+  }
 }
 
 zotcard.quotes = function () {
@@ -587,22 +614,17 @@ zotcard.copyHtmlToClipboard = function (textHtml) {
 }
 
 zotcard.config = function () {
-  Zotero.ZotCard.Utils.warning(`在接下来的about:config窗口中，搜索 ZotCard 进行配置。
+  Zotero.ZotCard.Utils.warning(`在接下来的about:config窗口中进行配置。
 默认：
   zotcard.quotes\t\t\t\t\t金句卡模版
+  zotcard.quotes.label\t\t\t\t金句卡标题
   zotcard.quotes.visible\t\t\t\t金句卡显示
-  zotcard.concept\t\t\t\t\t概念卡模版
-  zotcard.concept.visible\t\t\t\t概念卡显示
-  zotcard.character\t\t\t\t\t人物卡模版
-  zotcard.character.visible\t\t\t\t人物卡显示
-  zotcard.not_commonsense\t\t\t反常识卡模版
-  zotcard.not_commonsense.visible\t\t反常识卡显示
-  zotcard.skill\t\t\t\t\t\t技巧卡模版
-  zotcard.skill.visible\t\t\t\t\t技巧卡显示
-  zotcard.structure\t\t\t\t\t结构卡模版
-  zotcard.structure.visible\t\t\t\t结构卡显示
-  zotcard.general\t\t\t\t\t短文卡模版
-  zotcard.general.visible\t\t\t\t短文卡显示
+  zotcard.concept\t\t\t\t\t概念卡
+  zotcard.character\t\t\t\t\t人物卡
+  zotcard.not_commonsense\t\t\t反常识卡
+  zotcard.skill\t\t\t\t\t\t技巧卡
+  zotcard.structure\t\t\t\t\t结构卡
+  zotcard.general\t\t\t\t\t短文卡
   
 自定义：
   zotcard.card_quantity\t\t\t\t自定义卡片数
@@ -610,13 +632,10 @@ zotcard.config = function () {
   zotcard.card1.label\t\t\t\t\t卡片1标题
   zotcard.card1.visible\t\t\t\t卡片1显示
   ...
-  zotcard.cardN\t\t\t\t\t\t卡片N模版
-  zotcard.cardN.label\t\t\t\t\t卡片N菜单
-  zotcard.cardN.visible\t\t\t\t卡片N显示
   
 详情请访问官网: https://github.com/018/zotcard`)
 
-  Zotero.openInViewer('about:config')
+  Zotero.openInViewer('about:config?filter=zotero.zotcard')
 }
 
 zotcard.backup = function () {
@@ -763,6 +782,36 @@ zotcard.resetCard = function (index) {
   }
 }
 
+zotcard.noteBGColor = function (color) {
+  let val = Zotero.Prefs.get('note.css')
+  if (val) {
+    if (color) {
+      val = val.replace(/body +{ +background-color: +#[a-f|A-z|0-9]{3,6}; +}/g, `body { background-color: ${color}; }`)
+    } else {
+      val = val.replace(/body +{ +background-color: +#[a-f|A-z|0-9]{3,6}; +}/g, '')
+    }
+  } else {
+    if (color) {
+      val = `body { background-color: ${color}; }`
+    }
+  }
+  Zotero.Prefs.set('note.css', val)
+  Zotero.ZotCard.Utils.success(`设置成功，重启后生效。`)
+  Zotero.Utilities.Internal.quitZotero(true)
+}
+
+zotcard.resetNoteBGColor = function () {
+  this.noteBGColor()
+}
+
+zotcard.darkNoteBGColor = function () {
+  this.noteBGColor('#5E5E5E')
+}
+
+zotcard.grayNoteBGColor = function () {
+  this.noteBGColor('#F5F5F5')
+}
+
 zotcard.copyStringToClipboard = function (clipboardText) {
   const gClipboardHelper = Components.classes['@mozilla.org/widget/clipboardhelper;1'].getService(Components.interfaces.nsIClipboardHelper)
   gClipboardHelper.copyString(clipboardText, document)
@@ -889,6 +938,10 @@ if (typeof window !== 'undefined') {
   window.Zotero.ZotCard.backup = function () { zotcard.backup() }
   window.Zotero.ZotCard.restore = function () { zotcard.restore() }
   window.Zotero.ZotCard.transitionstyle = function () { zotcard.transitionstyle() }
+
+  window.Zotero.ZotCard.resetNoteBGColor = function () { zotcard.resetNoteBGColor() }
+  window.Zotero.ZotCard.darkNoteBGColor = function () { zotcard.darkNoteBGColor() }
+  window.Zotero.ZotCard.grayNoteBGColor = function () { zotcard.grayNoteBGColor() }
 }
 
 if (typeof module !== 'undefined') module.exports = zotcard
