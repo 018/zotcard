@@ -24,9 +24,15 @@
 <!ENTITY zotero.zotcard.option.restore.label "还原配置 ...">
 <!ENTITY zotero.zotcard.option.transitionstyle.label "更换默认卡片样式 ...">
 <!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.label "笔记背景">
-<!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.reset.label "重置">
-<!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.dark.label "黑暗">
 <!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.gray.label "灰色">
+<!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.dark.label "暗色">
+<!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.yellow.label "莫兰迪色系-黄">
+<!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.blue.label "莫兰迪色系-蓝">
+<!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.brown.label "莫兰迪色系-棕">
+<!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.pink.label "莫兰迪色系-粉">
+<!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.cyan.label "莫兰迪色系-青">
+<!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.purple.label "莫兰迪色系-紫">
+<!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.reset.label "重置">
 <!ENTITY zotero.zotcard.option.github.label "官网">
 
 

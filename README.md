@@ -29,6 +29,10 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记�
 
   ![默认卡片样式-卡片样式](https://raw.githubusercontent.com/018/zotcard/main/image/card-style.png)
 
+- 便签样式：[下载](https://raw.githubusercontent.com/018/zotcard/main/zotcardstyle/memo.zotcardstyle) (「右键」-「链接存储为...」)
+
+  ![默认卡片样式-便签样式](https://raw.githubusercontent.com/018/zotcard/main/image/memo-style.png)
+
 可以根据自己喜好进行替换。更换默认卡样式的操作方法：「Zotero」-「工具」-「ZotCard 选项」-「更换默认卡片样式 ...」-「选择对应的下载样式文件」。
 
 当然，你也可以自定义默认卡片，操作方法：「Zotero」-「工具」-「ZotCard 选项」-「配置」。
@@ -121,7 +125,7 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记�
 
 `<br />`为换行，跟`p`的区别就是行间距不一样，`br`的行间距比较小。
 
-另外还有书籍中的信息：`{authors}`为作者，`{title}`为书名，`{today}`为今天日期，`{dayOfYear}`为今年第几天，`{weekOfYear}`为今年第几周，`，`{week}`为星期几，`{now}`为现在时间，`{shortTitle}`为短标题，`{archiveLocation}`为归档位置，`{url}`为网址，`{date}`为日期，`{year}`为年份，`{extra}`为其他，`{publisher}`为出版社，`{ISBN}`为ISBN，`{numPages}`为总页数。
+另外还有书籍中的信息：`{authors}`为作者，`{title}`为书名，`{shortTitle}`为短标题，`{archiveLocation}`为归档位置，`{url}`为网址，`{date}`为日期，`{year}`为年份，`{extra}`为其他，`{publisher}`为出版社，`{ISBN}`为ISBN，`{numPages}`为总页数，时间信息：`{today}`为今天日期，`{month}`为月份，`{year}`为年份，`{dayOfYear}`为今年第几天，`{weekOfYear}`为今年第几周，，`{week}`为星期几（值为日、一、二、三、四、五、六），`{week_en}`为英文的星期几（值为Sun.、Mon.、Tues.、Wed.、Thurs.、Fri.、Sat.），`{now}`为现在时间。
 
 有一个技巧，就是在Zotero的笔记中编辑好，然后右键「源代码」，复制出来也可以。
 
@@ -209,11 +213,13 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记�
 
 **笔记背景**
 
-你可以修改笔记的背景，这里设置之后会对所有笔记（卡片）的背景生效，目前只预设了三个：
+你可以修改笔记的背景，这里设置之后会对所有笔记（卡片）的背景生效，目前预设了：
 
 - 灰色：灰色背景。如果你的默认卡用卡片样式，建议你用此背景，看起来卡片相当舒服。
 
-- 黑暗：深黑背景。
+- 暗色：深黑背景。
+
+- 莫兰迪色系：参考了实体的便签颜色。如果你的默认卡用便签样式，可以试试这些背景。
 
 - 重置：重置到默认状态。默认为白色。
 

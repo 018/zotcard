@@ -110,6 +110,26 @@
                         <menuitem id="zotero-toolspopup-zotcard-option-notebackgroundcolor-dark"
                             label="&zotero.toolspopup.zotcard.option.notebackgroundcolor.dark.label;"
                             oncommand="Zotero.ZotCard.darkNoteBGColor()" />
+                        <menuseparator />
+                        <menuitem id="zotero-toolspopup-zotcard-option-notebackgroundcolor-yellow"
+                            label="&zotero.toolspopup.zotcard.option.notebackgroundcolor.yellow.label;"
+                            oncommand="Zotero.ZotCard.yellowNoteBGColor()" />
+                        <menuitem id="zotero-toolspopup-zotcard-option-notebackgroundcolor-blue"
+                            label="&zotero.toolspopup.zotcard.option.notebackgroundcolor.blue.label;"
+                            oncommand="Zotero.ZotCard.blueNoteBGColor()" />
+                        <menuitem id="zotero-toolspopup-zotcard-option-notebackgroundcolor-brown"
+                            label="&zotero.toolspopup.zotcard.option.notebackgroundcolor.brown.label;"
+                            oncommand="Zotero.ZotCard.brownNoteBGColor()" />
+                        <menuitem id="zotero-toolspopup-zotcard-option-notebackgroundcolor-pink"
+                            label="&zotero.toolspopup.zotcard.option.notebackgroundcolor.pink.label;"
+                            oncommand="Zotero.ZotCard.pinkNoteBGColor()" />
+                        <menuitem id="zotero-toolspopup-zotcard-option-notebackgroundcolor-cyan"
+                            label="&zotero.toolspopup.zotcard.option.notebackgroundcolor.cyan.label;"
+                            oncommand="Zotero.ZotCard.cyanNoteBGColor()" />
+                        <menuitem id="zotero-toolspopup-zotcard-option-notebackgroundcolor-purple"
+                            label="&zotero.toolspopup.zotcard.option.notebackgroundcolor.purple.label;"
+                            oncommand="Zotero.ZotCard.purpleNoteBGColor()" />
+                        <menuseparator />
                         <menuitem id="zotero-toolspopup-zotcard-option-notebackgroundcolor-reset"
                             label="&zotero.toolspopup.zotcard.option.notebackgroundcolor.reset.label;"
                             oncommand="Zotero.ZotCard.resetNoteBGColor()" />

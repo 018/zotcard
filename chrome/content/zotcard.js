@@ -406,23 +406,31 @@ zotcard.newCard = async function (name) {
     let now = new Date()
     let firstDay = new Date()
     firstDay.setMonth(0)
-    firstDay.setDate(0)
-    firstDay.setHours(23)
-    firstDay.setMinutes(59)
-    firstDay.setSeconds(59)
-    firstDay.setMilliseconds(59)
-    let dateGap = now.getTime() - firstDay.getTime()
+    firstDay.setDate(1)
+    firstDay.setHours(0)
+    firstDay.setMinutes(0)
+    firstDay.setSeconds(0)
+    firstDay.setMilliseconds(0)
+    let dateGap = now.getTime() - firstDay.getTime() + 1
     let dayOfYear = Math.ceil(dateGap / (24 * 60 * 60 * 1000))
-    let weekOfYear = Math.ceil(dateGap / (7 * 24 * 60 * 60 * 1000))
-    let week = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'][now.getDay()]
+
+    firstDay.setDate(1 + (7 - firstDay.getDay()) % 7)
+    dateGap = now.getTime() - firstDay.getTime()
+    let weekOfYear = Math.ceil(dateGap / (7 * 24 * 60 * 60 * 1000)) + 1
+
+    let week = ['日', '一', '二', '三', '四', '五', '六'][now.getDay()]
+    let weekEn = ['Sun.', 'Mon.', 'Tues.', 'Wed.', 'Thurs.', 'Fri.', 'Sat.'][now.getDay()]
 
     item.setNote(pref.card.replace(/\{authors\}/g, authors.toString())
       .replace(/\{title\}/g, zitem.getField('title'))
+      .replace(/\{now\}/g, this.formatDate(now, 'yyyy-MM-dd HH:mm:ss'))
       .replace(/\{today\}/g, this.formatDate(now, 'yyyy-MM-dd'))
+      .replace(/\{month\}/g, this.formatDate(now, 'yyyy-MM'))
+      .replace(/\{year\}/g, this.formatDate(now, 'yyyy'))
       .replace(/\{dayOfYear\}/g, dayOfYear)
       .replace(/\{weekOfYear\}/g, weekOfYear)
       .replace(/\{week\}/g, week)
-      .replace(/\{now\}/g, this.formatDate(now, 'yyyy-MM-dd HH:mm:ss'))
+      .replace(/\{week_en\}/g, weekEn)
       .replace(/\{shortTitle\}/g, zitem.getField('shortTitle'))
       .replace(/\{archiveLocation\}/g, zitem.getField('archiveLocation'))
       .replace(/\{url\}/g, zitem.getField('url'))
@@ -812,6 +820,30 @@ zotcard.grayNoteBGColor = function () {
   this.noteBGColor('#F5F5F5')
 }
 
+zotcard.yellowNoteBGColor = function () {
+  this.noteBGColor('#EFEB93')
+}
+
+zotcard.blueNoteBGColor = function () {
+  this.noteBGColor('#D3DEF3')
+}
+
+zotcard.brownNoteBGColor = function () {
+  this.noteBGColor('#B49D84')
+}
+
+zotcard.pinkNoteBGColor = function () {
+  this.noteBGColor('#DCADA5')
+}
+
+zotcard.cyanNoteBGColor = function () {
+  this.noteBGColor('#A8B799')
+}
+
+zotcard.purpleNoteBGColor = function () {
+  this.noteBGColor('#C0ADC5')
+}
+
 zotcard.copyStringToClipboard = function (clipboardText) {
   const gClipboardHelper = Components.classes['@mozilla.org/widget/clipboardhelper;1'].getService(Components.interfaces.nsIClipboardHelper)
   gClipboardHelper.copyString(clipboardText, document)
@@ -942,6 +974,13 @@ if (typeof window !== 'undefined') {
   window.Zotero.ZotCard.resetNoteBGColor = function () { zotcard.resetNoteBGColor() }
   window.Zotero.ZotCard.darkNoteBGColor = function () { zotcard.darkNoteBGColor() }
   window.Zotero.ZotCard.grayNoteBGColor = function () { zotcard.grayNoteBGColor() }
+
+  window.Zotero.ZotCard.yellowNoteBGColor = function () { zotcard.yellowNoteBGColor() }
+  window.Zotero.ZotCard.blueNoteBGColor = function () { zotcard.blueNoteBGColor() }
+  window.Zotero.ZotCard.brownNoteBGColor = function () { zotcard.brownNoteBGColor() }
+  window.Zotero.ZotCard.pinkNoteBGColor = function () { zotcard.pinkNoteBGColor() }
+  window.Zotero.ZotCard.cyanNoteBGColor = function () { zotcard.cyanNoteBGColor() }
+  window.Zotero.ZotCard.purpleNoteBGColor = function () { zotcard.purpleNoteBGColor() }
 }
 
 if (typeof module !== 'undefined') module.exports = zotcard

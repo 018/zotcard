@@ -23,9 +23,15 @@
 <!ENTITY zotero.zotcard.option.restore.label "Restore Config">
 <!ENTITY zotero.zotcard.option.transitionstyle.label "Transition Default Style">
 <!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.label "Note Background Color">
-<!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.reset.label "Reset">
-<!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.dark.label "Dark">
 <!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.gray.label "Gray">
+<!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.dark.label "Dark">
+<!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.yellow.label "Yellow">
+<!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.blue.label "Blue">
+<!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.brown.label "Brown">
+<!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.pink.label "Pink">
+<!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.cyan.label "Cyan">
+<!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.purple.label "Purple">
+<!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.reset.label "Reset">
 <!ENTITY zotero.zotcard.option.github.label "Site">
 
 
