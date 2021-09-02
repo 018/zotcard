@@ -426,7 +426,6 @@ zotcard.newCard = async function (name) {
       .replace(/\{now\}/g, this.formatDate(now, 'yyyy-MM-dd HH:mm:ss'))
       .replace(/\{today\}/g, this.formatDate(now, 'yyyy-MM-dd'))
       .replace(/\{month\}/g, this.formatDate(now, 'yyyy-MM'))
-      .replace(/\{year\}/g, this.formatDate(now, 'yyyy'))
       .replace(/\{dayOfYear\}/g, dayOfYear)
       .replace(/\{weekOfYear\}/g, weekOfYear)
       .replace(/\{week\}/g, week)
