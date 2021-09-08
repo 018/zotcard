@@ -172,3 +172,25 @@ window.Zotero.ZotCard.Utils.htmlToText = function (html) {
     return html
   }
 }
+
+window.Zotero.ZotCard.Utils.dataURItoBlob = function (dataURI) {
+  var mimeString = dataURI
+    .split(',')[0]
+    .split(':')[1]
+    .split(';')[0]
+  var byteString = atob(dataURI.split(',')[1])
+  var arrayBuffer = new ArrayBuffer(byteString.length)
+  var intArray = new Uint8Array(arrayBuffer)
+  for (var i = 0; i < byteString.length; i++) {
+    intArray[i] = byteString.charCodeAt(i)
+  }
+  return new Blob([intArray], { type: mimeString })
+}
+
+window.Zotero.ZotCard.Utils.blobToDataURI = function (blob, callback) {
+  var reader = new FileReader()
+  reader.onload = function (e) {
+    callback(e.target.result)
+  }
+  reader.readAsDataURL(blob)
+}

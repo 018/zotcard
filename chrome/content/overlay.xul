@@ -78,6 +78,11 @@
                     id="zotero-itemmenu-zotcard-closeall"
                     label="&zotero.zotcard.closeall.label;"
                     oncommand="Zotero.ZotCard.closeall()"/>
+                <menuseparator/>
+                <menuitem
+                    id="zotero-itemmenu-zotcard-compressimg"
+                    label="&zotero.zotcard.compressimg.label;"
+                    oncommand="Zotero.ZotCard.compressimg()"/>
             </menupopup>
         </menu>
     </popup>

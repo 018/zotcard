@@ -13,6 +13,9 @@
 <!ENTITY zotero.zotcard.adjust.label "Adjust window">
 <!ENTITY zotero.zotcard.close.label "Close window">
 <!ENTITY zotero.zotcard.closeall.label "Close all window">
+
+<!ENTITY zotero.zotcard.compressimg.label "Compress Image">
+
 <!ENTITY zotero.zotcard.adjust.title "Adjust">
 <!ENTITY zotero.zotcard.adjust.column.label "Column">
 

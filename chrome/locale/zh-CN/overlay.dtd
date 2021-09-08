@@ -14,6 +14,8 @@
 <!ENTITY zotero.zotcard.close.label "关闭所选浮动编辑窗口">
 <!ENTITY zotero.zotcard.closeall.label "关闭所有">
 
+<!ENTITY zotero.zotcard.compressimg.label "压缩图片">
+
 <!ENTITY zotero.zotcard.adjust.title "调整">
 <!ENTITY zotero.zotcard.adjust.column.label "一行的个数">
 

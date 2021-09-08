@@ -89,7 +89,7 @@ zotcard.noteEditorOnKeyup = function (e) {
   Zotero.debug(`note: ${noteEditor.value}`)
   let hangzis = this.hangzi(noteEditor.value)
   let liness = this.lines(noteEditor.value)
-  label.textContent = `字数: ${hangzis}  \t行数: ${liness} \t占空间: ${noteEditor.value.length}`
+  label.textContent = `字数: ${hangzis}  \t行数: ${liness} \t占空间: ${Zotero.Utilities.Internal.byteLength(noteEditor.value)}`
   Zotero.debug(`onkeyup: ${hangzis} ${liness}`)
 }
 
@@ -108,7 +108,7 @@ zotcard.itemsTreeOnSelect = function () {
       }
       let hangzis = this.hangzi(item.getNote())
       let liness = this.lines(item.getNote())
-      label.textContent = `字数: ${hangzis}     行数: ${liness}    占空间: ${item.getNote().length}`
+      label.textContent = `字数: ${hangzis}     行数: ${liness}    占空间: ${Zotero.Utilities.Internal.byteLength(item.getNote())}`
       Zotero.debug(`onselect: ${hangzis} ${liness}`)
     }
   }
@@ -593,6 +593,68 @@ zotcard.closeall = function () {
   }
 }
 
+zotcard.compressimg = async function () {
+  var zitems = this.getSelectedItems(['note'])
+  if (!zitems || zitems.length <= 0) {
+    Zotero.ZotCard.Utils.error(this.getString('zotcard.only_note'))
+    return
+  }
+  if (zitems.length !== 1) {
+    Zotero.ZotCard.Utils.error(this.getString('zotcard.only_note'))
+    return
+  }
+
+  let tinifyApiKey = Zotero.Prefs.get('zotcard.config.tinify_api_key')
+  if (!tinifyApiKey) {
+    Zotero.Prefs.set('zotcard.config.tinify_api_key', '')
+    Zotero.ZotCard.Utils.warning(`请先配置 tinify 的 api key，可访问 https://tinypng.com/developers/ 进行申请。`)
+    Zotero.openInViewer(`about:config?filter=zotero.zotcard.config.tinify_api_key`)
+    return
+  }
+
+  let pw = new Zotero.ProgressWindow()
+  pw.changeHeadline(Utils.getString('uread.title.clearup'))
+  pw.addDescription(Utils.getString('uread.choose', zitems.length))
+  pw.show()
+  var zitem = zitems[0]
+  let note = zitem.getNote()
+  let matchs = zitem.getNote().match(/src="data:.*?;base64,.*?"/g)
+  if (matchs) {
+    pw.addLines(`${zitem.getNoteTitle()}: 包括 ${matchs.length} 张图片。`, `chrome://zotero/skin/tick${Zotero.hiDPISuffix}.png`)
+    for (let index = 0; index < matchs.length; index++) {
+      const element = matchs[index]
+      let content = element.replace('src="', '').replace('"', '')
+      let req = await Zotero.HTTP.request('POST', 'https://api.tinify.com/shrink',
+        {
+          body: Zotero.ZotCard.Utils.dataURItoBlob(content),
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': 'Basic ' + Zotero.Utilities.Internal.Base64.encode('api:' + tinifyApiKey)
+          }
+        })
+      if (req.responseText) {
+        let res = JSON.parse(req.responseText)
+        let image = await Zotero.HTTP.request('GET', res.output.url,
+          {
+            responseType: 'blob',
+            followRedirects: false
+          })
+        Zotero.ZotCard.Utils.blobToDataURI(image.response, function (base64) {
+          note = note.replace(content, base64)
+          zitem.setNote(note)
+          zitem.saveTx()
+          pw.addLines(`第 ${index + 1} 张图片大小 ${res.input.size} 压缩成 ${res.output.size}, 压缩率: ${res.output.ratio}。`, `chrome://zotero/skin/tick${Zotero.hiDPISuffix}.png`)
+        })
+      } else {
+        pw.addLines(`第 ${index + 1} 张图片压缩出错，${req.responseText}`, `chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
+      }
+    }
+  } else {
+    pw.addLines(`${zitem.getNoteTitle()} 不包含图片。`, `chrome://zotero/skin/warning${Zotero.hiDPISuffix}.png`)
+  }
+  pw.addDescription(Utils.getString('uread.click_on_close'))
+}
+
 zotcard.copyHtmlToClipboard = function (textHtml) {
   var htmlstring = Components.classes['@mozilla.org/supports-string;1'].createInstance(Components.interfaces.nsISupportsString)
   if (!htmlstring) {
@@ -963,6 +1025,7 @@ if (typeof window !== 'undefined') {
   window.Zotero.ZotCard.adjust = function () { zotcard.adjust() }
   window.Zotero.ZotCard.close = function () { zotcard.close() }
   window.Zotero.ZotCard.closeall = function () { zotcard.closeall() }
+  window.Zotero.ZotCard.compressimg = function () { zotcard.compressimg() }
 
   window.Zotero.ZotCard.config = function () { zotcard.config() }
   window.Zotero.ZotCard.reset = function () { zotcard.reset() }
