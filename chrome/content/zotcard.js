@@ -634,7 +634,7 @@ zotcard.compressimg = async function () {
             }
           })
         Zotero.debug(request)
-        if (request.status === 200) {
+        if (request.status === 200 || request.status === 201) {
           let res = JSON.parse(request.responseText)
           if (res.error) {
             pw.addLines(`第 ${index + 1} 张图片压缩失败，${res.error} - ${res.message}`, `chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
@@ -644,7 +644,7 @@ zotcard.compressimg = async function () {
                 responseType: 'blob',
                 followRedirects: false
               })
-            if (image.status === 200) {
+            if (image.status === 200 || image.status === 201) {
               Zotero.ZotCard.Utils.blobToDataURI(image.response, function (base64) {
                 note = note.replace(content, base64)
                 zitem.setNote(note)
