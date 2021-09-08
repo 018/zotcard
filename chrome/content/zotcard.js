@@ -624,29 +624,47 @@ zotcard.compressimg = async function () {
     for (let index = 0; index < matchs.length; index++) {
       const element = matchs[index]
       let content = element.replace('src="', '').replace('"', '')
-      let req = await Zotero.HTTP.request('POST', 'https://api.tinify.com/shrink',
-        {
-          body: Zotero.ZotCard.Utils.dataURItoBlob(content),
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': 'Basic ' + Zotero.Utilities.Internal.Base64.encode('api:' + tinifyApiKey)
-          }
-        })
-      if (req.responseText) {
-        let res = JSON.parse(req.responseText)
-        let image = await Zotero.HTTP.request('GET', res.output.url,
+      try {
+        let request = await Zotero.HTTP.request('POST', 'https://api.tinify.com/shrink',
           {
-            responseType: 'blob',
-            followRedirects: false
+            body: Zotero.ZotCard.Utils.dataURItoBlob(content),
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'Authorization': 'Basic ' + Zotero.Utilities.Internal.Base64.encode('api:' + tinifyApiKey)
+            }
           })
-        Zotero.ZotCard.Utils.blobToDataURI(image.response, function (base64) {
-          note = note.replace(content, base64)
-          zitem.setNote(note)
-          zitem.saveTx()
-          pw.addLines(`第 ${index + 1} 张图片大小 ${res.input.size} 压缩成 ${res.output.size}, 压缩率: ${res.output.ratio}。`, `chrome://zotero/skin/tick${Zotero.hiDPISuffix}.png`)
-        })
-      } else {
-        pw.addLines(`第 ${index + 1} 张图片压缩出错，${req.responseText}`, `chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
+        Zotero.debug(request)
+        if (request.status === 200) {
+          let res = JSON.parse(request.responseText)
+          if (res.error) {
+            pw.addLines(`第 ${index + 1} 张图片压缩失败，${res.error} - ${res.message}`, `chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
+          } else {
+            let image = await Zotero.HTTP.request('GET', res.output.url,
+              {
+                responseType: 'blob',
+                followRedirects: false
+              })
+            if (image.status === 200) {
+              Zotero.ZotCard.Utils.blobToDataURI(image.response, function (base64) {
+                note = note.replace(content, base64)
+                zitem.setNote(note)
+                zitem.saveTx()
+                pw.addLines(`第 ${index + 1} 张图片大小 ${res.input.size} 压缩成 ${res.output.size}, 压缩率: ${res.output.ratio}。`, `chrome://zotero/skin/tick${Zotero.hiDPISuffix}.png`)
+              })
+            } else if (image.status === 0) {
+              pw.addLines(`第 ${index + 1} 张图片获取结果失败 - 网络错误。`, `chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
+            } else {
+              pw.addLines(`第 ${index + 1} 张图片获取结果失败，${image.status} - ${image.statusText}`, `chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
+            }
+          }
+        } else if (request.status === 0) {
+          pw.addLines(`第 ${index + 1} 张图片压缩出错 - 网络错误。`, `chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
+        } else {
+          pw.addLines(`第 ${index + 1} 张图片压缩出错，${request.status} - ${request.statusText}`, `chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
+        }
+      } catch (e) {
+        Zotero.debug(e)
+        pw.addLines(`第 ${index + 1} 张图片压缩出错，${e}。`, `chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
       }
     }
   } else {
