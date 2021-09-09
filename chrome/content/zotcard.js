@@ -607,14 +607,14 @@ zotcard.compressimg = async function () {
   let tinifyApiKey = Zotero.Prefs.get('zotcard.config.tinify_api_key')
   if (!tinifyApiKey) {
     Zotero.Prefs.set('zotcard.config.tinify_api_key', '')
-    Zotero.ZotCard.Utils.warning(`请先配置 tinify 的 api key，可访问 https://tinypng.com/developers/ 进行申请。`)
+    Zotero.ZotCard.Utils.warning(`请先配置 tinypng 的 api key，可访问 https://tinypng.com/developers/ 进行申请。`)
     Zotero.openInViewer(`about:config?filter=zotero.zotcard.config.tinify_api_key`)
     return
   }
 
   let pw = new Zotero.ProgressWindow()
-  pw.changeHeadline(Utils.getString('uread.title.clearup'))
-  pw.addDescription(Utils.getString('uread.choose', zitems.length))
+  pw.changeHeadline('压缩')
+  pw.addDescription(this.getString('zotcard.choose', zitems.length))
   pw.show()
   var zitem = zitems[0]
   let note = zitem.getNote()
