@@ -121,6 +121,8 @@ zotcard.refreshZoteroItemPopup = function () {
   var onlyOne = zitems1 && zitems1.length === 1
   var hasNotes = zitems2 && zitems2.length > 0
 
+  document.getElementById('zotero-itemmenu-zotcard').disabled = (isRegular && !onlyOne) || (!hasNotes && !isRegular)
+
   let pref = this.initPrefs('quotes')
   document.getElementById('zotero-itemmenu-zotcard-quotes').hidden = (!isRegular || !onlyOne) || !pref.visible
   document.getElementById('zotero-itemmenu-zotcard-quotes').setAttribute('label', pref.label)
@@ -171,7 +173,8 @@ zotcard.refreshZoteroItemPopup = function () {
 
   document.getElementById('zotero-itemmenu-zotcard-separator1').hidden = (!isRegular || !onlyOne) || !cardsVisible
   document.getElementById('zotero-itemmenu-zotcard-separator2').hidden = (!hasNotes)
-
+  document.getElementById('zotero-itemmenu-zotcard-separator3').hidden = (!hasNotes)
+  
   document.getElementById('zotero-itemmenu-zotcard-replace').hidden = (!hasNotes)
   document.getElementById('zotero-itemmenu-zotcard-copy').hidden = (!hasNotes)
   document.getElementById('zotero-itemmenu-zotcard-copyandcreate').hidden = (!hasNotes)
@@ -179,7 +182,7 @@ zotcard.refreshZoteroItemPopup = function () {
   document.getElementById('zotero-itemmenu-zotcard-adjust').hidden = (!hasNotes)
   document.getElementById('zotero-itemmenu-zotcard-close').hidden = (!hasNotes)
   document.getElementById('zotero-itemmenu-zotcard-closeall').hidden = (!hasNotes)
-  Zotero.debug(`zotcard@refreshZoteroItemPopup`)
+  document.getElementById('zotero-itemmenu-zotcard-compressimg').hidden = (!hasNotes)
 }
 
 zotcard.initPref = function (name, item, beforeDefs, def) {
@@ -414,7 +417,15 @@ zotcard.newCard = async function (name) {
     let dateGap = now.getTime() - firstDay.getTime() + 1
     let dayOfYear = Math.ceil(dateGap / (24 * 60 * 60 * 1000))
 
-    firstDay.setDate(1 + (7 - firstDay.getDay()) % 7)
+    // 0: 周日开始
+    // 1: 周一开始
+    let startOfWeek = Zotero.Prefs.get('zotcard.startOfWeek')
+    if (!startOfWeek) {
+      startOfWeek = 0
+      Zotero.Prefs.set('zotcard.startOfWeek', startOfWeek)
+    }
+
+    firstDay.setDate(1 + (7 - firstDay.getDay() + startOfWeek) % 7)
     dateGap = now.getTime() - firstDay.getTime()
     let weekOfYear = Math.ceil(dateGap / (7 * 24 * 60 * 60 * 1000)) + 1
 
@@ -431,6 +442,7 @@ zotcard.newCard = async function (name) {
       .replace(/\{week\}/g, week)
       .replace(/\{week_en\}/g, weekEn)
       .replace(/\{shortTitle\}/g, zitem.getField('shortTitle'))
+      .replace(/\{archive\}/g, zitem.getField('archive'))
       .replace(/\{archiveLocation\}/g, zitem.getField('archiveLocation'))
       .replace(/\{url\}/g, zitem.getField('url'))
       .replace(/\{date\}/g, zitem.getField('date'))
@@ -611,6 +623,11 @@ zotcard.compressimg = async function () {
     Zotero.openInViewer(`about:config?filter=zotero.zotcard.config.tinify_api_key`)
     return
   }
+  let compressWithWidthAndHeight = Zotero.Prefs.get('zotcard.config.compress_with_width_and_height')
+  if (!compressWithWidthAndHeight) {
+    compressWithWidthAndHeight = false
+    Zotero.Prefs.set('zotcard.config.compress_with_width_and_height', compressWithWidthAndHeight)
+  }
 
   let pw = new Zotero.ProgressWindow()
   pw.changeHeadline('压缩')
@@ -618,53 +635,99 @@ zotcard.compressimg = async function () {
   pw.show()
   var zitem = zitems[0]
   let note = zitem.getNote()
-  let matchs = zitem.getNote().match(/src="data:.*?;base64,.*?"/g)
-  if (matchs) {
-    pw.addLines(`${zitem.getNoteTitle()}: 包括 ${matchs.length} 张图片。`, `chrome://zotero/skin/tick${Zotero.hiDPISuffix}.png`)
-    for (let index = 0; index < matchs.length; index++) {
-      const element = matchs[index]
+  let matchImages = zitem.getNote().match(/<img.*?src="data:.*?;base64,.*?".*?\/>/g)
+  if (matchImages) {
+    pw.addLines(`${zitem.getNoteTitle()}: 包括 ${matchImages.length} 张图片。`, `chrome://zotero/skin/tick${Zotero.hiDPISuffix}.png`)
+    for (let index = 0; index < matchImages.length; index++) {
+      let itemProgress = new pw.ItemProgress(
+        `chrome://zotero/skin/spinner-16px${Zotero.hiDPISuffix}.png`,
+        `第 ${index + 1} 张图片压缩中 ...`
+      )
+      itemProgress.setProgress(50)
+      let matchImageSrcs = matchImages[index].match(/src="data:.*?;base64,.*?"/g)
+      const element = matchImageSrcs[0]
+      let width
+      let height
+      let matchImageWidths = matchImages[index].match(/width=".*?"/g)
+      if (matchImageWidths) {
+        width = matchImageWidths[0].replace('width=', '').replace(/"/g, '')
+      }
+      let matchImageHeights = matchImages[index].match(/height=".*?"/g)
+      if (matchImageHeights) {
+        height = matchImageHeights[0].replace('height=', '').replace(/"/g, '')
+      }
       let content = element.replace('src="', '').replace('"', '')
+      let authorization = 'Basic ' + Zotero.Utilities.Internal.Base64.encode('api:' + tinifyApiKey)
       try {
         let request = await Zotero.HTTP.request('POST', 'https://api.tinify.com/shrink',
           {
             body: Zotero.ZotCard.Utils.dataURItoBlob(content),
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded',
-              'Authorization': 'Basic ' + Zotero.Utilities.Internal.Base64.encode('api:' + tinifyApiKey)
+              'Authorization': authorization
             }
           })
-        Zotero.debug(request)
         if (request.status === 200 || request.status === 201) {
           let res = JSON.parse(request.responseText)
           if (res.error) {
-            pw.addLines(`第 ${index + 1} 张图片压缩失败，${res.error} - ${res.message}`, `chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
+            itemProgress.setIcon(`chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
+            itemProgress.setText(`第 ${index + 1} 张图片压缩失败，${res.error} - ${res.message}`)
+            itemProgress.setProgress(100)
           } else {
-            let image = await Zotero.HTTP.request('GET', res.output.url,
-              {
-                responseType: 'blob',
-                followRedirects: false
-              })
+            let image
+            if (!compressWithWidthAndHeight || (!width && !height)) {
+              image = await Zotero.HTTP.request('GET', res.output.url,
+                {
+                  responseType: 'blob',
+                  followRedirects: false
+                })
+            } else {
+              Zotero.debug(`zotcard@width: ${width}, height: ${height}`)
+              image = await Zotero.HTTP.request('POST', res.output.url,
+                {
+                  body: JSON.stringify({ resize: { method: 'fit', width: width ? parseInt(width) : 0, height: height ? parseInt(height) : 0 } }),
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': authorization
+                  },
+                  responseType: 'blob',
+                  followRedirects: false
+                })
+            }
+
             if (image.status === 200 || image.status === 201) {
               Zotero.ZotCard.Utils.blobToDataURI(image.response, function (base64) {
                 note = note.replace(content, base64)
                 zitem.setNote(note)
                 zitem.saveTx()
-                pw.addLines(`第 ${index + 1} 张图片大小 ${res.input.size} 压缩成 ${res.output.size}, 压缩率: ${res.output.ratio}。`, `chrome://zotero/skin/tick${Zotero.hiDPISuffix}.png`)
+                itemProgress.setIcon(`chrome://zotero/skin/tick${Zotero.hiDPISuffix}.png`)
+                itemProgress.setText(`第 ${index + 1} 张图片大小 ${res.input.size}${compressWithWidthAndHeight && (width || height) ? ('(' + (width || '') + ',' + (height || '') + ')') : ''}, 压缩成 ${compressWithWidthAndHeight && (width || height) ? image.response.size : res.output.size}, 压缩率: ${res.output.ratio}。`)
+                itemProgress.setProgress(100)
               })
             } else if (image.status === 0) {
-              pw.addLines(`第 ${index + 1} 张图片获取结果失败 - 网络错误。`, `chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
+              itemProgress.setIcon(`chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
+              itemProgress.setText(`第 ${index + 1} 张图片获取结果失败 - 网络错误。`)
+              itemProgress.setProgress(100)
             } else {
-              pw.addLines(`第 ${index + 1} 张图片获取结果失败，${image.status} - ${image.statusText}`, `chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
+              itemProgress.setIcon(`chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
+              itemProgress.setText(`第 ${index + 1} 张图片获取结果失败，${image.status} - ${image.statusText}`)
+              itemProgress.setProgress(100)
             }
           }
         } else if (request.status === 0) {
-          pw.addLines(`第 ${index + 1} 张图片压缩出错 - 网络错误。`, `chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
+          itemProgress.setIcon(`chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
+          itemProgress.setText(`第 ${index + 1} 张图片压缩出错 - 网络错误。`)
+          itemProgress.setProgress(100)
         } else {
-          pw.addLines(`第 ${index + 1} 张图片压缩出错，${request.status} - ${request.statusText}`, `chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
+          itemProgress.setIcon(`chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
+          itemProgress.setText(`第 ${index + 1} 张图片压缩出错，${request.status} - ${request.statusText}`)
+          itemProgress.setProgress(100)
         }
       } catch (e) {
         Zotero.debug(e)
-        pw.addLines(`第 ${index + 1} 张图片压缩出错，${e}。`, `chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
+        itemProgress.setIcon(`chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
+        itemProgress.setText(`第 ${index + 1} 张图片压缩出错，${e}。`)
+        itemProgress.setProgress(100)
       }
     }
   } else {
@@ -873,9 +936,9 @@ zotcard.noteBGColor = function (color) {
   let val = Zotero.Prefs.get('note.css')
   if (val) {
     if (color) {
-      val = val.replace(/body +{ +background-color: +#[a-f|A-z|0-9]{3,6}; +}/g, `body { background-color: ${color}; }`)
+      val = val.replace(/body +{.*?}/g, `body { background-color: ${color}; }`)
     } else {
-      val = val.replace(/body +{ +background-color: +#[a-f|A-z|0-9]{3,6}; +}/g, '')
+      val = val.replace(/body +{.*?}/g, '')
     }
   } else {
     if (color) {
@@ -883,8 +946,32 @@ zotcard.noteBGColor = function (color) {
     }
   }
   Zotero.Prefs.set('note.css', val)
-  Zotero.ZotCard.Utils.success(`设置成功，重启后生效。`)
-  Zotero.Utilities.Internal.quitZotero(true)
+
+  let fontSize = Zotero.Prefs.get('note.fontSize')
+  // Fix empty old font prefs before a value was enforced
+  if (fontSize < 6) {
+    fontSize = 11;
+  }
+  var css = 'body#zotero-tinymce-note, '
+    + 'body#zotero-tinymce-note p, '
+    + 'body#zotero-tinymce-note th, '
+    + 'body#zotero-tinymce-note td, '
+    + 'body#zotero-tinymce-note pre { '
+    + 'font-size: ' + fontSize + 'px; '
+    + '} '
+    + 'body#zotero-tinymce-note, '
+    + 'body#zotero-tinymce-note p { '
+    + 'font-family: '
+    + Zotero.Prefs.get('note.fontFamily') + '; '
+    + '} '
+    + Zotero.Prefs.get('note.css')
+
+  var editor = document.getElementById('zotero-note-editor').noteField._editor
+  var doc = editor.contentDocument
+  var head = doc.getElementsByTagName('head')[0]
+  var style = doc.createElement('style')
+  style.innerHTML = css
+  head.appendChild(style)
 }
 
 zotcard.resetNoteBGColor = function () {

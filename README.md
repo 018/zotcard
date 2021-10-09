@@ -125,7 +125,7 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记�
 
 `<br />`为换行，跟`p`的区别就是行间距不一样，`br`的行间距比较小。
 
-另外还有书籍中的信息：`{authors}`为作者，`{title}`为书名，`{shortTitle}`为短标题，`{archiveLocation}`为归档位置，`{url}`为网址，`{date}`为日期，`{year}`为年份，`{extra}`为其他，`{publisher}`为出版社，`{ISBN}`为ISBN，`{numPages}`为总页数，时间信息：`{today}`为今天日期，`{month}`为月份，`{dayOfYear}`为今年第几天，`{weekOfYear}`为今年第几周，，`{week}`为星期几（值为日、一、二、三、四、五、六），`{week_en}`为英文的星期几（值为Sun.、Mon.、Tues.、Wed.、Thurs.、Fri.、Sat.），`{now}`为现在时间。
+另外还有书籍中的信息：`{authors}`为作者，`{title}`为书名，`{shortTitle}`为短标题，`{archive}`为归档，`{archiveLocation}`为归档位置，`{url}`为网址，`{date}`为日期，`{year}`为年份，`{extra}`为其他，`{publisher}`为出版社，`{ISBN}`为ISBN，`{numPages}`为总页数，时间信息：`{today}`为今天日期，`{month}`为月份，`{dayOfYear}`为今年第几天，`{weekOfYear}`为今年第几周（默认是以周日作为一周的第一天，以周一作为第一天可以配置`extensions.zotero.zotcard.startOfWeek`为1。），`{week}`为星期几（值为日、一、二、三、四、五、六），`{week_en}`为英文的星期几（值为Sun.、Mon.、Tues.、Wed.、Thurs.、Fri.、Sat.），`{now}`为现在时间。
 
 有一个技巧，就是在Zotero的笔记中编辑好，然后右键「源代码」，复制出来也可以。
 
@@ -187,7 +187,7 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记�
 
 **压缩图片**
 
-此功能调用tinypng接口，设置api key即可图片压缩，还可多次压缩。为笔记压缩，尽可能可同步。
+此功能调用tinypng接口，设置api key即可图片压缩，还可多次压缩。为笔记压缩，尽可能可同步。可以设置`zotcard.config.compress_with_width_and_height`为true，跟随宽高进行压缩，属于高度压缩会影响图片质量。
 
 
 

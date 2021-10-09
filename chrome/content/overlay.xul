@@ -78,7 +78,8 @@
                     id="zotero-itemmenu-zotcard-closeall"
                     label="&zotero.zotcard.closeall.label;"
                     oncommand="Zotero.ZotCard.closeall()"/>
-                <menuseparator/>
+                <menuseparator
+                    id="zotero-itemmenu-zotcard-separator3"/>
                 <menuitem
                     id="zotero-itemmenu-zotcard-compressimg"
                     label="&zotero.zotcard.compressimg.label;"

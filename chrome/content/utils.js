@@ -1,6 +1,6 @@
 if (!window.Zotero) window.Zotero = {}
 if (!window.Zotero.ZotCard) window.Zotero.ZotCard = {}
-if (!window.Zotero.ZotCard) window.Zotero.ZotCard.Utils = {}
+if (!window.Zotero.ZotCard.Utils) window.Zotero.ZotCard.Utils = {}
 
 window.Zotero.ZotCard.Utils = {
   _bundle: Cc['@mozilla.org/intl/stringbundle;1'].getService(Components.interfaces.nsIStringBundleService).createBundle('chrome://zoterouread/locale/uread.properties')
