@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>卡片报告</title>
+		<script src="chrome://zotero/content/include.js"></script>
+		<script src="report.js"></script>
+		
+		<style>
+			body {
+				margin: 20px;
+				background: white;
+				font-size: 14px;
+			}
+
+			header {
+				text-align: center;
+			}
+
+			header .title {
+				font-size: 30px;
+				margin: 10px 0 0 0;
+				font-weight: bold;
+			}
+
+			header .subtitle {
+				margin: 0;
+				color: gray;
+			}
+
+			footer {
+				font-size: 12px;
+				color: gray;
+				margin: 30px 0;
+			}
+
+			.section {
+				margin-top: 35px;
+			}
+
+			.item-label {
+				margin-bottom: 0;
+			}
+
+			.detail {
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+				justify-content: flex-start;
+				align-items: center;
+			}
+
+			.item {
+				display: flex;
+				flex-direction: column;
+				flex-wrap: wrap;
+				justify-content: flex-start;
+				align-items: center;
+				margin: 5px 20px;
+				width: 60px;
+			}
+
+			.highlight {
+				font-size: 20px;
+			}
+
+			.uread-color {
+				color: #009193 !important;
+			}
+
+			.current-wrap {
+				position: relative;
+			}
+
+			.current:after {
+				content: '';
+				position: absolute;
+				width: 0;
+				height: 0;
+				bottom: -10px;
+				left: 50%;
+				transform: translateX(-50%);
+				border: 7px solid #ffa100;
+				border-top-color: transparent;
+				border-left-color: transparent;
+				border-right-color: transparent;
+			}
+
+			.item .value {
+				font-size: 25px;
+				font-weight: bold;
+				line-height: 40px;
+			}
+
+			.item .label {
+				font-size: 12px;
+			}
+
+			.item .zero {
+				color: #C0C4CC;
+			}
+
+			#other-wrap {
+				font-size: 12px;
+			}
+
+			.other-item {
+				margin: 5px 0;
+			}
+			
+			.minor-color {
+				color: #909399 !important;
+			}
+
+			.orangered {
+				color: orangered;
+			}
+		</style>
+	</head>
+	<body>
+		<header>
+			<p class="title"><b><span id="username">...</span>的卡片报告</b></p>
+			<p class="subtitle">(<span class="today">...</span>生成)</p>
+		</header>
+		<div id="content" hidden>
+			<p>今天是 <span class="current-wrap"><b class="today current">...</b></span>，今年第 <b id="week">...</b> 周。</p>
+			<p>自 <b><span id="first-card-date">...</span></b> 第一次卡片到现在(<b><span id="now">...</span></b>) <b id="totalDays">...</b>天，一共 <span id="dates" class="uread-color highlight">...</span> 天写卡，占 <span id="ratio" class="uread-color highlight">...</span>，平均一天 <span id="average1" class="uread-color highlight"></span> 张卡。累计 <span id="hangzis" class="uread-color highlight">...</span> 字，写卡 <span id="totals" class="uread-color highlight">...</span> 张，平均一卡 <span id="average2" class="uread-color highlight"></span> 字，最长一卡 <span id="maxHangzi" class="uread-color highlight"></span> 字，卡片标题为「<b id="maxHangziNoteTitle"></b>」。其中 <span id="card-details">...</span>。最近一次写卡在 <b><span id="last-card-date">...</span></b><span id="no-card"></span>。</p>
+			<p class="section item-label">今年近12周写卡情况：</p>
+			<div id="weeks" class="detail">...
+				<div class="item current-wrap" onclick="alert('123')">
+					<span class="value uread-color">12</span>
+					<span class="label current">W43</span>
+				</div>
+			</div>
+
+			<div id="years" class="section">...</div>
+		</div>
+		<div id="loading">正在生成报告，请耐心等待(<span id="progress">...</span>) ...</div>
+		<div id="other-wrap" class="minor-color" hidden>
+			<p class="section item-label">未统计的卡片，请检查：</p>
+			<div id="other">
+				<p class="other-item">「### 简单卡 」不包含日期。</p>
+				<p class="other-item">「### 简单卡 」不包含日期。</p>
+				<p class="other-item">「### 简单卡 」不包含日期。</p>
+			</div>
+		</div>
+		<footer>
+			<hr>
+			<p>本报告由 ZotCard(https://github.com/018/zotcard) 生成，卡片统计规则是所有包括「日期」并且日期格式为0000-00-00或0000/00/00或0000年00月00日的卡片。</p>
+		</footer>
+	</body>
+</html>

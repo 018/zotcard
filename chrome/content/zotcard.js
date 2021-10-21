@@ -24,29 +24,6 @@ zotcard.htmlToText = function (html) {
   }
 }
 
-zotcard.hangzi = function (html) {
-  var content = this.htmlToText(html)
-  Zotero.debug(`content: ${content}`)
-  let m1 = content.match(/[\u4E00-\u9FA5]/g)
-  let m2 = content.match(/[\u9FA6-\u9FEF]/g)
-  let m3 = content.match(/\w+/g)
-  let l1 = m1 ? m1.length : 0
-  let l2 = m2 ? m2.length : 0
-  let l3 = m3 ? m3.length : 0
-  return l1 + l2 + l3
-}
-
-zotcard.lines = function (html) {
-  var content = this.htmlToText(html)
-  if (content) {
-    let m = content.match(/\n/g)
-    let l = m ? m.length + 1 : 1
-    return l
-  } else {
-    return 0
-  }
-}
-
 zotcard.init = function () {
   // Register the callback in Zotero as an item observer
   let notifierID = Zotero.Notifier.registerObserver(this.notifierCallback, ['item'])
@@ -87,8 +64,8 @@ zotcard.noteEditorOnKeyup = function (e) {
 
   let noteEditor = e.currentTarget
   Zotero.debug(`note: ${noteEditor.value}`)
-  let hangzis = this.hangzi(noteEditor.value)
-  let liness = this.lines(noteEditor.value)
+  let hangzis = Zotero.ZotCard.Utils.hangzi(noteEditor.value)
+  let liness = Zotero.ZotCard.Utils.lines(noteEditor.value)
   label.textContent = `字数: ${hangzis}  \t行数: ${liness} \t占空间: ${Zotero.Utilities.Internal.byteLength(noteEditor.value)}`
   Zotero.debug(`onkeyup: ${hangzis} ${liness}`)
 }
@@ -106,8 +83,8 @@ zotcard.itemsTreeOnSelect = function () {
         let noteEditor = document.getElementById('zotero-view-note')
         noteEditor.prepend(label)
       }
-      let hangzis = this.hangzi(item.getNote())
-      let liness = this.lines(item.getNote())
+      let hangzis = Zotero.ZotCard.Utils.hangzi(item.getNote())
+      let liness = Zotero.ZotCard.Utils.lines(item.getNote())
       label.textContent = `字数: ${hangzis}     行数: ${liness}    占空间: ${Zotero.Utilities.Internal.byteLength(item.getNote())}`
       Zotero.debug(`onselect: ${hangzis} ${liness}`)
     }
@@ -434,9 +411,9 @@ zotcard.newCard = async function (name) {
 
     item.setNote(pref.card.replace(/\{authors\}/g, authors.toString())
       .replace(/\{title\}/g, zitem.getField('title'))
-      .replace(/\{now\}/g, this.formatDate(now, 'yyyy-MM-dd HH:mm:ss'))
-      .replace(/\{today\}/g, this.formatDate(now, 'yyyy-MM-dd'))
-      .replace(/\{month\}/g, this.formatDate(now, 'yyyy-MM'))
+      .replace(/\{now\}/g, Zotero.ZotCard.Utils.formatDate(now, 'yyyy-MM-dd HH:mm:ss'))
+      .replace(/\{today\}/g, Zotero.ZotCard.Utils.formatDate(now, 'yyyy-MM-dd'))
+      .replace(/\{month\}/g, Zotero.ZotCard.Utils.formatDate(now, 'yyyy-MM'))
       .replace(/\{dayOfYear\}/g, dayOfYear)
       .replace(/\{weekOfYear\}/g, weekOfYear)
       .replace(/\{week\}/g, week)
@@ -1083,28 +1060,6 @@ zotcard.checkItemType = function (itemObj, itemTypeArray) {
   }
 
   return matchBool
-}
-
-zotcard.formatDate = function (date, format) {
-  var o = {
-    'M+' : date.getMonth() + 1,
-    'd+' : date.getDate(),
-    'h+' : date.getHours() % 12 === 0 ? 12 : date.getHours() % 12,
-    'H+' : date.getHours(),
-    'm+' : date.getMinutes(),
-    's+' : date.getSeconds(),
-    'q+' : Math.floor((date.getMonth() + 3) / 3),
-    'S' : date.getMilliseconds()
-  }
-  if (/(y+)/.test(format)) {
-    format = format.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length))
-  }
-  for (var k in o) {
-    if (new RegExp('(' + k + ')').test(format)) {
-      format = format.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (('00' + o[k]).substr(('' + o[k]).length)))
-    }
-  }
-  return format
 }
 
 if (typeof window !== 'undefined') {

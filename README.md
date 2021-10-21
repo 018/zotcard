@@ -227,6 +227,12 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记�
 
 - 重置：重置到默认状态。默认为白色。
 
+**卡片报告**
+
+<img src="https://raw.githubusercontent.com/018/zotcard/main/image/cardreport.png" alt="选项" width="300"/>
+
+从Zotero本地的卡片中统计。
+
 **官网**
 
 访问此页面。

@@ -194,3 +194,50 @@ window.Zotero.ZotCard.Utils.blobToDataURI = function (blob, callback) {
   }
   reader.readAsDataURL(blob)
 }
+
+window.Zotero.ZotCard.Utils.formatDate = function (date, format) {
+  var o = {
+    'M+' : date.getMonth() + 1,
+    'd+' : date.getDate(),
+    'h+' : date.getHours() % 12 === 0 ? 12 : date.getHours() % 12,
+    'H+' : date.getHours(),
+    'm+' : date.getMinutes(),
+    's+' : date.getSeconds(),
+    'q+' : Math.floor((date.getMonth() + 3) / 3),
+    'S' : date.getMilliseconds()
+  }
+  if (/(y+)/.test(format)) {
+    format = format.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length))
+  }
+  for (var k in o) {
+    if (new RegExp('(' + k + ')').test(format)) {
+      format = format.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (('00' + o[k]).substr(('' + o[k]).length)))
+    }
+  }
+  return format
+}
+
+
+
+window.Zotero.ZotCard.Utils.hangzi = function (html) {
+  var content = this.htmlToText(html)
+  Zotero.debug(`content: ${content}`)
+  let m1 = content.match(/[\u4E00-\u9FA5]/g)
+  let m2 = content.match(/[\u9FA6-\u9FEF]/g)
+  let m3 = content.match(/\w+/g)
+  let l1 = m1 ? m1.length : 0
+  let l2 = m2 ? m2.length : 0
+  let l3 = m3 ? m3.length : 0
+  return l1 + l2 + l3
+}
+
+window.Zotero.ZotCard.Utils.lines = function (html) {
+  var content = this.htmlToText(html)
+  if (content) {
+    let m = content.match(/\n/g)
+    let l = m ? m.length + 1 : 1
+    return l
+  } else {
+    return 0
+  }
+}

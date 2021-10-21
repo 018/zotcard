@@ -35,6 +35,7 @@
 <!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.cyan.label "Cyan">
 <!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.purple.label "Purple">
 <!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.reset.label "Reset">
+<!ENTITY zotero.zotcard.option.report.label "Card Report">
 <!ENTITY zotero.zotcard.option.github.label "Site">
 
 

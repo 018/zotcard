@@ -143,6 +143,10 @@
                 </menu>
                 <menuseparator />
                 <menuitem 
+                    label="&zotero.zotcard.option.report.label;"
+                    oncommand="Zotero.openInViewer('chrome://zoterozotcard/content/report.html');" />
+                <menuseparator />
+                <menuitem 
                     label="&zotero.zotcard.option.github.label;"
                     oncommand="Zotero.launchURL('https://github.com/018/zotcard')" />
             </menupopup>
