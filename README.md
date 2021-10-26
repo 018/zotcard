@@ -190,6 +190,20 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记�
 此功能调用tinypng接口，设置api key即可图片压缩，还可多次压缩。为笔记压缩，尽可能可同步。可以设置`zotcard.config.compress_with_width_and_height`为true，跟随宽高进行压缩，属于高度压缩会影响图片质量。
 
 
+## 分类操作
+
+**卡片报告**
+
+<img src="https://raw.githubusercontent.com/018/zotcard/main/image/cardreport.png" alt="卡片报告" width="600"/>
+
+对所选（包括「我的文库」、「分类」、「保存的搜索」、「群组文库」）中统计卡片，还可以继续点击对应时间进行读卡。
+
+**读卡**
+
+<img src="https://raw.githubusercontent.com/018/zotcard/main/image/readcard.png" alt="读卡" width="600"/>
+
+对所选（包括「我的文库」、「分类」、「保存的搜索」、「群组文库」）中所有卡片进行读卡，还支持专注模式，在读卡过程中随时可以编辑、定位，对已读的卡片可以隐藏，还可以简单进行拼卡，置顶/置底/上移/下移卡片，最后确认位置后复制卡片内容在Word等编辑工具粘贴。
+
 
 ## 选项
 
@@ -227,15 +241,10 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记�
 
 - 重置：重置到默认状态。默认为白色。
 
-**卡片报告**
-
-<img src="https://raw.githubusercontent.com/018/zotcard/main/image/cardreport.png" alt="选项" width="300"/>
-
-从Zotero本地的卡片中统计。
-
 **官网**
 
 访问此页面。
+
 
 
 

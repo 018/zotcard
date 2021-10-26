@@ -20,72 +20,108 @@
             <menupopup id="zotero-itemmenu-zotcard-menupopup">
                 <menuitem
                     id="zotero-itemmenu-zotcard-quotes"
+                    class="dynamic-menu only-regular only-simple"
                     label="&zotero.zotcard.quotes.label;"
                     oncommand="Zotero.ZotCard.quotes()"/>
                 <menuitem
                     id="zotero-itemmenu-zotcard-concept"
+                    class="dynamic-menu only-regular only-simple"
                     label="&zotero.zotcard.concept.label;"
                     oncommand="Zotero.ZotCard.concept()"/>
                 <menuitem
                     id="zotero-itemmenu-zotcard-character"
+                    class="dynamic-menu only-regular only-simple"
                     label="&zotero.zotcard.character.label;"
                     oncommand="Zotero.ZotCard.character()"/>
                 <menuitem
                     id="zotero-itemmenu-zotcard-not_commonsense"
+                    class="dynamic-menu only-regular only-simple"
                     label="&zotero.zotcard.not_commonsense.label;"
                     oncommand="Zotero.ZotCard.not_commonsense()"/>
                 <menuitem
                     id="zotero-itemmenu-zotcard-skill"
+                    class="dynamic-menu only-regular only-simple"
                     label="&zotero.zotcard.skill.label;"
                     oncommand="Zotero.ZotCard.skill()"/>
                 <menuitem
                     id="zotero-itemmenu-zotcard-structure"
+                    class="dynamic-menu only-regular only-simple"
                     label="&zotero.zotcard.structure.label;"
                     oncommand="Zotero.ZotCard.structure()"/>
                 <menuitem
                     id="zotero-itemmenu-zotcard-general"
+                    class="dynamic-menu only-regular only-simple"
                     label="&zotero.zotcard.general.label;"
                     oncommand="Zotero.ZotCard.general()"/>
                 <menuseparator
-                    id="zotero-itemmenu-zotcard-separator1"/>
+                    id="zotero-itemmenu-zotcard-separator2"
+                    class="dynamic-menu only-regular only-simple" />
+                    
+                <menuitem
+                    id="zotero-itemmenu-zotcard-readcard"
+                    class="dynamic-menu only-note"
+                    label="&zotero.zotcard.readcard.label;"
+                    oncommand="Zotero.ZotCard.readcard()"/>
+                <menuseparator
+                    class="dynamic-menu only-note" />
                 <menuitem
                     id="zotero-itemmenu-zotcard-replace"
+                    class="dynamic-menu only-note"
                     label="&zotero.zotcard.replace.label;"
                     oncommand="Zotero.ZotCard.replace()"/>
                 <menuitem
                     id="zotero-itemmenu-zotcard-copy"
+                    class="dynamic-menu only-note"
                     label="&zotero.zotcard.copy.label;"
                     oncommand="Zotero.ZotCard.copy()"/>
                 <menuitem
                     id="zotero-itemmenu-zotcard-copyandcreate"
+                    class="dynamic-menu only-note only-simple"
                     label="&zotero.zotcard.copyandcreate.label;"
                     oncommand="Zotero.ZotCard.copyandcreate()"/>
                 <menuseparator
-                    id="zotero-itemmenu-zotcard-separator2"/>
+                    class="dynamic-menu only-note only-simple" />
                 <menuitem
                     id="zotero-itemmenu-zotcard-open"
+                    class="dynamic-menu only-note"
                     label="&zotero.zotcard.open.label;"
                     oncommand="Zotero.ZotCard.open()"/>
                 <menuitem
                     id="zotero-itemmenu-zotcard-adjust"
+                    class="dynamic-menu only-note"
                     label="&zotero.zotcard.adjust.label;"
                     oncommand="Zotero.ZotCard.adjust()"/>
                 <menuitem
                     id="zotero-itemmenu-zotcard-close"
+                    class="dynamic-menu only-note"
                     label="&zotero.zotcard.close.label;"
                     oncommand="Zotero.ZotCard.close()"/>
                 <menuitem
                     id="zotero-itemmenu-zotcard-closeall"
+                    class="dynamic-menu only-note"
                     label="&zotero.zotcard.closeall.label;"
                     oncommand="Zotero.ZotCard.closeall()"/>
                 <menuseparator
-                    id="zotero-itemmenu-zotcard-separator3"/>
+                    class="dynamic-menu only-note" />
                 <menuitem
                     id="zotero-itemmenu-zotcard-compressimg"
+                    class="dynamic-menu only-note"
                     label="&zotero.zotcard.compressimg.label;"
                     oncommand="Zotero.ZotCard.compressimg()"/>
             </menupopup>
         </menu>
+    </popup>
+
+    <popup id="zotero-collectionmenu">
+        <menuseparator />
+        <menuitem
+            id="zotero-collectionmenu-zotcard-readcard"
+            label="&zotero.zotcard.readcollectioncard.label;"
+            oncommand="Zotero.ZotCard.readcollectioncard()" />
+        <menuitem
+            id="zotero-collectionmenu-zotcard-collectionreport"
+            label="&zotero.zotcard.collectionreport.label;"
+            oncommand="Zotero.ZotCard.collectionreport()" />
     </popup>
 
     <popup id="menu_ToolsPopup">
@@ -141,10 +177,6 @@
                             oncommand="Zotero.ZotCard.resetNoteBGColor()" />
                     </menupopup>
                 </menu>
-                <menuseparator />
-                <menuitem 
-                    label="&zotero.zotcard.option.report.label;"
-                    oncommand="Zotero.openInViewer('chrome://zoterozotcard/content/report.html');" />
                 <menuseparator />
                 <menuitem 
                     label="&zotero.zotcard.option.github.label;"

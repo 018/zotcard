@@ -12,12 +12,12 @@
         RDF:about="urn:mozilla:install-manifest"
         em:id="zoterozotcard@018.ai"
         em:name="ZotCard"
-        em:version="1.5.0"
+        em:version="1.6.0"
         em:type="2"
         em:iconURL="chrome://zoterozotcard/skin/zotcard.png"
         em:icon64URL="chrome://zoterozotcard/skin/zotcard64.png"
         em:creator="018"
-        em:description="快速写卡，让写卡片更顺滑。"
+        em:description="写卡更柔顺，读卡更顺滑。"
         em:homepageURL="https://github.com/018/zotcard"
         em:updateURL="https://raw.githubusercontent.com/018/zotcard/main/update.rdf">
         <em:type>2</em:type>

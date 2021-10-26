@@ -173,6 +173,33 @@ window.Zotero.ZotCard.Utils.htmlToText = function (html) {
   }
 }
 
+window.Zotero.ZotCard.Utils.copyHtmlToClipboard = function (textHtml) {
+  var htmlstring = Components.classes['@mozilla.org/supports-string;1'].createInstance(Components.interfaces.nsISupportsString)
+  if (!htmlstring) {
+    if (isDebug()) Zotero.debug('htmlstring is null.')
+    return false
+  }
+  htmlstring.data = textHtml
+
+  var trans = Components.classes['@mozilla.org/widget/transferable;1'].createInstance(Components.interfaces.nsITransferable)
+  if (!trans) {
+    if (isDebug()) Zotero.debug('trans is null.')
+    return false
+  }
+
+  trans.addDataFlavor('text/html')
+  trans.setTransferData('text/html', htmlstring, textHtml.length * 2)
+
+  var clipboard = Components.classes['@mozilla.org/widget/clipboard;1'].getService(Components.interfaces.nsIClipboard)
+  if (!clipboard) {
+    if (isDebug()) Zotero.debug('clipboard is null.')
+    return false
+  }
+
+  clipboard.setData(trans, null, Components.interfaces.nsIClipboard.kGlobalClipboard)
+  return true
+}
+
 window.Zotero.ZotCard.Utils.dataURItoBlob = function (dataURI) {
   var mimeString = dataURI
     .split(',')[0]
@@ -217,10 +244,8 @@ window.Zotero.ZotCard.Utils.formatDate = function (date, format) {
   return format
 }
 
-
-
 window.Zotero.ZotCard.Utils.hangzi = function (html) {
-  var content = this.htmlToText(html)
+  var content = Zotero.ZotCard.Utils.htmlToText(html)
   Zotero.debug(`content: ${content}`)
   let m1 = content.match(/[\u4E00-\u9FA5]/g)
   let m2 = content.match(/[\u9FA6-\u9FEF]/g)
@@ -232,7 +257,7 @@ window.Zotero.ZotCard.Utils.hangzi = function (html) {
 }
 
 window.Zotero.ZotCard.Utils.lines = function (html) {
-  var content = this.htmlToText(html)
+  var content = Zotero.ZotCard.Utils.htmlToText(html)
   if (content) {
     let m = content.match(/\n/g)
     let l = m ? m.length + 1 : 1
@@ -240,4 +265,153 @@ window.Zotero.ZotCard.Utils.lines = function (html) {
   } else {
     return 0
   }
+}
+
+window.Zotero.ZotCard.Utils.toCardItem = function (note, date) {
+  return {
+    id: note.id,
+    title: note.getNoteTitle(),
+    key: note.key,
+    dateAdded: Zotero.ZotCard.Utils.sqlToDate(note.dateAdded, 'yyyy-MM-dd HH:mm:ss'),
+    dateModified: Zotero.ZotCard.Utils.sqlToDate(note.dateModified, 'yyyy-MM-dd HH:mm:ss'),
+    date: date,
+    note: note.getNote()
+  }
+}
+
+window.Zotero.ZotCard.Utils.cardDate = function (item) {
+  let dateString
+  let text = Zotero.ZotCard.Utils.htmlToText(item.getNote())
+  Zotero.debug(text)
+  // let match1 = text.match(/日期[:：] *?(\d{4}[-/年.]\d{1,2}[-/月.]\d{1,2}日{0,1})/g)
+  let match1 = text.match(/\u65e5\u671f[:\uff1a] *?(\d{4}[-/\u5e74.]\d{1,2}[-/\u6708.]\d{1,2}\u65e5{0,1})/g)
+  if (!match1) {
+    // let match3 = text.match(/日期[:：] *?(\d{8})/g)
+    let match3 = text.match(/\u65e5\u671f[:\uff1a] *?(\d{8})/g)
+    if (match3) {
+      let match4 = match3[0].match(/\d{8}/g)
+      Zotero.debug(`${match4}`)
+      dateString = `${match4[0].substr(0, 4)}-${match4[0].substr(4, 2)}-${match4[0].substr(6, 2)}`
+    } else {
+      Zotero.debug(`不包含有效日期，取创建日期。${match3}`)
+      dateString = Zotero.ZotCard.Utils.sqlToDate(note.dateAdded, 'yyyy-MM-dd')
+    }
+  } else {
+    // let match2 = match1[0].match(/\d{4}[-/年.]\d{1,2}[-/月.]\d{1,2}日{0,1}/g)
+    let match2 = match1[0].match(/\d{4}[-/\u5e74.]\d{1,2}[-/\u6708.]\d{1,2}\u65e5{0,1}/g)
+    Zotero.debug(`${match2}`)
+    // dateString = match2[0].replace(/年|月|\./g, '-').replace(/日/g, '')
+    dateString = match2[0].replace(/\u5e74|\u6708|\./g, '-').replace(/\u65e5/g, '')
+  }
+  return dateString
+}
+
+window.Zotero.ZotCard.Utils.swap = function (array, index1, index2) {
+  let e = array[index1]
+  array[index1] = array[index2]
+  array[index2] = e
+}
+
+window.Zotero.ZotCard.Utils.sqlToDate = function (date, format) {
+  let d = Zotero.Date.sqlToDate(date, true)
+  let dt = new Date(d - new Date().getTimezoneOffset())
+  return format ? Zotero.ZotCard.Utils.formatDate(dt, format) : dt
+}
+
+window.Zotero.ZotCard.Utils.sqlToLocale = function (valueText) {
+  var date = Zotero.Date.sqlToDate(valueText, true)
+  if (date) {
+    if (Zotero.Date.isSQLDate(valueText)) {
+      date = Zotero.Date.sqlToDate(valueText + ' 12:00:00')
+      valueText = date.toLocaleDateString()
+    } else {
+      valueText = date.toLocaleString()
+    }
+  } else {
+    valueText = ''
+  }
+}
+
+window.Zotero.ZotCard.Utils.getSelectedItems = function (itemType) {
+  var zitems = window.ZoteroPane.getSelectedItems()
+  if (!zitems.length) {
+    if (isDebug()) Zotero.debug('zitems.length: ' + zitems.length)
+    return false
+  }
+
+  if (itemType) {
+    if (!Array.isArray(itemType)) {
+      itemType = [itemType]
+    }
+    var siftedItems = window.Zotero.ZotCard.Utils.siftItems(zitems, itemType)
+    if (isDebug()) Zotero.debug('siftedItems.matched: ' + JSON.stringify(siftedItems.matched))
+    return siftedItems.matched
+  } else {
+    return zitems
+  }
+}
+
+window.Zotero.ZotCard.Utils.getSelectedItemTypes = function () {
+  var zitems = window.ZoteroPane.getSelectedItems()
+  if (!zitems.length) {
+    if (isDebug()) Zotero.debug('zitems.length: ' + zitems.length)
+    return false
+  }
+
+  itemTypes = []
+  zitems.forEach(zitem => {
+    let itemType
+    if (zitem.isRegularItem()) {
+      itemType = 'regular'
+    } else {
+      itemType = Zotero.ItemTypes.getName(zitem.itemTypeID)
+    }
+    if (!itemTypes.includes(itemType)) {
+      itemTypes.push(itemType)
+    }
+  })
+  return itemTypes
+}
+
+window.Zotero.ZotCard.Utils.siftItems = function (itemArray, itemTypeArray) {
+  var matchedItems = []
+  var unmatchedItems = []
+  while (itemArray.length > 0) {
+    if (window.Zotero.ZotCard.Utils.checkItemType(itemArray[0], itemTypeArray)) {
+      matchedItems.push(itemArray.shift())
+    } else {
+      unmatchedItems.push(itemArray.shift())
+    }
+  }
+
+  return {
+    matched: matchedItems,
+    unmatched: unmatchedItems
+  }
+}
+
+window.Zotero.ZotCard.Utils.checkItemType = function (itemObj, itemTypeArray) {
+  var matchBool = false
+
+  for (var idx = 0; idx < itemTypeArray.length; idx++) {
+    switch (itemTypeArray[idx]) {
+      case 'attachment':
+        matchBool = itemObj.isAttachment()
+        break
+      case 'note':
+        matchBool = itemObj.isNote()
+        break
+      case 'regular':
+        matchBool = itemObj.isRegularItem()
+        break
+      default:
+        matchBool = Zotero.ItemTypes.getName(itemObj.itemTypeID) === itemTypeArray[idx]
+    }
+
+    if (matchBool) {
+      break
+    }
+  }
+
+  return matchBool
 }

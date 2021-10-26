@@ -115,16 +115,20 @@
 			.orangered {
 				color: orangered;
 			}
+
+			.pointer {
+				cursor: pointer;
+			}
 		</style>
 	</head>
 	<body>
 		<header>
-			<p class="title"><b><span id="username">...</span>的卡片报告</b></p>
-			<p class="subtitle">(<span class="today">...</span>生成)</p>
+			<p class="title"><b>「<span id="username">...</span>」卡片报告</b></p>
+			<p class="subtitle">(<span id="now">...</span>生成)</p>
 		</header>
-		<div id="content" hidden>
+		<div id="content">
 			<p>今天是 <span class="current-wrap"><b class="today current">...</b></span>，今年第 <b id="week">...</b> 周。</p>
-			<p>自 <b><span id="first-card-date">...</span></b> 第一次卡片到现在(<b><span id="now">...</span></b>) <b id="totalDays">...</b>天，一共 <span id="dates" class="uread-color highlight">...</span> 天写卡，占 <span id="ratio" class="uread-color highlight">...</span>，平均一天 <span id="average1" class="uread-color highlight"></span> 张卡。累计 <span id="hangzis" class="uread-color highlight">...</span> 字，写卡 <span id="totals" class="uread-color highlight">...</span> 张，平均一卡 <span id="average2" class="uread-color highlight"></span> 字，最长一卡 <span id="maxHangzi" class="uread-color highlight"></span> 字，卡片标题为「<b id="maxHangziNoteTitle"></b>」。其中 <span id="card-details">...</span>。最近一次写卡在 <b><span id="last-card-date">...</span></b><span id="no-card"></span>。</p>
+			<p>自 <b><span id="first-card-date" class="pointer" onclick="selectItem(this)">...</span></b> 第一次卡片到现在 <b id="totalDays">...</b> 天，一共 <span id="dates" class="uread-color highlight">...</span> 天写卡，占 <span id="ratio" class="uread-color highlight">...</span>，平均一天 <span id="average1" class="uread-color highlight"></span> 张卡。总共累计 <span id="hangzis" class="uread-color highlight">...</span> 字，写卡 <span id="totals" class="uread-color highlight pointer" onclick="readAll()">...</span> 张，平均一卡 <span id="average2" class="uread-color highlight"></span> 字，最长一卡 <span id="maxHangzi" class="uread-color highlight"></span> 字，卡片标题为「<b id="maxHangziNoteTitle" class="pointer" onclick="selectItem(this)"></b>」。其中 <span id="card-details">...</span>。最近一次写卡在 <b><span id="last-card-date" class="pointer" onclick="selectItem(this)">...</span></b><span id="no-card"></span>。</p>
 			<p class="section item-label">今年近12周写卡情况：</p>
 			<div id="weeks" class="detail">...
 				<div class="item current-wrap" onclick="alert('123')">
@@ -146,7 +150,10 @@
 		</div>
 		<footer>
 			<hr>
-			<p>本报告由 ZotCard(https://github.com/018/zotcard) 生成，卡片统计规则是所有包括「日期」并且日期格式为0000-00-00或0000/00/00或0000年00月00日的卡片。</p>
+			<p>本报告由 ZotCard(https://github.com/018/zotcard) 生成。<br />
+				1、卡片统计规则：所有笔记标题不是「目录」、「豆瓣短评」和「初步评价」的笔记。<br />
+				2、卡片日期：内容存在「日期：」或「日期:」并且日期格式为2021-01-01或2021/01/01或2021.01.01或2021年01月01日或20210101时抓取作为卡片日期，否则默认取创建日期为卡片日期。<br />
+				3、卡片类型则是取卡片标题「卡」字前面的汉字，如果不存在「卡」字，则统计为「其他」。如果需要忽略卡片统计，可以在卡片署名，格式为「作者：」后加作者。</p>
 		</footer>
 	</body>
 </html>

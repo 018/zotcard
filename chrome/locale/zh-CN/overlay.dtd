@@ -6,6 +6,7 @@
 <!ENTITY zotero.zotcard.skill.label "技巧卡">
 <!ENTITY zotero.zotcard.structure.label "结构卡">
 <!ENTITY zotero.zotcard.general.label "短文卡">
+<!ENTITY zotero.zotcard.readcard.label "读卡">
 <!ENTITY zotero.zotcard.replace.label "替换">
 <!ENTITY zotero.zotcard.copy.label "复制">
 <!ENTITY zotero.zotcard.copyandcreate.label "复制并创建">
@@ -18,6 +19,9 @@
 
 <!ENTITY zotero.zotcard.adjust.title "调整">
 <!ENTITY zotero.zotcard.adjust.column.label "一行的个数">
+
+<!ENTITY zotero.zotcard.readcollectioncard.label "读卡">
+<!ENTITY zotero.zotcard.collectionreport.label "卡片报告">
 
 <!ENTITY zotero.zotcard.option.label "ZotCard 选项">
 <!ENTITY zotero.zotcard.option.config.label "配置">
@@ -35,7 +39,6 @@
 <!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.cyan.label "莫兰迪色系-青">
 <!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.purple.label "莫兰迪色系-紫">
 <!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.reset.label "重置">
-<!ENTITY zotero.zotcard.option.report.label "卡片报告">
 <!ENTITY zotero.zotcard.option.github.label "官网">
 
 

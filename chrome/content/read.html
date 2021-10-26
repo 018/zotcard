@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>读卡</title>
+		<script src="chrome://zotero/content/include.js"></script>
+		<script src="read.js"></script>
+		
+		<style>
+			body {
+				margin: 0;
+				padding: 0;
+				background: #F5F5F5;
+				font-size: 12px;
+			}
+
+			#read {
+				margin: 20px;
+			}
+
+			.header {
+				display: flex;
+				justify-content: space-between;
+				margin: 10px 0;
+			}
+
+			footer {
+				font-size: 12px;
+				color: gray;
+				margin: 10px 10px;
+			}
+
+			#desc {
+				color: #909399;
+			}
+
+			#content-list {
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+				justify-content: flex-start;
+				align-items: flex-start;
+			}
+
+			.one-card-bar {
+				display: flex;
+				justify-content: space-between;
+			}
+
+			.card {
+				word-wrap: break-word;
+				margin-right: 10px;
+				margin-bottom: 20px;
+				padding: 10px;
+				background-color: #fff;
+				border-radius: 4px;
+				box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+			}
+
+			.card-bar {
+				display: flex;
+				justify-content: space-between;
+				margin-bottom: 5px;
+				align-items: center;
+			}
+
+			.card-all {
+				overflow: scroll;
+			}
+
+			#concentration {
+				width: 100%;
+				background-color: rgb(39, 39, 39);
+				top: 0;
+				left: 0;
+				margin: 0;
+				padding: 0;
+			}
+
+			#concentration-content {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+
+			.one-card-wrap {
+				width: 50%;
+				max-width: 50%;
+				word-wrap: break-word;
+				margin: 100px 0;
+				padding: 10px;
+			}
+
+			.one-card {
+				padding: 10px;
+				background-color: #fff;
+				border-radius: 4px;
+				box-shadow: 0 4px 6px rgba(255, 255, 255, 0.12), 0 0 6px rgba(255, 255, 255, 0.04);
+			}
+
+			.one-card-bar {
+				display: flex;
+				justify-content: space-between;
+			}
+
+			hr {
+				height: 1px;
+				border: none;
+				background-color: #f0f0f0;
+			}
+
+			.pointer {
+				cursor: pointer;
+			}
+
+			.linenowrap {
+				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+			}
+
+			.one-card-info {
+				display: flex;
+				justify-content: space-between;
+				color: rgb(168, 168, 168);
+				font-size: 12px;
+			}
+
+			#one-card-content {
+				overflow-x: scroll;
+			}
+
+			.paging {
+				width: 50px;
+				line-height: 100px;
+				text-align: center;
+				color: rgb(168, 168, 168);
+			}
+
+			.uread {
+				color: #009193;
+			}
+
+			.readed {
+				color: orangered;
+				margin-left: 6px;
+			}
+
+			.placeholder-color {
+				color: #C0C4CC !important;
+			}
+
+			.input-bar {
+				display: flex;
+				height: 20px;
+				align-items: center;
+			}
+
+			.inputsection {
+				margin-right: 20px;
+			}
+
+			.input {
+				width: 50px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="read">
+			<header>
+				<div class="header">
+					<div>
+						<b><span id="title"></span></b><span>一共 <span id="totals">0</span> 张卡片，隐藏 <span id="hides">0</span> 张。<span onclick="copyAll(this)" class="pointer uread">复制(<span id="cards">0</span>)</span></span>
+					</div>
+					<div class="input-bar">
+						<div class="inputsection">
+							<span>卡片宽度：</span>
+							<input class="input" id="card-width"></input>
+						</div>
+						<div class="inputsection">
+							<span>卡片高度：</span>
+							<input class="input" id="card-height"></input>
+							<input type="checkbox" id="fit-height">自适应高度</input>
+						</div>
+						<button onclick="ok()">确认</button>
+					</div>
+					<div id="orderby">
+						<span class="pointer uread" onclick="orderby(this, 'date')"><span id="orderbydate" class="tag">▼</span>卡片日期</span><span class="placeholder-color"> ｜ </span>
+						<span class="pointer uread" onclick="orderby(this, 'dateAdded')"><span id="orderbydateAdded" class="tag"></span>创建时间</span><span class="placeholder-color"> ｜ </span>
+						<span class="pointer uread" onclick="orderby(this, 'dateModified')"><span id="orderbydateModified" class="tag"></span>修改时间</span><span class="placeholder-color"> ｜ </span>
+						<span class="pointer uread" onclick="orderby(this, 'title')"><span id="orderbytitle" class="tag"></span>标题</span>
+					</div>
+				</div>
+				<p id="desc" hidden>...</p>
+			</header>
+			<p id="loading">正在加载数据 ...</p>
+			<div id="content">
+				<div id="content-list">
+					<div class="card">
+						<div class="card-bar">
+							<span>编辑</span> ｜
+							<span>刷新</span> ｜
+							<span>隐藏</span> ｜
+							<span>定位条目</span> ｜
+							<span>收起</span>
+						</div>
+						<div class="card-content">
+							<div>
+								<h3 style="text-align: center;">金句卡 - <span>人生是一个不断面对问题并解决问题的过程</span></h3>
+								<p style="color: #999999; display: flex; justify-content: space-between;"><span>标签：[自律] [问题] </span> <span>日期：2021-10-12</span></p>
+								<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
+								<p><strong>复述</strong>：<span>人生就是一个不断发现问题、面对问题、解决问题的过程。问题激发我们的智慧，锤炼我们的勇气，为了解决问题，我们的心智会不断的成熟。一味的回避问题会错失解决问题、推动心灵成长的让我们患上心理疾病。我们应该拥有承担，敢于面对，这样才能使得我们心灵变得健康和成熟。</span></p>
+								<p><strong>启发</strong>：<span>&lt;无&gt;</span></p>
+								<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
+								<p style="color: #999999;">出处：[美] M.斯科特·派克《少有人走的路：心智成熟的旅程》(2017) P<span>3～4</span></p>
+							</div>
+						</div>
+					</div>
+					<div class="card">
+						<div class="card-bar">
+							<span>定位条目</span> ｜
+							<span>隐藏</span> ｜
+							<span>收起</span>
+						</div>
+						<div class="card-content">
+							<div class="card-all">
+								<div >
+									<h3 style="text-align: center;">金句卡 - <span>人生是一个不断面对问题并解决问题的过程</span></h3>
+									<p style="color: #999999; display: flex; justify-content: space-between;"><span>标签：[自律] [问题] </span> <span>日期：2021-10-12</span></p>
+									<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
+									<p><strong>原文</strong>：人生是一个不断面对问题并解决问题的过程。问题可以开启我们的智慧，激发我们的勇气。为解决问题而努力，我们的思想和心灵就会不断成长，心智就会不断成熟。<br />“问题”是我们成功与失败的分水岭。承受面对问题和解决问题的痛苦，我们就能从痛苦中学到很多东西。</p>
+									<p>回避问题和逃避痛苦的倾向，是人类心理疾病的根源。如果不顾一切地逃避问题和痛苦，不仅错失了解决问题、推动心灵成长的契机，而且还会使我们患上心理疾病。<br />正确的做法是：我们要让我们自己，也要让我们的孩子认识到，人生的问题和痛苦具有非凡的价值。用于承担责任，敢于面对困难，才能够使心灵变得健康。</p>
+									<p><strong>复述</strong>：<span>人生就是一个不断发现问题、面对问题、解决问题的过程。问题激发我们的智慧，锤炼我们的勇气，为了解决问题，我们的心智会不断的成熟。一味的回避问题会错失解决问题、推动心灵成长的让我们患上心理疾病。我们应该拥有承担，敢于面对，这样才能使得我们心灵变得健康和成熟。</span></p>
+									<p><strong>启发</strong>：<span>&lt;无&gt;</span></p>
+									<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
+									<p style="color: #999999;">出处：[美] M.斯科特·派克《少有人走的路：心智成熟的旅程》(2017) P<span>3～4</span></p>
+								</div>
+							</div>
+							<div class="card-title" hidden>
+								<h3 style="text-align: center;">金句卡 - 人生是一个不断面对问题并解决问题的过程</h3>
+							</div>
+						</div>
+					</div>
+					<div class="card">
+						<div class="card-bar">
+							<span>定位条目</span> ｜
+							<span>移除显示</span> ｜
+							<span>收起</span>
+						</div>
+						<div class="card-content">
+							<div class="card-all">
+								<div >
+									<h3 style="text-align: center;">金句卡 - <span>人生是一个不断面对问题并解决问题的过程</span></h3>
+									<p><strong>启发</strong>：<span>&lt;无&gt;</span></p>
+									<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
+									<p style="color: #999999;">出处：[美] M.斯科特·派克《少有人走的路：心智成熟的旅程》(2017) P<span>3～4</span></p>
+								</div>
+							</div>
+							<div class="card-title" hidden>
+								<h3 style="text-align: center;">金句卡 - 人生是一个不断面对问题并解决问题的过程</h3>
+							</div>
+						</div>
+					</div>
+					<div class="card">
+						<div class="card-bar">
+							<span>定位条目</span> ｜
+							<span>移除显示</span> ｜
+							<span>收起</span>
+						</div>
+						<div class="card-content">
+							<div class="card-all">
+								<div >
+									<h3 style="text-align: center;">金句卡 - <span>人生是一个不断面对问题并解决问题的过程</span></h3>
+									<p style="color: #999999; display: flex; justify-content: space-between;"><span>标签：[自律] [问题] </span> <span>日期：2021-10-12</span></p>
+									<p><strong>复述</strong>：<span>人生就是一个不断发现问题、面对问题、解决问题的过程。问题激发我们的智慧，锤炼我们的勇气，为了解决问题，我们的心智会不断的成熟。一味的回避问题会错失解决问题、推动心灵成长的让我们患上心理疾病。我们应该拥有承担，敢于面对，这样才能使得我们心灵变得健康和成熟。</span></p>
+									<p><strong>启发</strong>：<span>&lt;无&gt;</span></p>
+									<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
+									<p style="color: #999999;">出处：[美] M.斯科特·派克《少有人走的路：心智成熟的旅程》(2017) P<span>3～4</span></p>
+								</div>
+							</div>
+							<div class="card-title" hidden>
+								<h3 style="text-align: center;">金句卡 - 人生是一个不断面对问题并解决问题的过程</h3>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<footer>
+				<hr>
+				<p>本功能由 ZotCard(https://github.com/018/zotcard) 生成呈现<br />
+					1、卡片抓取规则是所有笔记标题不是「目录」、「豆瓣短评」和「初步评价」的笔记。<br />
+					2、卡片日期：内容存在「日期：」或「日期:」并且日期格式为2021-01-01或2021/01/01或2021.01.01或2021年01月01日或20210101时抓取作为卡片日期，否则默认取创建日期为卡片日期。<br />
+			</footer>
+		</div>
+		<div id="concentration">
+			<div id="concentration-content">
+				<span class="pointer paging" id="one-card-previous" onclick="oneCardPrevious(this)">◀︎</span>
+				<div class="one-card-wrap">
+					<div class="one-card">
+						<div class="one-card-bar">
+							<div>
+								<span onclick="oneCardEdit(this)" class="pointer uread">编辑</span><span class="placeholder-color"> ｜ </span>
+								<span onclick="oneCardRefresh(this)" class="pointer uread">刷新</span><span class="placeholder-color"> ｜ </span>
+								<span onclick="oneCardCopy(this)" class="pointer uread">复制</span><span class="placeholder-color"> ｜ </span>
+								<span onclick="oneCardRemove(this)" class="pointer uread">隐藏</span><span class="placeholder-color"> ｜ </span>
+								<span onclick="oneCardLocation(this)" class="pointer uread">定位条目</span><span class="placeholder-color"> ｜ </span>
+								<span onclick="oneCardExit(this)" class="pointer uread">退出专注模式</span>
+							</div>
+							<span id="one-card-progress">0/0</span>
+						</div>
+						<hr>
+						<div class="card-content" id="one-card-content">
+							<div>
+								<h3 style="text-align: center;">金句卡 - <span>人生是一个不断面对问题并解决问题的过程</span></h3>
+								<p style="color: #999999; display: flex; justify-content: space-between;"><span>标签：[自律] [问题] </span> <span>日期：2021-10-12</span></p>
+								<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
+								<p><strong>复述</strong>：<span>人生就是一个不断发现问题、面对问题、解决问题的过程。问题激发我们的智慧，锤炼我们的勇气，为了解决问题，我们的心智会不断的成熟。一味的回避问题会错失解决问题、推动心灵成长的让我们患上心理疾病。我们应该拥有承担，敢于面对，这样才能使得我们心灵变得健康和成熟。</span></p>
+								<p><strong>复述</strong>：<span>人生就是一个不断发现问题、面对问题、解决问题的过程。问题激发我们的智慧，锤炼我们的勇气，为了解决问题，我们的心智会不断的成熟。一味的回避问题会错失解决问题、推动心灵成长的让我们患上心理疾病。我们应该拥有承担，敢于面对，这样才能使得我们心灵变得健康和成熟。</span></p>
+								<p><strong>复述</strong>：<span>人生就是一个不断发现问题、面对问题、解决问题的过程。问题激发我们的智慧，锤炼我们的勇气，为了解决问题，我们的心智会不断的成熟。一味的回避问题会错失解决问题、推动心灵成长的让我们患上心理疾病。我们应该拥有承担，敢于面对，这样才能使得我们心灵变得健康和成熟。</span></p>
+								<p><strong>复述</strong>：<span>人生就是一个不断发现问题、面对问题、解决问题的过程。问题激发我们的智慧，锤炼我们的勇气，为了解决问题，我们的心智会不断的成熟。一味的回避问题会错失解决问题、推动心灵成长的让我们患上心理疾病。我们应该拥有承担，敢于面对，这样才能使得我们心灵变得健康和成熟。</span></p>
+								<p><strong>复述</strong>：<span>人生就是一个不断发现问题、面对问题、解决问题的过程。问题激发我们的智慧，锤炼我们的勇气，为了解决问题，我们的心智会不断的成熟。一味的回避问题会错失解决问题、推动心灵成长的让我们患上心理疾病。我们应该拥有承担，敢于面对，这样才能使得我们心灵变得健康和成熟。</span></p>
+								<p><strong>启发</strong>：<span>&lt;无&gt;</span></p>
+								<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
+								<p style="color: #999999;">出处：[美] M.斯科特·派克《少有人走的路：心智成熟的旅程》(2017) P<span>3～4</span></p>
+							</div>
+						</div>
+					</div>
+					<p class="one-card-info"><span>卡片日期：<span id="one-card-date">...</span></span><span>创建时间：<span id="one-card-dateAdded">...</span></span><span>修改时间：<span id="one-card-dateModified">...</span></span><span>字数：<span id="one-card-hangzis">...</span></span></p>
+				</div>
+				<span class="pointer paging" id="one-card-next" onclick="oneCardNext(this)">▶︎</span>
+			</div>
+		</div>
+	</body>
+</html>

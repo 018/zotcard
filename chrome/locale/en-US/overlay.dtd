@@ -6,6 +6,7 @@
 <!ENTITY zotero.zotcard.skill.label "Skill Card">
 <!ENTITY zotero.zotcard.structure.label "Structure Card">
 <!ENTITY zotero.zotcard.general.label "General Card">
+<!ENTITY zotero.zotcard.readcard.label "Read Card">
 <!ENTITY zotero.zotcard.replace.label "Replace">
 <!ENTITY zotero.zotcard.copy.label "Copy">
 <!ENTITY zotero.zotcard.copyandcreate.label "Copy and create">
@@ -18,6 +19,9 @@
 
 <!ENTITY zotero.zotcard.adjust.title "Adjust">
 <!ENTITY zotero.zotcard.adjust.column.label "Column">
+
+<!ENTITY zotero.zotcard.readcollectioncard.label "Read Card">
+<!ENTITY zotero.zotcard.collectionreport.label "Card Report">
 
 <!ENTITY zotero.zotcard.option.label "ZotCard Option">
 <!ENTITY zotero.zotcard.option.config.label "Config">
@@ -35,7 +39,6 @@
 <!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.cyan.label "Cyan">
 <!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.purple.label "Purple">
 <!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.reset.label "Reset">
-<!ENTITY zotero.zotcard.option.report.label "Card Report">
 <!ENTITY zotero.zotcard.option.github.label "Site">
 
 

@@ -29,6 +29,7 @@ function ok () {
       win.moveTo(w, h)
     }
     Zotero.debug(`${w} - ${h}, ${win.outerWidth} - ${window.screen.availWidth}`)
+    win.focus()
 
     if ((w + win.outerWidth) < window.screen.availWidth) {
       w += win.outerWidth
