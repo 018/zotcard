@@ -294,7 +294,7 @@ window.Zotero.ZotCard.Utils.cardDate = function (item) {
       dateString = `${match4[0].substr(0, 4)}-${match4[0].substr(4, 2)}-${match4[0].substr(6, 2)}`
     } else {
       Zotero.debug(`不包含有效日期，取创建日期。${match3}`)
-      dateString = Zotero.ZotCard.Utils.sqlToDate(note.dateAdded, 'yyyy-MM-dd')
+      dateString = Zotero.ZotCard.Utils.sqlToDate(item.dateAdded, 'yyyy-MM-dd')
     }
   } else {
     // let match2 = match1[0].match(/\d{4}[-/年.]\d{1,2}[-/月.]\d{1,2}日{0,1}/g)
