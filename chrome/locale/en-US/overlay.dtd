@@ -1,4 +1,5 @@
 <!ENTITY zotero.zotcard.zotcard.label "ZotCard">
+<!ENTITY zotero.zotcard.abstract.label "Abstract Card">
 <!ENTITY zotero.zotcard.quotes.label "Quotes Card">
 <!ENTITY zotero.zotcard.concept.label "Concept Card">
 <!ENTITY zotero.zotcard.character.label "Character Card">

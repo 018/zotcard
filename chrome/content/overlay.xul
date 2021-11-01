@@ -19,6 +19,11 @@
         <menu class="menu-iconic" id="zotero-itemmenu-zotcard" label="&zotero.zotcard.zotcard.label;">
             <menupopup id="zotero-itemmenu-zotcard-menupopup">
                 <menuitem
+                    id="zotero-itemmenu-zotcard-abstract"
+                    class="dynamic-menu only-regular only-simple"
+                    label="&zotero.zotcard.abstract.label;"
+                    oncommand="Zotero.ZotCard.abstract()"/>
+                <menuitem
                     id="zotero-itemmenu-zotcard-quotes"
                     class="dynamic-menu only-regular only-simple"
                     label="&zotero.zotcard.quotes.label;"

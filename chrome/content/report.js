@@ -305,7 +305,7 @@ function start () {
         let week = e.target.getAttribute('week')
         let contents = datapack.years[year].weeks[week].contents
         Zotero.debug(`${year}, ${week}, ${contents.length}`)
-        window.openDialog('chrome://zoterozotcard/content/read.html', 'read', 'chrome,resizable,centerscreen,menubar,scrollbars', [...contents], `${year}年第${week}周`, mCardDetails)
+        window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, [...contents], `${year}年第${week}周`, mCardDetails)
       }
       let span1 = document.createElement('span')
       span1.setAttribute('class', `value ${value === 0 ? 'zero' : 'uread-color'}`)
@@ -381,7 +381,7 @@ function start () {
           let month = e.target.getAttribute('month')
           let contents = datapack.years[year].months[month].contents
           Zotero.debug(`${year}, ${month}, ${contents.length}`)
-          window.openDialog('chrome://zoterozotcard/content/read.html', 'read', 'chrome,resizable,centerscreen,menubar,scrollbars', [...contents], `${year}年${month}月`, yCardDetails)
+          window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, [...contents], `${year}年${month}月`, yCardDetails)
         }
         let span1 = document.createElement('span')
         span1.setAttribute('class', `value ${value === 0 ? 'zero' : 'uread-color'}`)
@@ -429,7 +429,7 @@ function readWithYear (year) {
   let contents = calculateYear(year)
   let cardDetails = cards(datapack.years[year].cards, false)
   progressWin.close()
-  window.openDialog('chrome://zoterozotcard/content/read.html', 'read', 'chrome,resizable,centerscreen,menubar,scrollbars', contents, `${year}年`, cardDetails)
+  window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, contents, `${year}年`, cardDetails)
 }
 
 function readAll () {
@@ -444,7 +444,7 @@ function readAll () {
   let contents = calculateAll()
   let cardDetails = cards(datapack.cards, false)
   progressWin.close()
-  window.openDialog('chrome://zoterozotcard/content/read.html', 'read', 'chrome,resizable,centerscreen,menubar,scrollbars', contents, `所有`, cardDetails)
+  window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, contents, `所有`, cardDetails)
 }
 
 function calculateYear (year) {

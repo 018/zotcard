@@ -203,7 +203,7 @@ function createCard (card, index) {
   let span2 = document.createElement('span')
   span2.setAttribute('class', 'pointer uread')
   span2.setAttribute('card-id', card.id)
-  span2.textContent = '隐藏'
+  span2.textContent = '关闭'
   span2.onclick = function (e) {
     removeCard(e.target.getAttribute('card-id'))
   }

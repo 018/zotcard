@@ -119,6 +119,7 @@ zotcard.refreshZoteroItemPopup = function () {
   this.initDefCardMenu('not_commonsense')
   this.initDefCardMenu('skill')
   this.initDefCardMenu('structure')
+  this.initDefCardMenu('abstract')
   this.initDefCardMenu('general')
 
   document.querySelectorAll('.card').forEach(element => {
@@ -138,7 +139,7 @@ zotcard.refreshZoteroItemPopup = function () {
         card.setAttribute('name', name)
         card.setAttribute('class', 'card')
         card.onclick = function (e) { this.newCard(e.target.getAttribute('name')) }.bind(this)
-        document.getElementById('zotero-itemmenu-zotcard-separator2').after(card)
+        document.getElementById('zotero-itemmenu-zotcard-menupopup').append(card)
       }
       card.setAttribute('label', `${pref.card ? pref.label : '-'}`)
       card.hidden = !pref.visible
@@ -223,6 +224,8 @@ zotcard.initPrefs = function (item) {
     json.skill = pref
     pref = this.initPrefs('structure')
     json.structure = pref
+    pref = this.initPrefs('abstract')
+    json.abstract = pref
     pref = this.initPrefs('general')
     json.general = pref
     let quantity = this.initPrefs('card_quantity')
@@ -271,6 +274,11 @@ zotcard.initPrefs = function (item) {
         def = '<h3>## 结构卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p>- <strong>内容</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(2)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(3)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>'
         pref = this.initPref('结构卡', item, beforeDefs, def)
         break
+      case 'abstract':
+        beforeDefs = []
+        def = '<h3>## 摘要卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>摘要</strong>：<span>&lt;原文句子&gt;</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>'
+        pref = this.initPref('摘要卡', item, beforeDefs, def)
+        break
       case 'general':
         beforeDefs = ['<h3>## 通用卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>想法</strong>：</p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
           '<h3>## 通用卡 - <span style="color: #bbbbbb;">&lt;标题&gt;</span></h3>\\n<p>- <strong>想法</strong>：</p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span style="color: #bbbbbb;">&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
@@ -309,6 +317,8 @@ zotcard.reset = function () {
     Zotero.Prefs.clear('zotcard.skill.visible')
     Zotero.Prefs.clear('zotcard.structure')
     Zotero.Prefs.clear('zotcard.structure.visible')
+    Zotero.Prefs.clear('zotcard.abstract')
+    Zotero.Prefs.clear('zotcard.abstract.visible')
     Zotero.Prefs.clear('zotcard.general')
     Zotero.Prefs.clear('zotcard.general.visible')
     Zotero.Prefs.clear('zotcard.card_quantity')
@@ -454,6 +464,10 @@ zotcard.structure = function () {
   this.newCard('structure')
 }
 
+zotcard.abstract = function () {
+  this.newCard('abstract')
+}
+
 zotcard.general = function () {
   this.newCard('general')
 }
@@ -496,7 +510,7 @@ zotcard.readcollectioncard = function () {
 
     Zotero.hideZoteroPaneOverlays()
     if (cards.length > 0) {
-      window.openDialog('chrome://zoterozotcard/content/read.html', 'read', 'chrome,resizable,centerscreen,menubar,scrollbars', cards, name)
+      window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, cards, name)
     } else {
       Zotero.ZotCard.Utils.error('无卡片。')
     }
@@ -547,7 +561,7 @@ zotcard.collectionreport = function () {
     io.name = lib.name
     io.key = lib.libraryType
   }
-  window.openDialog('chrome://zoterozotcard/content/report.html', 'report', 'chrome,resizable,centerscreen,menubar,scrollbars,height=700,width=1000', io)
+  window.openDialog('chrome://zoterozotcard/content/report.html', 'report', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, io)
 }
 
 zotcard.showReadCard = function (items, title) {
@@ -559,14 +573,13 @@ zotcard.showReadCard = function (items, title) {
   })
 
   Zotero.hideZoteroPaneOverlays()
-  window.openDialog('chrome://zoterozotcard/content/read.html', 'read', 'chrome,resizable,centerscreen,menubar,scrollbars', cards, title)
+  window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, cards, title)
 }
 
 zotcard.replace = function () {
   window.openDialog(
     'chrome://zoterozotcard/content/replace.xul',
-    'zutilo-startup-upgradewindow', 'chrome, centerscreen',
-    { upgradeMessage: '' })
+    'replace', 'chrome, centerscreen')
 }
 
 zotcard.doReplace = function (target) {
@@ -816,6 +829,7 @@ zotcard.compressimg = async function () {
 zotcard.config = function () {
   Zotero.ZotCard.Utils.warning(`在接下来的about:config窗口中进行配置。
 默认：
+  zotcard.abstract\t\t\t\t\t摘要卡
   zotcard.quotes\t\t\t\t\t金句卡模版
   zotcard.quotes.label\t\t\t\t金句卡标题
   zotcard.quotes.visible\t\t\t\t金句卡显示
@@ -872,6 +886,7 @@ zotcard.restore = function () {
               json.not_commonsense && json.not_commonsense.card &&
               json.skill && json.skill.card &&
               json.structure && json.structure.card &&
+              json.abstract && json.abstract.card &&
               json.general && json.general.card &&
               json.card_quantity !== undefined) {
             for (let index = 0; index < json.card_quantity; index++) {
@@ -893,6 +908,8 @@ zotcard.restore = function () {
             Zotero.Prefs.set(`zotcard.skill.visible`, json.skill.visible === undefined ? true : json.skill.visible)
             Zotero.Prefs.set(`zotcard.structure`, json.structure.card)
             Zotero.Prefs.set(`zotcard.structure.visible`, json.structure.visible === undefined ? true : json.structure.visible)
+            Zotero.Prefs.set(`zotcard.abstract`, json.abstract.card)
+            Zotero.Prefs.set(`zotcard.abstract.visible`, json.abstract.visible === undefined ? true : json.abstract.visible)
             Zotero.Prefs.set(`zotcard.general`, json.general.card)
             Zotero.Prefs.set(`zotcard.general.visible`, json.general.visible === undefined ? true : json.general.visible)
             Zotero.Prefs.set(`zotcard.card_quantity`, json.card_quantity)
@@ -953,6 +970,8 @@ zotcard.transitionstyle = function () {
             Zotero.Prefs.set(`zotcard.skill.visible`, json.skill.visible === undefined ? true : json.skill.visible)
             Zotero.Prefs.set(`zotcard.structure`, json.structure.card)
             Zotero.Prefs.set(`zotcard.structure.visible`, json.structure.visible === undefined ? true : json.structure.visible)
+            Zotero.Prefs.set(`zotcard.abstract`, json.abstract.card)
+            Zotero.Prefs.set(`zotcard.abstract.visible`, json.abstract.visible === undefined ? true : json.abstract.visible)
             Zotero.Prefs.set(`zotcard.general`, json.general.card)
             Zotero.Prefs.set(`zotcard.general.visible`, json.general.visible === undefined ? true : json.general.visible)
 
@@ -1087,6 +1106,7 @@ if (typeof window !== 'undefined') {
   window.Zotero.ZotCard.not_commonsense = function () { zotcard.not_commonsense() }
   window.Zotero.ZotCard.skill = function () { zotcard.skill() }
   window.Zotero.ZotCard.structure = function () { zotcard.structure() }
+  window.Zotero.ZotCard.abstract = function () { zotcard.abstract() }
   window.Zotero.ZotCard.general = function () { zotcard.general() }
   window.Zotero.ZotCard.readcard = function () { zotcard.readcard() }
   window.Zotero.ZotCard.replace = function () { zotcard.replace() }
