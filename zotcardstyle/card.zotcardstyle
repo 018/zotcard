@@ -1,5 +1,9 @@
 {
-    "last_updated": "2021-08-31 19:14:00",
+    "last_updated": "2021-11-02",
+    "abstract": {
+        "card": "<div style='background-color: #fff; margin: 5px; padding: 10px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);'><h3 style='text-align: center;'>摘要卡 - <span>&lt;标题&gt;</span></h3>\\n<p style='color: #999999; display: flex; justify-content: space-between;'><span>标签：[无] </span> <span>日期：{today}</span></p><hr style='height: 1px; border: none; background-color: #f0f0f0;' /><p><strong>摘要</strong>：<span>&lt;原文句子&gt;</span></p><hr style='height: 1px; border: none; background-color: #f0f0f0;' /><p style='color: #999999;'>出处：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p></div>",
+        "visible": true
+    },
     "quotes": {
         "card": "<div style='background-color: #fff; margin: 5px; padding: 10px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);'><h3 style='text-align: center;'>金句卡 - <span>&lt;标题&gt;</span></h3>\\n<p style='color: #999999; display: flex; justify-content: space-between;'><span>标签：[无] </span> <span>日期：{today}</span></p><hr style='height: 1px; border: none; background-color: #f0f0f0;' /><p><strong>原文</strong>：<span>&lt;摘抄&gt;</span></p><p><strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><hr style='height: 1px; border: none; background-color: #f0f0f0;' /><p style='color: #999999;'>出处：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p></div>",
         "visible": true
