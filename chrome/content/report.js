@@ -471,7 +471,7 @@ function calculateAll () {
 
 function selectItem (target) {
   let key = target.getAttribute('card-key')
-  Zotero.getMainWindow().ZoteroPane.selectItem(Zotero.Items.getIDFromLibraryAndKey(Zotero.Libraries.userLibraryID, key))
+  Zotero.getMainWindow().ZoteroPane.selectItem(Zotero.Items.getIDFromLibraryAndKey(Zotero.getMainWindow().ZoteroPane.getSelectedLibraryID(), key))
   Zotero.getMainWindow().focus()
 }
 

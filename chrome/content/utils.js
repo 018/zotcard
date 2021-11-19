@@ -415,3 +415,22 @@ window.Zotero.ZotCard.Utils.checkItemType = function (itemObj, itemTypeArray) {
 
   return matchBool
 }
+
+window.Zotero.ZotCard.Utils.promptForRestart = function (message) {
+  // Prompt to restart
+  var ps = Services.prompt
+  var buttonFlags = ps.BUTTON_POS_0 * ps.BUTTON_TITLE_IS_STRING + ps.BUTTON_POS_1 * ps.BUTTON_TITLE_IS_STRING;
+  var index = ps.confirmEx(
+    null,
+    Zotero.getString('general.restartRequired'),
+    Zotero.getString('general.restartRequiredForChange', [message]),
+    buttonFlags,
+    Zotero.getString('general.restartNow'),
+    Zotero.getString('general.restartLater'),
+    null, null, {}
+  )
+
+  if (index === 0) {
+    Zotero.Utilities.Internal.quitZotero(true)
+  }
+}

@@ -20,6 +20,8 @@ zotcard.init = function () {
       this.initPrefs(name)
     }
     this.resetCard(quantity + 1)
+
+    this.initStandCardMenu()
   }.bind(this))
 
   document.getElementById('zotero-items-tree').addEventListener('select', this.itemsTreeOnSelect.bind(this), false)
@@ -27,6 +29,16 @@ zotcard.init = function () {
   document.getElementById('zotero-itemmenu').addEventListener('popupshowing', this.refreshZoteroItemPopup.bind(this), false)
 
   this.initPrefs()
+
+  let tinifyApiKey = Zotero.Prefs.get('zotcard.config.tinify_api_key')
+  if (!tinifyApiKey) {
+    Zotero.Prefs.set('zotcard.config.tinify_api_key', '')
+  }
+
+  // 独立笔记
+  this.initStandCardMenu()
+
+  this.initNoteLineHeight()
 
   // Unregister callback when the window closes (important to avoid a memory leak)
   window.addEventListener('unload', function (e) {
@@ -149,11 +161,116 @@ zotcard.refreshZoteroItemPopup = function () {
   }
 }
 
+zotcard.initStandCardMenu = function () {
+  if (!document.getElementById('zotero-tb-note-add-zotcard-separator1')) {
+    let menuseparator = document.createElement('menuseparator')
+    menuseparator.setAttribute('id', 'zotero-tb-note-add-zotcard-separator1')
+    document.getElementById('zotero-tb-note-add').firstChild.append(menuseparator)
+  }
+  this.initStandDefCardMenu('abstract')
+  this.initStandDefCardMenu('quotes')
+  this.initStandDefCardMenu('concept')
+  this.initStandDefCardMenu('character')
+  this.initStandDefCardMenu('not_commonsense')
+  this.initStandDefCardMenu('skill')
+  this.initStandDefCardMenu('structure')
+  this.initStandDefCardMenu('general')
+  if (!document.getElementById('zotero-tb-note-add-zotcard-separator2')) {
+    let menuseparator = document.createElement('menuseparator')
+    menuseparator.setAttribute('id', 'zotero-tb-note-add-zotcard-separator2')
+    document.getElementById('zotero-tb-note-add').firstChild.append(menuseparator)
+  }
+
+  document.querySelectorAll('.stand-card').forEach(element => {
+    element.remove()
+  })
+  let quantity = this.initPrefs('card_quantity')
+  for (let index = 0; index < quantity; index++) {
+    let name = `card${index + 1}`
+    let id = `zotero-tb-note-add-zotcard-${name}`
+    let pref = this.initPrefs(name)
+    if (pref.visible) {
+      let card = document.getElementById(id)
+      if (!card) {
+        card = document.createElement('menuitem')
+        card.setAttribute('id', id)
+        card.setAttribute('name', name)
+        card.setAttribute('class', 'stand-card')
+        card.onclick = function (e) { this.newCard(e.target.getAttribute('name'), true) }.bind(this)
+        document.getElementById('zotero-tb-note-add').firstChild.append(card)
+      }
+      card.setAttribute('label', `新建独立${pref.card ? pref.label : '-'}`)
+    }
+  }
+}
+
+zotcard.initNoteLineHeight = function () {
+  if (!document.getElementById('note-line-heigth-menu')) {
+    let menu = document.createElement('menu')
+    menu.setAttribute('id', 'note-line-heigth-menu')
+    menu.setAttribute('label', '笔记行间距')
+    let menupopup = document.createElement('menupopup')
+    menu.append(menupopup)
+    let menuitem1 = document.createElement('menuitem')
+    menuitem1.setAttribute('type', 'checkbox')
+    menuitem1.setAttribute('label', '1(默认)')
+    menuitem1.setAttribute('line-height', '1')
+    menuitem1.setAttribute('oncommand', 'Zotero.ZotCard.noteLineHeight("1")')
+    menupopup.append(menuitem1)
+    let menuitem12 = document.createElement('menuitem')
+    menuitem12.setAttribute('type', 'checkbox')
+    menuitem12.setAttribute('label', '1.2')
+    menuitem12.setAttribute('line-height', '1.2')
+    menuitem12.setAttribute('oncommand', 'Zotero.ZotCard.noteLineHeight("1.2")')
+    menupopup.append(menuitem12)
+    let menuitem14 = document.createElement('menuitem')
+    menuitem14.setAttribute('type', 'checkbox')
+    menuitem14.setAttribute('label', '1.4')
+    menuitem14.setAttribute('line-height', '1.4')
+    menuitem14.setAttribute('oncommand', 'Zotero.ZotCard.noteLineHeight("1.4")')
+    menupopup.append(menuitem14)
+    let menuitem16 = document.createElement('menuitem')
+    menuitem16.setAttribute('type', 'checkbox')
+    menuitem16.setAttribute('label', '1.6')
+    menuitem16.setAttribute('line-height', '1.6')
+    menuitem16.setAttribute('oncommand', 'Zotero.ZotCard.noteLineHeight("1.6")')
+    menupopup.append(menuitem16)
+    let menuitem18 = document.createElement('menuitem')
+    menuitem18.setAttribute('type', 'checkbox')
+    menuitem18.setAttribute('label', '1.8')
+    menuitem18.setAttribute('line-height', '1.8')
+    menuitem18.setAttribute('oncommand', 'Zotero.ZotCard.noteLineHeight("1.8")')
+    menupopup.append(menuitem18)
+    let menuitem2 = document.createElement('menuitem')
+    menuitem2.setAttribute('type', 'checkbox')
+    menuitem2.setAttribute('label', '2')
+    menuitem2.setAttribute('line-height', '2')
+    menuitem2.setAttribute('oncommand', 'Zotero.ZotCard.noteLineHeight("2")')
+    menupopup.append(menuitem2)
+    document.getElementById('note-font-size-menu').after(menu)
+
+    this.refreshLineHeigthMenuItemChecked()
+  }
+}
+
 zotcard.initDefCardMenu = function (type) {
   let pref = this.initPrefs(type)
   let quotes = document.getElementById(`zotero-itemmenu-zotcard-${type}`)
   quotes.hidden = quotes.hidden ? quotes.hidden : !pref.visible
   quotes.setAttribute('label', pref.label)
+}
+
+zotcard.initStandDefCardMenu = function (type) {
+  let pref = this.initPrefs(type)
+  if (pref.visible && !document.getElementById(`zotero-tb-note-add-zotcard-${type}`)) {
+    let menuitem = document.createElement('menuitem')
+    menuitem.setAttribute('id', `zotero-tb-note-add-zotcard-${type}`)
+    menuitem.setAttribute('label', `新建独立${pref.label}`)
+    menuitem.onclick = function () {
+      this.newCard(type, true)
+    }.bind(this)
+    document.getElementById('zotero-tb-note-add').firstChild.append(menuitem)
+  }
 }
 
 zotcard.initPref = function (name, item, beforeDefs, def) {
@@ -199,7 +316,7 @@ zotcard.initReservedPref = function (item) {
     Zotero.Prefs.set(`zotcard.${item}.label`, item)
   }
   var visible = Zotero.Prefs.get(`zotcard.${item}.visible`)
-  if (!visible) {
+  if (visible === undefined || visible.length === 0) {
     visible = true
     Zotero.Prefs.set(`zotcard.${item}.visible`, visible)
   }
@@ -345,36 +462,10 @@ zotcard.notifierCallback = {
   }
 }
 
-zotcard.newCard = async function (name) {
-  var zitems = Zotero.ZotCard.Utils.getSelectedItems('regular')
-  if (!zitems || zitems.length <= 0) {
-    var ps = Components.classes['@mozilla.org/embedcomp/prompt-service;1'].getService(Components.interfaces.nsIPromptService)
-    ps.alert(window, this.getString('zotcard.warning'), this.getString('zotcard.unsupported_entries'))
-    return
-  }
-  if (zitems.length !== 1) {
-    var ps = Components.classes['@mozilla.org/embedcomp/prompt-service;1'].getService(Components.interfaces.nsIPromptService)
-    ps.alert(window, this.getString('zotcard.warning'), this.getString('zotcard.only_one'))
-    return
-  }
-
-  var zitem = zitems[0]
-  var creatorsData = zitem.getCreators()
-  var authors = []
-  var creatorTypeAuthor = Zotero.CreatorTypes.getID('author')
-  for (let i = 0; i < creatorsData.length; i++) {
-    let creatorTypeID = creatorsData[i].creatorTypeID
-    let creatorData = creatorsData[i]
-    if (creatorTypeID === creatorTypeAuthor) {
-      authors.push(creatorData.lastName || creatorData.firstName)
-      if (isDebug()) Zotero.debug('creatorData: ' + JSON.stringify(creatorData))
-    }
-  }
-  var item = new Zotero.Item('note')
+zotcard.newCard = async function (name, stand) {
   var pref = this.initPrefs(name)
   if (!pref) {
-    var ps = Components.classes['@mozilla.org/embedcomp/prompt-service;1'].getService(Components.interfaces.nsIPromptService)
-    ps.alert(window, this.getString('zotcard.warning'), this.getString('zotcard.please_configure', 'zotcard.' + name))
+    Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.please_configure', 'zotcard.' + name))
     return
   }
   if (!pref.card) {
@@ -385,59 +476,111 @@ zotcard.newCard = async function (name) {
 
   详情请访问官网: https://github.com/018/zotcard`)
     Zotero.openInViewer(`about:config?filter=zotero.zotcard.${name}`)
-  } else {
-    let now = new Date()
-    let firstDay = new Date()
-    firstDay.setMonth(0)
-    firstDay.setDate(1)
-    firstDay.setHours(0)
-    firstDay.setMinutes(0)
-    firstDay.setSeconds(0)
-    firstDay.setMilliseconds(0)
-    let dateGap = now.getTime() - firstDay.getTime() + 1
-    let dayOfYear = Math.ceil(dateGap / (24 * 60 * 60 * 1000))
+    return
+  }
 
-    // 0: 周日开始
-    // 1: 周一开始
-    let startOfWeek = Zotero.Prefs.get('zotcard.startOfWeek')
-    if (!startOfWeek) {
-      startOfWeek = 0
-      Zotero.Prefs.set('zotcard.startOfWeek', startOfWeek)
+  let authors = []
+  let title = ''
+  let shortTitle = ''
+  let archive = ''
+  let archiveLocation = ''
+  let url = ''
+  let date = ''
+  let year = ''
+  let extra = ''
+  let publisher = ''
+  let ISBN = ''
+  let numPages = ''
+  let now = new Date()
+  let firstDay = new Date()
+  firstDay.setMonth(0)
+  firstDay.setDate(1)
+  firstDay.setHours(0)
+  firstDay.setMinutes(0)
+  firstDay.setSeconds(0)
+  firstDay.setMilliseconds(0)
+  let dateGap = now.getTime() - firstDay.getTime() + 1
+  let dayOfYear = Math.ceil(dateGap / (24 * 60 * 60 * 1000))
+  // 0: 周日开始
+  // 1: 周一开始
+  let startOfWeek = Zotero.Prefs.get('zotcard.startOfWeek')
+  if (!startOfWeek) {
+    startOfWeek = 0
+    Zotero.Prefs.set('zotcard.startOfWeek', startOfWeek)
+  }
+  firstDay.setDate(1 + (7 - firstDay.getDay() + startOfWeek) % 7)
+  dateGap = now.getTime() - firstDay.getTime()
+  let weekOfYear = Math.ceil(dateGap / (7 * 24 * 60 * 60 * 1000)) + 1
+  let week = ['日', '一', '二', '三', '四', '五', '六'][now.getDay()]
+  let weekEn = ['Sun.', 'Mon.', 'Tues.', 'Wed.', 'Thurs.', 'Fri.', 'Sat.'][now.getDay()]
+  if (!stand) {
+    var zitems = Zotero.ZotCard.Utils.getSelectedItems('regular')
+    if (!zitems || zitems.length <= 0) {
+      Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.unsupported_entries'))
+      return
+    }
+    if (zitems.length !== 1) {
+      Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.only_one'))
+      return
     }
 
-    firstDay.setDate(1 + (7 - firstDay.getDay() + startOfWeek) % 7)
-    dateGap = now.getTime() - firstDay.getTime()
-    let weekOfYear = Math.ceil(dateGap / (7 * 24 * 60 * 60 * 1000)) + 1
+    var zitem = zitems[0]
+    var creatorsData = zitem.getCreators()
+    var creatorTypeAuthor = Zotero.CreatorTypes.getID('author')
+    for (let i = 0; i < creatorsData.length; i++) {
+      let creatorTypeID = creatorsData[i].creatorTypeID
+      let creatorData = creatorsData[i]
+      if (creatorTypeID === creatorTypeAuthor) {
+        authors.push(creatorData.lastName || creatorData.firstName)
+        if (isDebug()) Zotero.debug('creatorData: ' + JSON.stringify(creatorData))
+      }
+    }
 
-    let week = ['日', '一', '二', '三', '四', '五', '六'][now.getDay()]
-    let weekEn = ['Sun.', 'Mon.', 'Tues.', 'Wed.', 'Thurs.', 'Fri.', 'Sat.'][now.getDay()]
-
-    item.setNote(pref.card.replace(/\{authors\}/g, authors.toString())
-      .replace(/\{title\}/g, zitem.getField('title'))
-      .replace(/\{now\}/g, Zotero.ZotCard.Utils.formatDate(now, 'yyyy-MM-dd HH:mm:ss'))
-      .replace(/\{today\}/g, Zotero.ZotCard.Utils.formatDate(now, 'yyyy-MM-dd'))
-      .replace(/\{month\}/g, Zotero.ZotCard.Utils.formatDate(now, 'yyyy-MM'))
-      .replace(/\{dayOfYear\}/g, dayOfYear)
-      .replace(/\{weekOfYear\}/g, weekOfYear)
-      .replace(/\{week\}/g, week)
-      .replace(/\{week_en\}/g, weekEn)
-      .replace(/\{shortTitle\}/g, zitem.getField('shortTitle'))
-      .replace(/\{archive\}/g, zitem.getField('archive'))
-      .replace(/\{archiveLocation\}/g, zitem.getField('archiveLocation'))
-      .replace(/\{url\}/g, zitem.getField('url'))
-      .replace(/\{date\}/g, zitem.getField('date'))
-      .replace(/\{year\}/g, zitem.getField('year'))
-      .replace(/\{extra\}/g, zitem.getField('extra'))
-      .replace(/\{publisher\}/g, zitem.getField('publisher'))
-      .replace(/\{ISBN\}/g, zitem.getField('ISBN'))
-      .replace(/\{numPages\}/g, zitem.getField('numPages'))
-      .replace(/\\n/g, '\n'))
-    item.parentKey = zitem.getField('key')
-    item.libraryID = window.ZoteroPane.getSelectedLibraryID()
-    var itemID = await item.saveTx()
-    if (isDebug()) Zotero.debug('item.id: ' + itemID)
-    ZoteroPane.selectItem(itemID)
+    title = zitem.getField('title')
+    shortTitle = zitem.getField('shortTitle')
+    archive = zitem.getField('archive')
+    archiveLocation = zitem.getField('archiveLocation')
+    url = zitem.getField('url')
+    date = zitem.getField('date')
+    year = zitem.getField('year')
+    extra = zitem.getField('extra')
+    publisher = zitem.getField('publisher')
+    ISBN = zitem.getField('ISBN')
+    numPages = zitem.getField('numPages')
   }
+
+  var item = new Zotero.Item('note')
+  item.setNote(pref.card.replace(/\{authors\}/g, authors.toString())
+    .replace(/\{title\}/g, title)
+    .replace(/\{now\}/g, Zotero.ZotCard.Utils.formatDate(now, 'yyyy-MM-dd HH:mm:ss'))
+    .replace(/\{today\}/g, Zotero.ZotCard.Utils.formatDate(now, 'yyyy-MM-dd'))
+    .replace(/\{month\}/g, Zotero.ZotCard.Utils.formatDate(now, 'yyyy-MM'))
+    .replace(/\{dayOfYear\}/g, dayOfYear)
+    .replace(/\{weekOfYear\}/g, weekOfYear)
+    .replace(/\{week\}/g, week)
+    .replace(/\{week_en\}/g, weekEn)
+    .replace(/\{shortTitle\}/g, shortTitle)
+    .replace(/\{archive\}/g, archive)
+    .replace(/\{archiveLocation\}/g, archiveLocation)
+    .replace(/\{url\}/g, url)
+    .replace(/\{date\}/g, date)
+    .replace(/\{year\}/g, year)
+    .replace(/\{extra\}/g, extra)
+    .replace(/\{publisher\}/g, publisher)
+    .replace(/\{ISBN\}/g, ISBN)
+    .replace(/\{numPages\}/g, numPages)
+    .replace(/\\n/g, '\n'))
+  if (stand) {
+    item.addToCollection(ZoteroPane.getSelectedCollection().id)
+  } else {
+    item.parentKey = zitem.getField('key')
+  }
+  item.libraryID = ZoteroPane.getSelectedLibraryID()
+  var itemID = await item.saveTx()
+  if (isDebug()) Zotero.debug('item.id: ' + itemID)
+  ZoteroPane.selectItem(itemID)
+
+  document.getElementById('zotero-note-editor').focus()
 }
 
 zotcard.quotes = function () {
@@ -1001,21 +1144,7 @@ zotcard.resetCard = function (index) {
   }
 }
 
-zotcard.noteBGColor = function (color) {
-  let val = Zotero.Prefs.get('note.css')
-  if (val) {
-    if (color) {
-      val = val.replace(/body +{.*?}/g, `body { background-color: ${color}; }`)
-    } else {
-      val = val.replace(/body +{.*?}/g, '')
-    }
-  } else {
-    if (color) {
-      val = `body { background-color: ${color}; }`
-    }
-  }
-  Zotero.Prefs.set('note.css', val)
-
+zotcard.effectNoteCss = function () {
   let fontSize = Zotero.Prefs.get('note.fontSize')
   // Fix empty old font prefs before a value was enforced
   if (fontSize < 6) {
@@ -1036,15 +1165,87 @@ zotcard.noteBGColor = function (color) {
     + Zotero.Prefs.get('note.css')
 
   var editor = document.getElementById('zotero-note-editor').noteField._editor
-  var doc = editor.contentDocument
-  var head = doc.getElementsByTagName('head')[0]
-  var style = doc.createElement('style')
-  style.innerHTML = css
-  head.appendChild(style)
+  if (editor) {
+    var doc = editor.contentDocument
+    var head = doc.getElementsByTagName('head')[0]
+    var style = doc.createElement('style')
+    style.innerHTML = css
+    head.appendChild(style)
+  }
+}
+
+zotcard.refreshLineHeigthMenuItemChecked = function () {
+  let height = this.getNoteLineHeight()
+  for (let menuitem of document.querySelectorAll(`#note-line-heigth-menu menuitem`)) {
+    if (menuitem.getAttribute('line-height') === height) {
+      menuitem.setAttribute('checked', true)
+    } else {
+      menuitem.removeAttribute('checked')
+    }
+  }
+}
+
+zotcard.noteLineHeight = function (height) {
+  Zotero.debug(`height = ${height}`)
+  let val = Zotero.Prefs.get('note.css')
+  if (val) {
+    if (height) {
+      if (val.match(/body +{ line-height: .*?; }/g)) {
+        val = val.replace(/line-height: (.*?);/, `line-height: ${height};`)
+      } else {
+        val += ` body { line-height: ${height}; }`
+      }
+    } else {
+      val = val.replace(/body +{ line-height: .*?; }/g, '')
+    }
+  } else {
+    if (height) {
+      val = `body { line-height: ${height}; }`
+    }
+  }
+  Zotero.debug(`note.css = ${val}`)
+  Zotero.Prefs.set('note.css', val)
+
+  this.refreshLineHeigthMenuItemChecked()
+  this.effectNoteCss()
+}
+
+zotcard.getNoteLineHeight = function () {
+  let val = Zotero.Prefs.get('note.css')
+  if (val) {
+    let match = val.match(/body +{ line-height: (.*?); }/)
+    if (match) {
+      return match[1].split(';')[0]
+    }
+  }
+  return '1'
+}
+
+zotcard.noteBGColor = function (color) {
+  let val = Zotero.Prefs.get('note.css')
+  if (val) {
+    if (color) {
+      if (val.match(/body +{ background-color: .*?; }/g)) {
+        val = val.replace(/background-color: (.*?);/, `background-color: ${color};`)
+      } else {
+        val += ` body { background-color: ${color}; }`
+      }
+    } else {
+      val = val.replace(/body +{ background-color: .*?; }/g, '')
+    }
+  } else {
+    if (color) {
+      val = `body { background-color: ${color}; }`
+    }
+  }
+  Zotero.Prefs.set('note.css', val)
+
+  this.effectNoteCss()
 }
 
 zotcard.resetNoteBGColor = function () {
   this.noteBGColor()
+  Zotero.ZotCard.Utils.promptForRestart('重置笔记背景完成')
 }
 
 zotcard.darkNoteBGColor = function () {
@@ -1138,6 +1339,7 @@ if (typeof window !== 'undefined') {
 
   window.Zotero.ZotCard.readcollectioncard = function () { zotcard.readcollectioncard() }
   window.Zotero.ZotCard.collectionreport = function () { zotcard.collectionreport() }
+  window.Zotero.ZotCard.noteLineHeight = function (height) { zotcard.noteLineHeight(height) }
 }
 
 if (typeof module !== 'undefined') module.exports = zotcard

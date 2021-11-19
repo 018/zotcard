@@ -38,4 +38,6 @@ function ok () {
       h += win.outerHeight
     }
   }
+
+  window.focus()
 }
