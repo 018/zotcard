@@ -7,7 +7,6 @@
 /* global window, document, Components */
 /* global Zotero, ZoteroPane, ZOTERO_CONFIG */
 Components.utils.import('resource://gre/modules/Services.jsm');
-//Services.scriptloader.loadSubScript('chrome://zoterozotcard/content/zotcardOverlay.js');
 
 var _bundle = Cc['@mozilla.org/intl/stringbundle;1'].getService(Components.interfaces.nsIStringBundleService).createBundle('chrome://zoterozotcard/locale/zotcard.properties')
 

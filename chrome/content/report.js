@@ -1,6 +1,7 @@
 'use strict'
 
 var datapack
+var options = {}
 /*{
   libraryID: 0,
   name: '',
@@ -8,7 +9,12 @@ var datapack
   key: '' // user|group|...
 }*/
 var io = window.arguments && window.arguments.length > 0 ? window.arguments[0] : undefined
-
+let nowDate = new Date()
+let currentYear = nowDate.getYear() + 1900
+let currentMonth = nowDate.getMonth() + 1
+let currentWeek = weekOfYear(nowDate)
+let today = Zotero.ZotCard.Utils.formatDate(nowDate, 'yyyy-MM-dd')
+let now = Zotero.ZotCard.Utils.formatDate(nowDate, 'yyyy-MM-dd HH:mm:ss')
 
 function start () {
   document.getElementById('loading').hidden = false
@@ -20,30 +26,13 @@ function start () {
 
   document.getElementById('loading').hidden = false
   document.getElementById('content').hidden = true
-  if (io.type === 'library' && io.key === 'user') {
+  if (io.libraryID === Zotero.Libraries.userLibraryID && !io.selectedCollection) {
     document.getElementById('username').textContent = Zotero.Users.getCurrentUsername() || Zotero.Prefs.get('sync.server.username') || '我'
   } else {
     document.getElementById('username').textContent = io.name
   }
 
-  var search = new Zotero.Search()
-  search.addCondition('note', 'contains', '')
-  search.addCondition('itemType', 'is', 'note')
-  if (io.type !== 'savedSearch') {
-    search.addCondition('includeParentsAndChildren', 'true', null)
-    search.addCondition('recursive', 'true', null)
-  }
-  if (io.type !== 'library') {
-    search.addCondition(io.type, 'is', io.key)
-  }
-  search.libraryID = io.libraryID
-  search.search().then(ids => {
-    let nowDate = new Date()
-    let currentYear = nowDate.getYear() + 1900
-    let currentMonth = nowDate.getMonth() + 1
-    let currentWeek = weekOfYear(nowDate)
-    let today = Zotero.ZotCard.Utils.formatDate(nowDate, 'yyyy-MM-dd')
-    let now = Zotero.ZotCard.Utils.formatDate(nowDate, 'yyyy-MM-dd HH:mm:ss')
+  Zotero.ZotCard.CardSearcher.search(io.libraryID, io.selectedCollection, io.selectedSavedSearch, (ids, name) => {
 
     var map = {
       firstDay: Zotero.ZotCard.Utils.formatDate(new Date(), 'yyyy-MM-dd'),
@@ -57,7 +46,13 @@ function start () {
       maxHangziNoteTitleKey: '',
       dates: [],
       others: [],
+      collects: {
+        totals: 0,
+        cards: [],
+        contents: []
+      },
       cards: {},
+      tags: {},
       years: {}
     }
     var items = Zotero.Items.get(ids)
@@ -76,33 +71,10 @@ function start () {
         continue
       }
 
+      let cardItem = Zotero.ZotCard.Utils.toCardItem(item)
       let noteContent = item.getNote()
-      let dateString
-      let match0 = Zotero.ZotCard.Utils.htmlToText(noteContent).match(/作者[:：] *?/g)
-      if (match0) {
-        Zotero.debug(`${noteTitle}忽略`)
-        continue
-      }
-
-      let match1 = Zotero.ZotCard.Utils.htmlToText(noteContent).match(/日期[:：] *?(\d{4}[-/年.]\d{1,2}[-/月.]\d{1,2}日{0,1})/g)
-      if (!match1) {
-        Zotero.debug(`${noteTitle}不包含有效日期。`)
-        let match3 = Zotero.ZotCard.Utils.htmlToText(noteContent).match(/日期[:：] *?(\d{8})/g)
-        if (match3) {
-          let match2 = match3[0].match(/\d{8}/g)
-          dateString = `${match2[0].substr(0, 4)}-${match2[0].substr(4, 2)}-${match2[0].substr(6, 2)}`
-        } else {
-          /*map.others.push({
-            title: noteTitle,
-            key: item.key,
-            message: '不包含有效日期。'
-          })*/
-          dateString = Zotero.ZotCard.Utils.sqlToDate(item.dateAdded, 'yyyy-MM-dd')
-        }
-      } else {
-        let match2 = match1[0].match(/\d{4}[-/年.]\d{1,2}[-/月.]\d{1,2}日{0,1}/g)
-        dateString = match2[0].replace(/年|月|\./g, '-').replace(/日/g, '')
-      }
+      options = Zotero.ZotCard.Utils.refreshOptions(cardItem, options)
+      let dateString = cardItem.date
       let { date, year, month, week } = dateinfo(dateString)
       if (year < 1900 || year > currentYear) {
         map.others.push({
@@ -112,10 +84,19 @@ function start () {
         })
       }
 
-      let cardItem = Zotero.ZotCard.Utils.toCardItem(item, date)
+      let author = cardItem.author
+      if (author) {
+        map.collects.totals += 1
+        if (!map.collects.cards.hasOwnProperty(author)) {
+          map.collects.cards[author] = 0
+        }
+        map.collects.cards[author] += 1
+        map.collects.contents.push(cardItem)
+        continue
+      }
 
-      let match3 = noteTitle.match('[\u4e00-\u9fa5]+卡')
-      let cardName = match3 ? match3[0] : '其他'
+      let cardName = cardItem.type
+      let cardTags = cardItem.tags
 
       if (date < map.firstDay) {
         map.firstDay = date
@@ -134,13 +115,28 @@ function start () {
         map.maxHangziNoteTitleKey = item.key
       }
       map.hangzis += hangzi
-      if (!map.dates.includes(date)) {
-        map.dates.push(date)
+      if (!map.dates.hasOwnProperty(date)) {
+        map.dates[date] = 0
       }
+      map.dates[date] = map.dates[date] + 1
       if (!map.cards.hasOwnProperty(cardName)) {
         map.cards[cardName] = 0
       }
       map.cards[cardName] = map.cards[cardName] + 1
+      if (cardTags && cardTags.length > 0) {
+        cardTags.forEach(cardTag => {
+          if (!map.tags.hasOwnProperty(cardTag)) {
+            map.tags[cardTag] = 0
+          }
+          map.tags[cardTag] = map.tags[cardTag] + 1
+        })
+      } else {
+        let cardTag = '无'
+        if (!map.tags.hasOwnProperty(cardTag)) {
+          map.tags[cardTag] = 0
+        }
+        map.tags[cardTag] = map.tags[cardTag] + 1
+      }
 
       if (!map.years.hasOwnProperty(year)) {
         map.years[year] = {
@@ -149,7 +145,8 @@ function start () {
           dates: [],
           months: {},
           weeks: {},
-          cards: {}
+          cards: {},
+          tags: {}
         }
       }
       map.years[year].totals = map.years[year].totals + 1
@@ -161,6 +158,20 @@ function start () {
         map.years[year].cards[cardName] = 0
       }
       map.years[year].cards[cardName] = map.years[year].cards[cardName] + 1
+      if (cardTags && cardTags.length > 0) {
+        cardTags.forEach(cardTag => {
+          if (!map.years[year].tags.hasOwnProperty(cardTag)) {
+            map.years[year].tags[cardTag] = 0
+          }
+          map.years[year].tags[cardTag] = map.years[year].tags[cardTag] + 1
+        })
+      } else {
+        let cardTag = '无'
+        if (!map.years[year].tags.hasOwnProperty(cardTag)) {
+          map.years[year].tags[cardTag] = 0
+        }
+        map.years[year].tags[cardTag] = map.years[year].tags[cardTag] + 1
+      }
 
       if (!map.years[year].months.hasOwnProperty(month)) {
         map.years[year].months[month] = {
@@ -205,6 +216,10 @@ function start () {
     //          "...卡": 12,
     //          "其他": 12
     //      },
+    //      "tags": {
+    //           "v1": 12,
+    //           "无": 12
+    //      },
     //      "years": {
     //          "2021": {
     //              "totals": 1,
@@ -237,6 +252,10 @@ function start () {
     //                  "...卡": 12,
     //                  "其他": 12
     //              },
+    //              "tags": {
+    //                   "v1": 12,
+    //                   "无": 12
+    //              }
     //          }
     //      }
     // }
@@ -252,15 +271,17 @@ function start () {
     document.getElementById('maxHangzi').textContent = map.maxHangzi
     document.getElementById('maxHangziNoteTitle').textContent = map.maxHangziNoteTitle
     document.getElementById('maxHangziNoteTitle').setAttribute('card-key', map.maxHangziNoteTitleKey)
-    document.getElementById('dates').textContent = map.dates.length
+    let datesLength = Object.keys(map.dates).length
+    document.getElementById('dates').textContent = datesLength
     let totalDays = diffDay(map.firstDay, today)
     document.getElementById('totalDays').textContent = totalDays
-    document.getElementById('ratio').textContent = parseInt(map.dates.length / totalDays * 100) + '%'
+    document.getElementById('ratio').textContent = parseInt(datesLength / totalDays * 100) + '%'
     document.getElementById('average1').textContent = (map.totals / totalDays).toFixed(1)
     document.getElementById('average2').textContent = parseInt(map.hangzis / map.totals)
     document.getElementById('first-card-date').textContent = map.firstDay
     document.getElementById('first-card-date').setAttribute('card-key', map.firstDayKey)
     document.getElementById('last-card-date').textContent = map.lastDay
+    document.getElementById('last-card-date').setAttribute('class', map.lastDay === today ? 'pointer current' : 'pointer')
     document.getElementById('last-card-date').setAttribute('card-key', map.lastDayKey)
 
     let noCardDays = (new Date(today) - new Date(map.lastDay)) / (24 * 60 * 60 * 1000)
@@ -274,58 +295,160 @@ function start () {
     })
     document.getElementById('week').textContent = currentWeek
 
-    let cardDetails = cards(map.cards, true)
-    document.getElementById('card-details').innerHTML = cardDetails
-
-    let minWeek = Math.max(0, currentWeek - (12 - 1))
-    document.getElementById('weeks').innerHTML = ''
-    for (let w = minWeek; w <= currentWeek; w++) {
-      let value = 0
-      let mCardDetails
-      if (map.years.hasOwnProperty(currentYear)) {
-        if (map.years[currentYear].weeks.hasOwnProperty(w)) {
-          value = map.years[currentYear].weeks[w].totals
-          mCardDetails = cards(map.years[currentYear].weeks[w].cards, false)
-        } else {
-          Zotero.debug(`没有${currentYear}第${w}周的数据。`)
-        }
-      } else {
-        Zotero.debug(`没有${currentYear}的数据。`)
+    // 卡片分类
+    let cardArrs = []
+    for (const card in map.cards) {
+    if (Object.hasOwnProperty.call(map.cards, card)) {
+      const element = map.cards[card]
+        cardArrs.push({
+          name: card,
+          value: element
+        })
       }
-
+    }
+    const hidable = 10
+    cardArrs.sort((a, b) => b.value - a.value)
+    document.getElementById('cardtypes').innerHTML = ''
+    for (let index = 0; index < cardArrs.length; index++) {
       let div = document.createElement('div')
-      div.setAttribute('class', `${value > 0 ? 'pointer' : ''} item${w === currentWeek ? ' current-wrap' : ''}`)
+      div.setAttribute('class', 'item cardtype' + (index >= hidable ? ' hidable' : ''))
       let onclick = function (e) {
         let totals = e.target.getAttribute('totals')
         if (totals === '0') {
           return
         }
 
-        let year = e.target.getAttribute('year')
-        let week = e.target.getAttribute('week')
-        let contents = datapack.years[year].weeks[week].contents
-        Zotero.debug(`${year}, ${week}, ${contents.length}`)
-        window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, [...contents], `${year}年第${week}周`, mCardDetails)
+        let cardtype = e.target.getAttribute('cardtype')
+        let contents = calculateAll()
+        let options = Zotero.ZotCard.Utils.bulidOptions(contents)
+        let io = {
+          dataIn: {
+            title: document.getElementById('username').textContent,
+            cards: contents,
+            options: options,
+            filters: {
+              cardtype: cardtype
+            }
+          }
+        }
+        Zotero.debug(`${cardtype}, ${contents.length}`)
+        window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, io)
       }
+      let span2 = document.createElement('span')
+      span2.setAttribute('class', `label`)
+      span2.textContent = cardArrs[index].name
+      span2.setAttribute('totals', cardArrs[index].value)
+      span2.setAttribute('cardtype', cardArrs[index].name)
+      div.appendChild(span2)
+      div.appendChild(document.createElement('hr'))
       let span1 = document.createElement('span')
-      span1.setAttribute('class', `value ${value === 0 ? 'zero' : 'uread-color'}`)
-      span1.textContent = value
-      span1.setAttribute('year', currentYear)
-      span1.setAttribute('totals', value)
-      span1.setAttribute('week', w)
+      span1.setAttribute('class', 'pointer value uread-color')
+      span1.textContent = cardArrs[index].value
+      span1.setAttribute('totals', cardArrs[index].value)
+      span1.setAttribute('cardtype', cardArrs[index].name)
       span1.onclick = onclick
       div.appendChild(span1)
-      let span2 = document.createElement('span')
-      span2.setAttribute('class', `label${w === currentWeek ? ' current' : ''}`)
-      span2.textContent = `W${w}`
-      span2.setAttribute('year', currentYear)
-      span2.setAttribute('totals', value)
-      span2.setAttribute('week', w)
-      span2.onclick = onclick
-      div.appendChild(span2)
-      document.getElementById('weeks').appendChild(div)
+      document.getElementById('cardtypes').append(div)
+    }
+    if (cardArrs.length > hidable) {
+      let tag = document.createElement('div')
+      tag.setAttribute('class', 'cardtype more')
+      tag.setAttribute('mode', 'hidden')
+      tag.innerHTML = '<<'
+      tag.onclick = function (e) {
+        let div = e.target
+        while (div.tagName !== 'DIV') {
+          div = div.parentElement
+        }
+        let mode = div.getAttribute('mode')
+        if (mode === 'hidden') {
+          div.parentElement.querySelectorAll('.hidable').forEach(e => e.style.display  = 'none')
+          div.setAttribute('mode', 'show')
+          div.innerHTML = '>>'
+        } else {
+          div.parentElement.querySelectorAll('.hidable').forEach(e => e.style.display  = 'flex')
+          div.setAttribute('mode', 'hidden')
+          div.innerHTML = '<<'
+        }
+      }
+      document.getElementById('cardtypes').append(tag)
     }
 
+    // 卡片标签
+    cardArrs = []
+    for (const card in map.tags) {
+    if (Object.hasOwnProperty.call(map.tags, card)) {
+      const element = map.tags[card]
+        cardArrs.push({
+          name: card,
+          value: element
+        })
+      }
+    }
+    cardArrs.sort((a, b) => b.value - a.value)
+    document.getElementById('cardtags').innerHTML = ''
+    for (let index = 0; index < cardArrs.length; index++) {
+      let div = document.createElement('div')
+      div.setAttribute('class', 'tag' + (index >= hidable ? ' hidable' : ''))
+      div.setAttribute('totals', cardArrs[index].value)
+      div.setAttribute('cardtag', cardArrs[index].name)
+      let onclick = function (e) {
+        let totals = e.target.getAttribute('totals')
+        if (totals === '0') {
+          return
+        }
+
+        let cardtag = e.target.getAttribute('cardtag')
+        let contents = calculateAll()
+        let options = Zotero.ZotCard.Utils.bulidOptions(contents)
+        let io = {
+          dataIn: {
+            title: document.getElementById('username').textContent,
+            cards: contents,
+            options: options,
+            filters: {
+              cardtag: cardtag
+            }
+          }
+        }
+        Zotero.debug(`${cardtag}, ${contents.length}`)
+        window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, io)
+      }
+      div.textContent = `${cardArrs[index].name}(${cardArrs[index].value})`
+      div.onclick = onclick
+      document.getElementById('cardtags').appendChild(div)
+    }
+    if (cardArrs.length > hidable) {
+      let tag = document.createElement('div')
+      tag.setAttribute('class', 'tag')
+      tag.setAttribute('mode', 'hidden')
+      tag.innerHTML = '<<'
+      tag.onclick = function (e) {
+        let div = e.target
+        while (div.tagName !== 'DIV') {
+          div = div.parentElement
+        }
+        let mode = div.getAttribute('mode')
+        if (mode === 'hidden') {
+          div.parentElement.querySelectorAll('.hidable').forEach(e => e.hidden = true)
+          div.setAttribute('mode', 'show')
+          div.innerHTML = '>>'
+        } else {
+          div.parentElement.querySelectorAll('.hidable').forEach(e => e.hidden = false)
+          div.setAttribute('mode', 'hidden')
+          div.innerHTML = '<<'
+        }
+      }
+      document.getElementById('cardtags').append(tag)
+    }
+
+    // 近30天
+    dateSelectChange()
+
+    // 近12周
+    weekSelectChange()
+
+    // 年
     document.getElementById('years').innerHTML = ''
     let yearsArrs = []
     for (const y in map.years) {
@@ -340,12 +463,15 @@ function start () {
 
     yearsArrs.sort((a, b) => b.name > a.name ? 1 : -1)
     for (const item of yearsArrs) {
-      let cardDetails = cards(item.value.cards, true)
       let totalDate = daysOfYear(item.name)
       let divYears = document.createElement('div')
+      divYears.setAttribute('class', 'year-section')
       let pYearItemLabel = document.createElement('p')
       pYearItemLabel.setAttribute('class', 'item-label')
-      pYearItemLabel.innerHTML = `年一共<span class="uread-color">${item.value.dates.length}</span>天写卡，占一年的 <span class="uread-color">${parseInt(item.value.dates.length / totalDate * 100)}%</span>，累计 <span class="uread-color">${item.value.hangzis}</span> 字，写卡 <span class="uread-color">${item.value.totals}</span> 张。其中 ${cardDetails}。`
+      pYearItemLabel.innerHTML = `年一共<span class="uread-color">${item.value.dates.length}</span>天写卡，占一年的 <span class="uread-color">${parseInt(item.value.dates.length / totalDate * 100)}%</span>，累计 <span class="uread-color">${item.value.hangzis}</span> 字，写卡 <span class="uread-color">${item.value.totals}</span> 张。其中`
+      pYearItemLabel.append(cards(item.name, item.value.cards))
+      pYearItemLabel.append('，')
+      pYearItemLabel.append(tags(item.name, item.value.tags))
       let bYear = document.createElement('b')
       bYear.setAttribute('class', 'pointer')
       bYear.setAttribute('year', item.name)
@@ -364,13 +490,11 @@ function start () {
           continue
         }
         let value = 0
-        let yCardDetails
         if (item.value.months.hasOwnProperty(m)) {
           value = item.value.months[m].totals
-          yCardDetails = cards(item.value.months[m].cards, false)
         }
         let div = document.createElement('div')
-        div.setAttribute('class', `${value > 0 ? 'pointer' : ''} item${item.name === `${currentYear}` && m === currentMonth ? ' current-wrap' : ''}`)
+        div.setAttribute('class', `item${item.name === `${currentYear}` && m === currentMonth ? ' current-wrap' : ''}`)
         let onclick = function (e) {
           let totals = e.target.getAttribute('totals')
           if (totals === '0') {
@@ -379,12 +503,25 @@ function start () {
 
           let year = e.target.getAttribute('year')
           let month = e.target.getAttribute('month')
-          let contents = datapack.years[year].months[month].contents
-          Zotero.debug(`${year}, ${month}, ${contents.length}`)
-          window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, [...contents], `${year}年${month}月`, yCardDetails)
+          let contents = calculateYear(year)
+          let options = Zotero.ZotCard.Utils.bulidOptions(contents)
+          let tmp = new Date(year, parseInt(month))
+          tmp.setDate(tmp.getDate() - 1)
+          let io = {
+            dataIn: {
+              title: `${year}年`,
+              cards: contents,
+              options: options,
+              filters:{
+                startDate: Zotero.ZotCard.Utils.formatDate(new Date(year, parseInt(month) - 1), 'yyyy-MM-dd'),
+                endDate: Zotero.ZotCard.Utils.formatDate(tmp, 'yyyy-MM-dd'),
+              }
+            }
+          }
+          window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, io)
         }
         let span1 = document.createElement('span')
-        span1.setAttribute('class', `value ${value === 0 ? 'zero' : 'uread-color'}`)
+        span1.setAttribute('class', `${value > 0 ? 'pointer' : ''} value ${value === 0 ? 'zero' : 'uread-color'}`)
         span1.textContent = value
         span1.setAttribute('year', item.name)
         span1.setAttribute('totals', value)
@@ -403,6 +540,10 @@ function start () {
       document.getElementById('years').appendChild(divYears)
     }
 
+    document.getElementById('collect-wrap').hidden = (map.collects.totals === 0)
+    document.getElementById('collects').innerHTML = map.collects.totals
+    document.getElementById('collects-details').append(cardsWithAuthor(map.collects.cards))
+    
     document.getElementById('other-wrap').hidden = (map.others.length === 0)
     document.getElementById('other').innerHTML = ''
     for (const item of map.others) {
@@ -418,7 +559,153 @@ function start () {
   })
 }
 
-function readWithYear (year) {
+function dateSelectChange () {
+  let days = 0
+  let map = datapack
+  switch (document.getElementById('dateselect').value) {
+    case 'all':
+      days = diffDay(map.firstDay, today)
+      break
+    case '30d':
+      days = 30
+      break
+    case '90d':
+      days = 90
+      break
+    case '180d':
+      days = 180
+      break
+    case 'year':
+      days = 365
+      break
+    default:
+      break
+  }
+
+  document.getElementById('30days').innerHTML = ''
+  for (let w = days; w  >= 0; w--) {
+    let now = new Date()
+    now.setDate(now.getDate() - w)
+    let date = Zotero.ZotCard.Utils.formatDate(now, 'yyyy-MM-dd')
+    let value = 0
+    if (map.dates.hasOwnProperty(date)) {
+      value = map.dates[date]
+    } else {
+      Zotero.debug(`没有${date}的数据。`)
+    }
+
+    let div = document.createElement('div')
+    div.setAttribute('class', `item${date === today ? ' current-wrap' : ''}`)
+    let onclick = function (e) {
+      let totals = e.target.getAttribute('totals')
+      if (totals === '0') {
+        return
+      }
+
+      let contents = calculateAll()
+      let options = Zotero.ZotCard.Utils.bulidOptions(contents)
+      let io = {
+        dataIn: {
+          title: document.getElementById('username').textContent,
+          cards: contents,
+          options: options,
+          filters: {
+            startDate: date,
+            endDate: date
+          }
+        }
+      }
+      Zotero.debug(`${date}, ${contents.length}`)
+      window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, io)
+    }
+    let span1 = document.createElement('span')
+    span1.setAttribute('class', `${value > 0 ? 'pointer' : ''} value ${value === 0 ? 'zero' : 'uread-color'}`)
+    span1.textContent = value
+    span1.setAttribute('totals', value)
+    span1.onclick = onclick
+    div.appendChild(span1)
+    let span2 = document.createElement('span')
+    span2.setAttribute('class', `label${date === today ? ' current' : ''}`)
+    span2.textContent = date
+    span2.setAttribute('totals', value)
+    div.appendChild(span2)
+    document.getElementById('30days').appendChild(div)
+  }
+}
+
+function weekSelectChange() {
+  let weeks = 0
+  let map = datapack
+  switch (document.getElementById('weekselect').value) {
+    case '13':
+      weeks = 13
+      break
+    case '26':
+      weeks = 26
+      break
+    case '53':
+      weeks = 53
+      break
+    default:
+      break
+  }
+
+  let minWeek = Math.max(0, currentWeek - (weeks - 1))
+  document.getElementById('weeks').innerHTML = ''
+  for (let w = minWeek; w <= currentWeek; w++) {
+    let value = 0
+    if (map.years.hasOwnProperty(currentYear)) {
+      if (map.years[currentYear].weeks.hasOwnProperty(w)) {
+        value = map.years[currentYear].weeks[w].totals
+      } else {
+        Zotero.debug(`没有${currentYear}第${w}周的数据。`)
+      }
+    } else {
+      Zotero.debug(`没有${currentYear}的数据。`)
+    }
+
+    let div = document.createElement('div')
+    div.setAttribute('class', `item${w === currentWeek ? ' current-wrap' : ''}`)
+    let onclick = function (e) {
+      let totals = e.target.getAttribute('totals')
+      if (totals === '0') {
+        return
+      }
+
+      let year = e.target.getAttribute('year')
+      let week = e.target.getAttribute('week')
+      let contents = datapack.years[year].weeks[week].contents
+      let options = Zotero.ZotCard.Utils.bulidOptions(contents)
+      let io = {
+        dataIn: {
+          title: `${year}年第${week}周`,
+          cards: contents,
+          options: options
+        }
+      }
+      Zotero.debug(`${year}, ${week}, ${contents.length}`)
+      window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, io)
+    }
+    let span1 = document.createElement('span')
+    span1.setAttribute('class', `${value > 0 ? 'pointer' : ''} value ${value === 0 ? 'zero' : 'uread-color'}`)
+    span1.textContent = value
+    span1.setAttribute('year', currentYear)
+    span1.setAttribute('totals', value)
+    span1.setAttribute('week', w)
+    span1.onclick = onclick
+    div.appendChild(span1)
+    let span2 = document.createElement('span')
+    span2.setAttribute('class', `label${w === currentWeek ? ' current' : ''}`)
+    span2.textContent = `W${w}`
+    span2.setAttribute('year', currentYear)
+    span2.setAttribute('totals', value)
+    span2.setAttribute('week', w)
+    div.appendChild(span2)
+    document.getElementById('weeks').appendChild(div)
+  }
+}
+
+function readWithYear (year, filters) {
   var progressWin = new Zotero.ProgressWindow({ window })
   let itemProgress = new progressWin.ItemProgress(
     `chrome://zotero-platform/content/treesource-collection${Zotero.hiDPISuffix}.png`,
@@ -427,9 +714,31 @@ function readWithYear (year) {
   itemProgress.setProgress(50)
   progressWin.show()
   let contents = calculateYear(year)
-  let cardDetails = cards(datapack.years[year].cards, false)
+  let options = Zotero.ZotCard.Utils.bulidOptions(contents)
+  let io = {
+    dataIn: {
+      title: `${year}年`,
+      cards: contents,
+      options: options,
+      filters: filters
+    }
+  }
   progressWin.close()
-  window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, contents, `${year}年`, cardDetails)
+  window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, io)
+}
+
+function collects (filters) {
+  let contents = datapack.collects.contents
+  let options = Zotero.ZotCard.Utils.bulidOptions(contents)
+  let io = {
+    dataIn: {
+      title: `收藏`,
+      cards: contents,
+      options: options,
+      filters: filters
+    }
+  }
+  window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, io)
 }
 
 function readAll () {
@@ -442,9 +751,16 @@ function readAll () {
   progressWin.show()
 
   let contents = calculateAll()
-  let cardDetails = cards(datapack.cards, false)
+  let options = Zotero.ZotCard.Utils.bulidOptions(contents)
+  let io = {
+    dataIn: {
+      title: `所有`,
+      cards: contents,
+      options: options
+    }
+  }
   progressWin.close()
-  window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, contents, `所有`, cardDetails)
+  window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, io)
 }
 
 function calculateYear (year) {
@@ -478,7 +794,7 @@ function selectItem (target) {
 function stop () {
 }
 
-function cards (cards, html) {
+function cards (year, cards) {
   let cardArrs = []
   for (const card in cards) {
     if (Object.hasOwnProperty.call(cards, card)) {
@@ -489,15 +805,163 @@ function cards (cards, html) {
       })
     }
   }
-  let cardDetails = ''
+  const hidable = 5
+  let div = document.createElement('div')
+  div.setAttribute('class', 'content-line')
+  div.textContent = '卡片分类情况 '
+  cardArrs.sort((a, b) => b.value - a.value)
+  cardArrs.forEach((card, index) => {
+    let cardtypemini = document.createElement('div')
+    cardtypemini.setAttribute('class', 'cardtypemini' + (index >= hidable ? ' hidable' : ''))
+    let span = document.createElement('span')
+    span.setAttribute('class', 'label')
+    span.textContent = card.name
+    cardtypemini.append(span)
+    let line = document.createElement('div')
+    line.setAttribute('class', 'line')
+    cardtypemini.append(line)
+    let span1 = document.createElement('span')
+    span1.setAttribute('class', 'value uread-color pointer')
+    span1.textContent = card.value
+    span1.setAttribute('year', year)
+    span1.setAttribute('cardtype', card.name)
+    span1.onclick = function (e) {
+      clickReadCardWithYear(e.target.getAttribute('year'), 'cardtype', e.target.getAttribute('cardtype'))
+    }
+    cardtypemini.append(span1)
+    div.append(cardtypemini)
+  })
+
+  if (cardArrs.length > hidable) {
+    let tagmini = document.createElement('div')
+    tagmini.setAttribute('class', 'cardtypemini more')
+    tagmini.setAttribute('mode', 'hidden')
+    tagmini.innerHTML = '<<'
+    tagmini.onclick = function (e) {
+      let div = e.target
+      while (div.tagName !== 'DIV') {
+        div = div.parentElement
+      }
+      Zotero.debug(div.parentElement.querySelectorAll('.hidable'))
+      let mode = div.getAttribute('mode')
+      if (mode === 'hidden') {
+        div.parentElement.querySelectorAll('.hidable').forEach(e => e.style.display  = 'none')
+        div.setAttribute('mode', 'show')
+        div.innerHTML = '>>'
+      } else {
+        div.parentElement.querySelectorAll('.hidable').forEach(e => e.style.display  = 'flex')
+        div.setAttribute('mode', 'hidden')
+        div.innerHTML = '<<'
+      }
+    }
+    div.append(tagmini)
+  }
+  return div
+}
+
+function clickReadCardWithYear (year, filter, value) {
+  var filters = {}
+  filters[filter] = value
+  readWithYear(year, filters)
+}
+
+function tags (year, tags) {
+  let tagArrs = []
+  for (const tag in tags) {
+    if (Object.hasOwnProperty.call(tags, tag)) {
+      const element = tags[tag]
+      tagArrs.push({
+        name: tag,
+        value: element
+      })
+    }
+  }
+  const hidable = 5
+  let div = document.createElement('div')
+  div.setAttribute('class', 'content-line')
+  div.textContent = '卡片标签情况 '
+  tagArrs.sort((a, b) => b.value - a.value)
+  tagArrs.forEach((tag, index) => {
+    let tagmini = document.createElement('div')
+    tagmini.setAttribute('class', 'tagmini' + (index >= hidable ? ' hidable' : ''))
+    tagmini.setAttribute('year', year)
+    tagmini.setAttribute('cardtag', tag.name)
+    tagmini.textContent = `${tag.name}(${tag.value})`
+    tagmini.onclick = function (e) {
+      clickReadCardWithYear(e.target.getAttribute('year'), 'cardtag', e.target.getAttribute('cardtag'))
+    }
+    div.append(tagmini)
+  })
+
+  if (tagArrs.length > hidable) {
+    let tagmini = document.createElement('div')
+    tagmini.setAttribute('class', 'tagmini')
+    tagmini.setAttribute('mode', 'hidden')
+    tagmini.innerHTML = '<<'
+    tagmini.onclick = function (e) {
+      let div = e.target
+      while (div.tagName !== 'DIV') {
+        div = div.parentElement
+      }
+      let mode = div.getAttribute('mode')
+      if (mode === 'hidden') {
+        div.parentElement.querySelectorAll('.hidable').forEach(e => e.hidden = true)
+        div.setAttribute('mode', 'show')
+        div.innerHTML = '>>'
+      } else {
+        div.parentElement.querySelectorAll('.hidable').forEach(e => e.hidden = false)
+        div.setAttribute('mode', 'hidden')
+        div.innerHTML = '<<'
+      }
+    }
+    div.append(tagmini)
+  }
+  
+  return div
+}
+
+function cardsWithAuthor (cards) {
+  let cardArrs = []
+  for (const author in cards) {
+    if (Object.hasOwnProperty.call(cards, author)) {
+      const element = cards[author]
+      cardArrs.push({
+        name: author,
+        value: element
+      })
+    }
+  }
+  
+  let div = document.createElement('div')
+  div.setAttribute('class', 'content-line')
   cardArrs.sort((a, b) => b.value - a.value)
   cardArrs.forEach(card => {
-    if (cardDetails.length > 0) {
-      cardDetails += '、'
+    let cardtypemini = document.createElement('div')
+    cardtypemini.setAttribute('class', 'cardtypemini')
+    let span = document.createElement('span')
+    span.setAttribute('class', 'label')
+    span.textContent = card.name
+    cardtypemini.append(span)
+    let line = document.createElement('div')
+    line.setAttribute('class', 'line')
+    cardtypemini.append(line)
+    let span1 = document.createElement('span')
+    span1.setAttribute('class', 'value uread-color pointer')
+    span1.textContent = card.value
+    span1.setAttribute('cardauthor', card.name)
+    span1.onclick = function (e) {
+      clickReadCardWithCollect('cardauthor', e.target.getAttribute('cardauthor'))
     }
-    cardDetails += html ? `${card.name} <span class="uread-color">${card.value}</span> 张` : `${card.name} ${card.value} 张`
+    cardtypemini.append(span1)
+    div.append(cardtypemini)
   })
-  return cardDetails
+  return div
+}
+
+function clickReadCardWithCollect (filter, value) {
+  var filters = {}
+  filters[filter] = value
+  collects(filters)
 }
 
 function weekOfYear (date) {

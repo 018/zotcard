@@ -1,27 +1,38 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<meta charset="UTF-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
 		<title>读卡</title>
 		<script src="chrome://zotero/content/include.js"></script>
-		<script src="read.js"></script>
+		<script src="chrome://zoterozotcard/content/read.js"></script>
 		
 		<style>
 			body {
 				margin: 0;
 				padding: 0;
 				background: #F5F5F5;
-				font-size: 12px;
 			}
 
 			#read {
-				margin: 20px;
+				padding: 20px;
+			}
+			
+			header {
+				background-color: #D2D8E2;
+				margin: -20px -20px 0 -20px;
+				padding: 10px 20px;
 			}
 
 			.header {
 				display: flex;
 				justify-content: space-between;
-				margin: 10px 0;
+				padding: 10px 0;
+			}
+
+			.header .bar {
+				display: flex;
+				justify-content: space-between;
+				width: 100%;
 			}
 
 			footer {
@@ -150,51 +161,128 @@
 				color: #C0C4CC !important;
 			}
 
-			.input-bar {
+			#setting-bar {
 				display: flex;
-				height: 20px;
+				height: 40px;
 				align-items: center;
+				justify-content: flex-end;
+				background-color: #fff;
+				margin: 0 -20px;
+				padding: 0 20px;
+			}
+
+			#setting-bar .input {
+				width: 50px;
 			}
 
 			.inputsection {
 				margin-right: 20px;
 			}
 
-			.input {
-				width: 50px;
+			.search {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+
+			.search .input {
+				width: 120px;
+			}
+
+			.search select {
+				font-size: 12px;
+			}
+
+			.bicon {
+				margin-right: 5px;
+			}
+
+			.highlight {
+				background-color: #009193;
+    			color: white;
+				padding: 2px;
 			}
 		</style>
 	</head>
 	<body>
 		<div id="read">
-			<header>
-				<div class="header">
-					<div>
-						<b><span id="title"></span></b><span>一共 <span id="totals">0</span> 张卡片，关闭 <span id="hides">0</span> 张。<span onclick="copyAll(this)" class="pointer uread">复制(<span id="cards">0</span>)</span></span>
-					</div>
-					<div class="input-bar">
-						<div class="inputsection">
-							<span>卡片宽度：</span>
-							<input class="input" id="card-width"></input>
-						</div>
-						<div class="inputsection">
-							<span>卡片高度：</span>
-							<input class="input" id="card-height"></input>
-							<input type="checkbox" id="fit-height">自适应高度</input>
-						</div>
-						<button onclick="ok()">确认</button>
-					</div>
-					<div id="orderby">
-						<span class="pointer uread" onclick="orderby(this, 'date')"><span id="orderbydate" class="tag">▼</span>卡片日期</span><span class="placeholder-color"> ｜ </span>
-						<span class="pointer uread" onclick="orderby(this, 'dateAdded')"><span id="orderbydateAdded" class="tag"></span>创建时间</span><span class="placeholder-color"> ｜ </span>
-						<span class="pointer uread" onclick="orderby(this, 'dateModified')"><span id="orderbydateModified" class="tag"></span>修改时间</span><span class="placeholder-color"> ｜ </span>
-						<span class="pointer uread" onclick="orderby(this, 'title')"><span id="orderbytitle" class="tag"></span>标题</span>
-					</div>
+			<header class="search">
+				<div>
+					<span>卡片日期：</span>
+					<input type="date" class="input" id="start-date" onchange="datechange(event)"></input>
+					<span id="split-date"> ~ </span>
+					<input type="date" class="input" id="end-date" onchange="datechange(event)"></input>
+					<select id="dateselect" onchange="dateselectchange(event)">
+						<option value="">自定义</option>
+						<option value="all">所有</option>
+						<option value="today">今天</option>
+						<option value="yesterday">昨天</option>
+						<option value="week">本周</option>
+						<option value="mouth">本月</option>
+						<option value="quarter">本季度</option>
+						<option value="year">这一年</option>
+					</select>
+					<span class="placeholder-color"> ｜ </span>
+					<span>卡片类型：</span>
+					<select id="typeselect">
+						<option value="all">所有</option>
+					</select>
+					<span class="placeholder-color"> ｜ </span>
+					<span class="author">卡片作者：</span>
+					<select class="author" id="authorselect">
+						<option value="">无</option>
+						<option value="all">所有作者</option>
+					</select>
+					<span class="author placeholder-color"> ｜ </span>
+					<span>卡片标签：</span>
+					<select id="tagselect">
+						<option value="all">所有</option>
+					</select>
+					<span class="placeholder-color"> ｜ </span>
+					<span>关键字：</span>
+					<input class="input" id="filter-text"></input>
+					<input type="checkbox" id="highlight">高亮</input>
+					<span class="placeholder-color"> ｜ </span>
+					<button onclick="search()">搜索</button>
 				</div>
-				<p id="desc" hidden>...</p>
+				<svg onclick="document.getElementById('setting-bar').style.display = (document.getElementById('setting-bar').style.display === 'flex' ? 'none' : 'flex')" t="1637724875167" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1202" width="16" height="16"><path d="M940 596l-76-57.6c0.8-8 1.6-16.8 1.6-26.4s-0.8-18.4-1.6-26.4l76-57.6c20.8-16 26.4-44 12.8-68l-84.8-143.2c-9.6-16.8-28-27.2-47.2-27.2-6.4 0-12 0.8-18.4 3.2L712 228c-15.2-10.4-31.2-19.2-47.2-26.4l-13.6-92c-4-26.4-26.4-45.6-53.6-45.6H426.4c-27.2 0-49.6 19.2-53.6 44.8L360 201.6c-16 7.2-31.2 16-47.2 26.4l-90.4-35.2c-6.4-2.4-12.8-3.2-19.2-3.2-19.2 0-37.6 9.6-46.4 26.4L71.2 360c-13.6 22.4-8 52 12.8 68l76 57.6c-0.8 9.6-1.6 18.4-1.6 26.4s0 16.8 1.6 26.4l-76 57.6c-20.8 16-26.4 44-12.8 68l84.8 143.2c9.6 16.8 28 27.2 47.2 27.2 6.4 0 12-0.8 18.4-3.2L312 796c15.2 10.4 31.2 19.2 47.2 26.4l13.6 92c3.2 25.6 26.4 45.6 53.6 45.6h171.2c27.2 0 49.6-19.2 53.6-44.8l13.6-92.8c16-7.2 31.2-16 47.2-26.4l90.4 35.2c6.4 2.4 12.8 3.2 19.2 3.2 19.2 0 37.6-9.6 46.4-26.4l85.6-144.8c12.8-23.2 7.2-51.2-13.6-67.2zM704 512c0 105.6-86.4 192-192 192S320 617.6 320 512s86.4-192 192-192 192 86.4 192 192z" p-id="1203" data-spm-anchor-id="a313x.7781069.0.i2"></path></svg>
 			</header>
+			<div id="setting-bar">
+				<div class="inputsection">
+					<span>卡片宽度：</span>
+					<input class="input" id="card-width"></input>
+				</div>
+				<div class="inputsection">
+					<span>卡片高度：</span>
+					<input class="input" id="card-height"></input>
+					<input type="checkbox" id="fit-height">自适应高度</input>
+				</div>
+				<button onclick="ok()">确认</button>
+			</div>
 			<p id="loading">正在加载数据 ...</p>
 			<div id="content">
+				<div class="header">
+					<div class="bar">
+						<div>
+							<img id="searching" src="chrome://zotero/skin/spinner-16px.png"></img>
+							<b><span id="title"></span></b><span>一共 <span id="totals">0</span> 张卡片，搜索到 <span id="filters">0</span> 张卡片。</span>
+						</div>
+						<div>
+							<span onclick="copyAll(this)" class="pointer uread">复制(<span id="copys">0</span>)</span><span class="placeholder-color"> ｜ </span>
+							<input type="checkbox" id="showHidden" onchange="loadCards()"><span class="pointer uread"><span id="showHiddenText">显示隐藏</span>(<span id="hides">0</span>)</span></input><span class="placeholder-color"> ｜ </span>
+							<span onclick="expandAll(true)" class="pointer uread">全部展开(<span id="expands">0</span>)</span><span class="placeholder-color"> ｜ </span>
+							<span onclick="expandAll(false)" class="pointer uread">全部收起(<span id="collapses">0</span>)</span>
+						</div>
+						<div id="orderby">
+							<span class="pointer uread" onclick="orderby(this, 'date')"><span id="orderbydate" class="tag">▼</span>卡片日期</span><span class="placeholder-color"> ｜ </span>
+							<span class="pointer uread" onclick="orderby(this, 'dateAdded')"><span id="orderbydateAdded" class="tag"></span>创建时间</span><span class="placeholder-color"> ｜ </span>
+							<span class="pointer uread" onclick="orderby(this, 'dateModified')"><span id="orderbydateModified" class="tag"></span>修改时间</span><span class="placeholder-color"> ｜ </span>
+							<span class="pointer uread" onclick="orderby(this, 'title')"><span id="orderbytitle" class="tag"></span>标题</span>
+						</div>
+					</div>
+					<p id="desc" hidden>...</p>
+				</div>
+				<p id="content-empty">无卡片。</p>
 				<div id="content-list">
 					<div class="card">
 						<div class="card-bar">
@@ -299,12 +387,12 @@
 					<div class="one-card">
 						<div class="one-card-bar">
 							<div>
-								<span onclick="oneCardEdit(this)" class="pointer uread">编辑</span><span class="placeholder-color"> ｜ </span>
-								<span onclick="oneCardRefresh(this)" class="pointer uread">刷新</span><span class="placeholder-color"> ｜ </span>
-								<span onclick="oneCardCopy(this)" class="pointer uread">复制</span><span class="placeholder-color"> ｜ </span>
-								<span onclick="oneCardRemove(this)" class="pointer uread">关闭</span><span class="placeholder-color"> ｜ </span>
-								<span onclick="oneCardLocation(this)" class="pointer uread">定位条目</span><span class="placeholder-color"> ｜ </span>
-								<span onclick="oneCardExit(this)" class="pointer uread">退出专注模式</span>
+								<span onclick="oneCardLocation(this)" class="pointer uread" title="定位条目"><svg t="1637916032653" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15303" width="16" height="16"><path d="M512 947.2c-96.290133 0-332.8-355.191467-332.8-520.533333 0-183.808 148.992-332.8 332.8-332.8s332.8 148.992 332.8 332.8c0 165.341867-236.509867 520.533333-332.8 520.533333z m0-51.2c62.600533 0 281.6-328.9088 281.6-469.333333a281.6 281.6 0 1 0-563.2 0c0 140.424533 218.999467 469.333333 281.6 469.333333z m0-358.4a128 128 0 1 1 0-256 128 128 0 0 1 0 256z m0-51.2a76.8 76.8 0 1 0 0-153.6 76.8 76.8 0 0 0 0 153.6z" p-id="15304" fill="#009193"></path></svg></span><span class="placeholder-color"> ｜ </span>
+								<span onclick="oneCardEdit(this)" class="pointer uread bicon" title="编辑"><svg t="1637914560073" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1217" width="16" height="16"><path d="M358.165868 554.624796c-0.533143 0.680499-1.066285 1.391696-1.303692 2.251274l-41.104163 150.700257c-2.400676 8.772804 0.059352 18.226107 6.550183 24.892947 4.860704 4.742001 11.261485 7.350408 18.077727 7.350408 2.252297 0 4.504594-0.267083 6.727215-0.860601l149.630902-40.808428c0.23843 0 0.357134 0.207731 0.534166 0.207731 1.718131 0 3.408633-0.62217 4.683672-1.927909l400.113747-400.054395c11.883655-11.897981 18.404162-28.109198 18.404162-45.74281 0-19.989263-8.476045-39.963177-23.324218-54.767348l-37.786605-37.844933c-14.81645-14.848173-34.822087-23.338544-54.797024-23.338544-17.631566 0-33.842783 6.520507-45.75816 18.388812L358.758362 553.232077C358.344946 553.615816 358.462626 554.179658 358.165868 554.624796M862.924953 257.19778l-39.742143 39.71349-64.428382-65.451688 39.180348-39.179324c6.193049-6.222725 18.194384-5.318122 25.308409 1.822508l37.813211 37.845956c3.943822 3.941775 6.195096 9.18622 6.195096 14.372336C867.223862 250.574942 865.710392 254.42769 862.924953 257.19778M429.322487 560.907896l288.712541-288.728914 64.459081 65.49569L494.314711 625.838721 429.322487 560.907896zM376.718409 677.970032l20.863167-76.580143 55.656601 55.657624L376.718409 677.970032z" p-id="1218" fill="#009193"></path><path d="M888.265084 415.735539c-15.144932 0-27.562752 12.313443-27.620058 27.665083l0 372.98283c0 19.559475-15.885805 35.444257-35.475979 35.444257L194.220958 851.827709c-19.559475 0-35.504632-15.883759-35.504632-35.444257L158.716326 207.602222c0-19.575848 15.945157-35.474956 35.504632-35.474956l406.367171 0c15.231913 0 27.592428-12.371772 27.592428-27.606755 0-15.202237-12.360516-27.590382-27.592428-27.590382L190.013123 116.930129c-47.684022 0-86.49291 38.779212-86.49291 86.49291L103.520213 820.59231c0 47.713698 38.808888 86.47756 86.49291 86.47756l639.334083 0c47.715745 0 86.509283-38.763862 86.509283-86.47756L915.856489 443.222567C915.794068 428.048983 903.408993 415.735539 888.265084 415.735539" p-id="1219" fill="#009193"></path></svg></span>
+								<span onclick="oneCardRefresh(this)" class="pointer uread bicon" title="刷新"><svg t="1637915170102" class="icon" viewBox="0 0 1282 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3401" width="16" height="16"><path d="M1276.284799 473.062139l-150.178456 149.495828a33.244049 33.244049 0 0 1-44.848749 0l-149.427564-149.495828c-17.748363-20.47888-5.870612-27.987803 6.826293-39.592502h136.52587A443.2995 443.2995 0 0 0 254.456926 304.45269l-74.679651-29.353062a523.440185 523.440185 0 0 1 976.15997 158.370009h113.862576a26.417756 26.417756 0 0 1 6.484978 39.592502zM203.669302 440.97856l150.178457 149.495827a26.486019 26.486019 0 0 1-6.484978 39.592503H217.048838a443.709077 443.709077 0 0 0 791.850045 120.825395l75.430543 29.353062a523.235396 523.235396 0 0 1-949.332636-150.178457H15.604917c-12.355591-11.604699-24.233342-19.113622-6.826294-39.592503l149.427565-149.495827a33.244049 33.244049 0 0 1 45.463114 0z" p-id="3402" fill="#009193"></path></svg></span>
+								<span onclick="oneCardCopy(this)" class="pointer uread" title="复制"><svg t="1637915219750" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4289" width="16" height="16"><path d="M720 192h-544A80.096 80.096 0 0 0 96 272v608C96 924.128 131.904 960 176 960h544c44.128 0 80-35.872 80-80v-608C800 227.904 764.128 192 720 192z m16 688c0 8.8-7.2 16-16 16h-544a16 16 0 0 1-16-16v-608a16 16 0 0 1 16-16h544a16 16 0 0 1 16 16v608z" p-id="4290" fill="#009193"></path><path d="M848 64h-544a32 32 0 0 0 0 64h544a16 16 0 0 1 16 16v608a32 32 0 1 0 64 0v-608C928 99.904 892.128 64 848 64z" p-id="4291" fill="#009193"></path><path d="M608 360H288a32 32 0 0 0 0 64h320a32 32 0 1 0 0-64zM608 520H288a32 32 0 1 0 0 64h320a32 32 0 1 0 0-64zM480 678.656H288a32 32 0 1 0 0 64h192a32 32 0 1 0 0-64z" p-id="4292" fill="#009193"></path></svg></span><span class="placeholder-color"> ｜ </span>
+								<span onclick="oneCardRemove(this)" id="oneCardRemove" class="pointer uread"><svg t="1637915315755" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5198" width="16" height="16"><path d="M944.1 462.9c-0.2-0.1-0.4-0.2-0.5-0.4-3.7-2.8-17-12.8-34.4-24.8-1.6-1.1-2-2.7-2-3.5-0.1-0.8 0-2.3 1.4-3.7 13.5-13 26.6-26.6 39-40.6 0.6-0.6 1-1.2 1.5-1.8 12.5-16.6 13-39.2 1.2-56.3-2-2.9-4.4-5.4-7.2-7.3-5.4-3.8-11.7-5.2-18-4.2-12 1.9-20.8 12.1-26.4 19.7-46.3 58.6-205.3 210.2-385.6 210.3-48-0.5-95.1-8.9-140.1-25l-39.7-16.1c-37.8-17.1-74-38-107.5-62.2l-28.1-21.1c-25.5-19.6-49.1-41.8-70-66-0.7-0.8-1.4-1.6-2.2-2.3l-1.8-1.7c-6.2-5.8-11.5-10.8-17.8-13.5-5.3-2.3-15.8-4.6-26.6 5-19 17-14.2 41.3-3.3 58.4 1.1 1.7 2.4 3.3 3.8 4.8 15.9 16 32.7 31.5 50.1 46 1.5 1.3 1.7 2.9 1.7 3.7 0 0.8-0.3 2.4-2 3.6-12.7 9-22.1 15.9-24.7 17.8-0.1 0-0.2 0.1-0.7 0.4-7.8 4.5-13.3 11.7-15.5 20.2-2.4 8.9-0.8 18.4 4.3 26.1 9.5 15.5 29.7 20.8 46 12.1 5.6-3 11.8-7.6 20.5-14 7.4-5.5 16.6-12.3 28.2-20.1 1.7-1.2 4-1.1 5.8 0.1 28.8 19.9 59.4 37.9 90.8 53.6 1.6 0.8 2.3 2.2 2.5 2.9 0.2 0.7 0.5 2.1-0.4 3.6l-28.7 48.3c-4.6 7.6-5.8 16.6-3.5 25.1 2.3 8.6 7.9 15.8 15.9 20.3l0.2 0.1c16.2 8.9 37 3.5 46.5-12l32.9-56.2c1.2-2.1 3.8-2.9 6.1-2.1 38.2 14 78.1 23.2 118.7 27.4 2.6 0.3 4.5 2.3 4.5 4.7V671c0 18.3 15.4 33.3 34.3 33.3s34.3-14.9 34.3-33.3v-49.6c0-2.4 1.9-4.4 4.5-4.7 40.1-4.2 79.5-13.7 117-28.2 2.3-0.9 5 0 6.2 2l34.2 58.5 0.1 0.1c9.5 15.7 29.7 21.1 46.1 12.4l0.3-0.2c7.9-4.5 13.5-11.7 15.8-20.3 2.3-8.5 1.1-17.4-3.5-25L737 562.4c-1.3-2.2-0.5-5.1 1.9-6.4 38.7-21.1 75.7-45.8 110-73.3 1.7-1.4 4.2-1.5 6-0.3 25.1 16.5 45.5 31.2 51.1 35.4 1.9 1.4 3.8 2.5 5.8 3.3 15.9 6.7 34.5 0.9 43.3-13.6 9.2-15.3 4.4-34.9-11-44.6z" p-id="5199" fill="#009193"></path></svg></span><span class="placeholder-color"> ｜ </span>
+								<span onclick="oneCardExit(this)" class="pointer uread" title="编辑">退出专注模式</span>
 							</div>
 							<span id="one-card-progress">0/0</span>
 						</div>

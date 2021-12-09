@@ -196,13 +196,21 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记�
 
 <img src="https://raw.githubusercontent.com/018/zotcard/main/image/cardreport.png" alt="卡片报告" width="600"/>
 
-对所选（包括「我的文库」、「分类」、「保存的搜索」、「群组文库」）中统计卡片，还可以继续点击对应时间进行读卡。
+对所选（包括「我的文库」、「分类」、「保存的搜索」、「群组文库」）中统计卡片，支持按天、按周、按年、按月统计，还统计出卡片类型和卡片标签，还可以继续点击对应时间进行读卡。
 
 **读卡**
 
 <img src="https://raw.githubusercontent.com/018/zotcard/main/image/readcard.png" alt="读卡" width="600"/>
 
-对所选（包括「我的文库」、「分类」、「保存的搜索」、「群组文库」）中所有卡片进行读卡，还支持专注模式，在读卡过程中随时可以编辑、定位，对已读的卡片可以隐藏，还可以简单进行拼卡，置顶/置底/上移/下移卡片，最后确认位置后复制卡片内容在Word等编辑工具粘贴。
+对所选（包括「我的文库」、「分类」、「保存的搜索」、「群组文库」）中所有卡片进行读卡，还支持专注模式，支持自定义查询时间、作者、卡片类型、卡片标签和关键字搜索，还是支持关键字高亮显示。在读卡过程中随时可以编辑、定位，对已读的卡片可以隐藏，还可以简单进行拼卡，置顶/置底/上移/下移卡片，最后确认位置后复制卡片内容在Word等编辑工具粘贴。
+
+<img src="https://raw.githubusercontent.com/018/zotcard/main/image/card-operation.png" alt="卡片操作" width="300"/>
+
+## 笔记行间距
+
+<img src="https://raw.githubusercontent.com/018/zotcard/main/image/line-spacing.png" alt="笔记行间距" width="300"/>
+
+支持设置笔记行间距。
 
 
 ## 选项

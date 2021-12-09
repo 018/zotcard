@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-unused-vars
-Services.scriptloader.loadSubScript('chrome://zoterozotcard/content/utils.js')
+Services.scriptloader.loadSubScript('chrome://zoterozotcard/content/utils.js', window, 'utf-8')
+Services.scriptloader.loadSubScript('chrome://zoterozotcard/content/cardsearcher.js', window, 'utf-8')
 
 let zotcard = {
   _bundle: Cc['@mozilla.org/intl/stringbundle;1'].getService(Components.interfaces.nsIStringBundleService).createBundle('chrome://zoterozotcard/locale/zotcard.properties')
@@ -634,6 +635,7 @@ zotcard.readcollectioncard = function () {
     var items = Zotero.Items.get(ids)
     Zotero.debug(`搜索到：${items.length}`)
     var cards = []
+    var options = {}
     for (let index = 0; index < items.length; index++) {
       const item = items[index]
       if (!item.isNote()) {
@@ -647,37 +649,29 @@ zotcard.readcollectioncard = function () {
         Zotero.debug(`${noteTitle}跳过统计。`)
         continue
       }
-      cards.push(Zotero.ZotCard.Utils.toCardItem(item, Zotero.ZotCard.Utils.cardDate(item)))
+      let cardItem = Zotero.ZotCard.Utils.toCardItem(item)
+      cards.push(cardItem)
+      options = Zotero.ZotCard.Utils.refreshOptions(cardItem, options)
       Zotero.updateZoteroPaneProgressMeter((index + 1) / items.length)
     }
 
     Zotero.hideZoteroPaneOverlays()
     if (cards.length > 0) {
-      window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, cards, name)
+      let options = Zotero.ZotCard.Utils.bulidOptions(cards)
+      let io = {
+        dataIn: {
+          title: name,
+          cards: cards,
+          options: options
+        }
+      }
+      window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, io)
     } else {
       Zotero.ZotCard.Utils.error('无卡片。')
     }
   }
-  var search = new Zotero.Search()
-  search.libraryID = ZoteroPane.getSelectedLibraryID()
-  if (selectedCollection) {
-    search.addCondition('note', 'contains', '')
-    search.addCondition('itemType', 'is', 'note')
-    search.addCondition('collection', 'is', selectedCollection.key)
-    search.addCondition('includeParentsAndChildren', 'true', null)
-    search.addCondition('recursive', 'true', null)
-    search.search().then((ids) => callback(ids, selectedCollection.name))
-  } else if (selectedSavedSearch) {
-    search.addCondition('note', 'contains', '')
-    search.addCondition('itemType', 'is', 'note')
-    search.addCondition('savedSearch', 'is', selectedSavedSearch.key)
-    search.search().then((ids) => callback(ids, selectedSavedSearch.name))
-  } else {
-    let lib = Zotero.Libraries.get(search.libraryID)
-    search.addCondition('note', 'contains', '')
-    search.addCondition('itemType', 'is', 'note')
-    search.search().then((ids) => callback(ids, lib.name))
-  }
+
+  Zotero.ZotCard.CardSearcher.search(ZoteroPane.getSelectedLibraryID(), selectedCollection, selectedSavedSearch, callback)
 }
 
 zotcard.collectionreport = function () {
@@ -687,22 +681,20 @@ zotcard.collectionreport = function () {
   let io = {
     libraryID: ZoteroPane.getSelectedLibraryID(),
     name: '',
-    type: '',
-    key: ''
+    type: ''
   }
   if (selectedCollection) {
     io.type = 'collection'
+    io.selectedCollection = selectedCollection
     io.name = selectedCollection.name
-    io.key = selectedCollection.key
   } else if (selectedSavedSearch) {
     io.type = 'savedSearch'
+    io.selectedSavedSearch = selectedSavedSearch
     io.name = selectedSavedSearch.name
-    io.key = selectedSavedSearch.key
   } else {
     let lib = Zotero.Libraries.get(io.libraryID)
     io.type = 'library'
     io.name = lib.name
-    io.key = lib.libraryType
   }
   window.openDialog('chrome://zoterozotcard/content/report.html', 'report', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, io)
 }
@@ -710,13 +702,23 @@ zotcard.collectionreport = function () {
 zotcard.showReadCard = function (items, title) {
   Zotero.showZoteroPaneProgressMeter('正在处理 ...')
   var cards = []
+  var options = {}
   items.forEach((item, index) => {
-    cards.push(Zotero.ZotCard.Utils.toCardItem(item, Zotero.ZotCard.Utils.cardDate(item)))
+    let cardItem = Zotero.ZotCard.Utils.toCardItem(item)
+    cards.push(cardItem)
+    options = Zotero.ZotCard.Utils.refreshOptions(cardItem, options)
     Zotero.updateZoteroPaneProgressMeter((index + 1) / items.length)
   })
 
+  let io = {
+    dataIn: {
+      title: title,
+      cards: cards,
+      options: options
+    }
+  }
   Zotero.hideZoteroPaneOverlays()
-  window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, cards, title)
+  window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, io)
 }
 
 zotcard.replace = function () {

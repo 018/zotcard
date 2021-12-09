@@ -1,29 +1,33 @@
-if (!window.Zotero) window.Zotero = {}
-if (!window.Zotero.ZotCard) window.Zotero.ZotCard = {}
-if (!window.Zotero.ZotCard.Utils) window.Zotero.ZotCard.Utils = {}
+if (!Zotero.getMainWindow().Zotero) Zotero.getMainWindow().Zotero = {}
+if (!Zotero.getMainWindow().Zotero.ZotCard) Zotero.getMainWindow().Zotero.ZotCard = {}
+if (!Zotero.getMainWindow().Zotero.ZotCard.Utils) Zotero.getMainWindow().Zotero.ZotCard.Utils = {}
 
-window.Zotero.ZotCard.Utils = {
+Zotero.getMainWindow().Zotero.ZotCard.Utils = {
   _bundle: Cc['@mozilla.org/intl/stringbundle;1'].getService(Components.interfaces.nsIStringBundleService).createBundle('chrome://zoterouread/locale/uread.properties')
 }
 
-window.Zotero.ZotCard.Utils.warning = function (message) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.isDebug = function () {
+  return typeof Zotero !== 'undefined' && typeof Zotero.Debug !== 'undefined' && Zotero.Debug.enabled
+}
+
+Zotero.getMainWindow().Zotero.ZotCard.Utils.warning = function (message) {
   Zotero.alert(null, Zotero.getString('general.warning'), message)
 }
 
-window.Zotero.ZotCard.Utils.success = function (message) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.success = function (message) {
   Zotero.alert(null, Zotero.getString('general.success'), message)
 }
 
-window.Zotero.ZotCard.Utils.error = function (message) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.error = function (message) {
   Zotero.alert(null, Zotero.getString('general.error'), message)
 }
 
-window.Zotero.ZotCard.Utils.confirm = function (message) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.confirm = function (message) {
   var ps = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
   return ps.confirm(null, Zotero.getString('general.warning'), message)
 }
 
-window.Zotero.ZotCard.Utils.getParam = function (url, name) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.getParam = function (url, name) {
   if (!url) return ''
 
   var src = new RegExp('[?&]' + name + '=([^&#]*)').exec(url)
@@ -32,7 +36,7 @@ window.Zotero.ZotCard.Utils.getParam = function (url, name) {
   return src && src[1] ? src[1] : ''
 }
 
-window.Zotero.ZotCard.Utils.eqisbn = function (val1, val2) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.eqisbn = function (val1, val2) {
   if (!val1 || (val1.length !== 13 && val1.length !== 10) || !val2 || (val2.length !== 13 && val2.length !== 10)) return false
 
   let no1 = this.getISBNNo(val1)
@@ -40,7 +44,7 @@ window.Zotero.ZotCard.Utils.eqisbn = function (val1, val2) {
   return no1 === no2
 }
 
-window.Zotero.ZotCard.Utils.getISBNNo = function (val) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.getISBNNo = function (val) {
   if (!val || (val.length !== 13 && val.length !== 10)) return
 
   if (val.length === 13) {
@@ -50,7 +54,7 @@ window.Zotero.ZotCard.Utils.getISBNNo = function (val) {
   }
 }
 
-window.Zotero.ZotCard.Utils.opt = function (val) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.opt = function (val) {
   if (!val) return ''
 
   if (val instanceof Array) {
@@ -62,7 +66,7 @@ window.Zotero.ZotCard.Utils.opt = function (val) {
   }
 }
 
-window.Zotero.ZotCard.Utils.getString = function (name, ...params) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.getString = function (name, ...params) {
   if (params !== undefined && params.length > 0) {
     return this._bundle.formatStringFromName(name, params, params.length)
   } else {
@@ -70,10 +74,10 @@ window.Zotero.ZotCard.Utils.getString = function (name, ...params) {
   }
 }
 
-window.Zotero.ZotCard.Utils.getSelectedItems = function (itemType) {
-  var zitems = window.ZoteroPane.getSelectedItems()
+Zotero.getMainWindow().Zotero.ZotCard.Utils.getSelectedItems = function (itemType) {
+  var zitems = Zotero.getMainWindow().ZoteroPane.getSelectedItems()
   if (!zitems.length) {
-    Zotero.debug('window.Zotero.ZotCard.Utils@zitems.length: ' + zitems.length)
+    Zotero.debug('Zotero.getMainWindow().Zotero.ZotCard.Utils@zitems.length: ' + zitems.length)
     return false
   }
 
@@ -82,14 +86,14 @@ window.Zotero.ZotCard.Utils.getSelectedItems = function (itemType) {
       itemType = [itemType]
     }
     var siftedItems = this.siftItems(zitems, itemType)
-    Zotero.debug('window.Zotero.ZotCard.Utils@siftedItems.matched: ' + siftedItems.matched.length)
+    Zotero.debug('Zotero.getMainWindow().Zotero.ZotCard.Utils@siftedItems.matched: ' + siftedItems.matched.length)
     return siftedItems.matched
   } else {
     return zitems
   }
 }
 
-window.Zotero.ZotCard.Utils.siftItems = function (itemArray, itemTypeArray) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.siftItems = function (itemArray, itemTypeArray) {
   var matchedItems = []
   var unmatchedItems = []
   while (itemArray.length > 0) {
@@ -106,7 +110,7 @@ window.Zotero.ZotCard.Utils.siftItems = function (itemArray, itemTypeArray) {
   }
 }
 
-window.Zotero.ZotCard.Utils.checkItemType = function (itemObj, itemTypeArray) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.checkItemType = function (itemObj, itemTypeArray) {
   var matchBool = false
 
   for (var idx = 0; idx < itemTypeArray.length; idx++) {
@@ -132,7 +136,7 @@ window.Zotero.ZotCard.Utils.checkItemType = function (itemObj, itemTypeArray) {
   return matchBool
 }
 
-window.Zotero.ZotCard.Utils.loadDocumentAsync = async function (url, onDone, onError, dontDelete, cookieSandbox) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.loadDocumentAsync = async function (url, onDone, onError, dontDelete, cookieSandbox) {
   let doc = await new Zotero.Promise(function (resolve, reject) {
     var browser = Zotero.HTTP.loadDocuments(url,
       Zotero.Promise.coroutine(function* () {
@@ -153,12 +157,12 @@ window.Zotero.ZotCard.Utils.loadDocumentAsync = async function (url, onDone, onE
   return doc
 }
 
-window.Zotero.ZotCard.Utils.requestAsync = async function (url) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.requestAsync = async function (url) {
   var xmlhttp = await Zotero.HTTP.request('GET', url)
   return xmlhttp
 }
 
-window.Zotero.ZotCard.Utils.htmlToText = function (html) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.htmlToText = function (html) {
   var	nsIFC = Components.classes['@mozilla.org/widget/htmlformatconverter;1'].createInstance(Components.interfaces.nsIFormatConverter)
   var from = Components.classes['@mozilla.org/supports-string;1'].createInstance(Components.interfaces.nsISupportsString)
   from.data = html
@@ -173,17 +177,17 @@ window.Zotero.ZotCard.Utils.htmlToText = function (html) {
   }
 }
 
-window.Zotero.ZotCard.Utils.copyHtmlToClipboard = function (textHtml) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.copyHtmlToClipboard = function (textHtml) {
   var htmlstring = Components.classes['@mozilla.org/supports-string;1'].createInstance(Components.interfaces.nsISupportsString)
   if (!htmlstring) {
-    if (isDebug()) Zotero.debug('htmlstring is null.')
+    if (Zotero.getMainWindow().Zotero.ZotCard.Utils.isDebug()) Zotero.debug('htmlstring is null.')
     return false
   }
   htmlstring.data = textHtml
 
   var trans = Components.classes['@mozilla.org/widget/transferable;1'].createInstance(Components.interfaces.nsITransferable)
   if (!trans) {
-    if (isDebug()) Zotero.debug('trans is null.')
+    if (Zotero.getMainWindow().Zotero.ZotCard.Utils.isDebug()) Zotero.debug('trans is null.')
     return false
   }
 
@@ -192,7 +196,7 @@ window.Zotero.ZotCard.Utils.copyHtmlToClipboard = function (textHtml) {
 
   var clipboard = Components.classes['@mozilla.org/widget/clipboard;1'].getService(Components.interfaces.nsIClipboard)
   if (!clipboard) {
-    if (isDebug()) Zotero.debug('clipboard is null.')
+    if (Zotero.getMainWindow().Zotero.ZotCard.Utils.isDebug()) Zotero.debug('clipboard is null.')
     return false
   }
 
@@ -200,7 +204,7 @@ window.Zotero.ZotCard.Utils.copyHtmlToClipboard = function (textHtml) {
   return true
 }
 
-window.Zotero.ZotCard.Utils.dataURItoBlob = function (dataURI) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.dataURItoBlob = function (dataURI) {
   var mimeString = dataURI
     .split(',')[0]
     .split(':')[1]
@@ -214,7 +218,7 @@ window.Zotero.ZotCard.Utils.dataURItoBlob = function (dataURI) {
   return new Blob([intArray], { type: mimeString })
 }
 
-window.Zotero.ZotCard.Utils.blobToDataURI = function (blob, callback) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.blobToDataURI = function (blob, callback) {
   var reader = new FileReader()
   reader.onload = function (e) {
     callback(e.target.result)
@@ -222,7 +226,7 @@ window.Zotero.ZotCard.Utils.blobToDataURI = function (blob, callback) {
   reader.readAsDataURL(blob)
 }
 
-window.Zotero.ZotCard.Utils.formatDate = function (date, format) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.formatDate = function (date, format) {
   var o = {
     'M+' : date.getMonth() + 1,
     'd+' : date.getDate(),
@@ -244,7 +248,7 @@ window.Zotero.ZotCard.Utils.formatDate = function (date, format) {
   return format
 }
 
-window.Zotero.ZotCard.Utils.hangzi = function (html) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.hangzi = function (html) {
   var content = Zotero.ZotCard.Utils.htmlToText(html)
   Zotero.debug(`content: ${content}`)
   let m1 = content.match(/[\u4E00-\u9FA5]/g)
@@ -256,7 +260,7 @@ window.Zotero.ZotCard.Utils.hangzi = function (html) {
   return l1 + l2 + l3
 }
 
-window.Zotero.ZotCard.Utils.lines = function (html) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.lines = function (html) {
   var content = Zotero.ZotCard.Utils.htmlToText(html)
   if (content) {
     let m = content.match(/\n/g)
@@ -267,58 +271,136 @@ window.Zotero.ZotCard.Utils.lines = function (html) {
   }
 }
 
-window.Zotero.ZotCard.Utils.toCardItem = function (note, date) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.toCardItem = function (note) {
+  let noteTitle = note.getNoteTitle()
+  let noteContent = note.getNote()
+
+  let match3 = noteTitle.match('[\u4e00-\u9fa5]+卡')
+  let cardtype = match3 ? match3[0] : '其他'
+
+  let author = Zotero.ZotCard.Utils.getCardItemValue(noteContent, '作者')
+  let tags = Zotero.ZotCard.Utils.getCardItemValue(noteContent, '标签').split(/[\[ \]]/).filter(e => e && e !== '无')
+
+  note.getTags().forEach(tag => {
+    tags.push(tag.getTag())
+  })
+
   return {
     id: note.id,
-    title: note.getNoteTitle(),
     key: note.key,
+    title: noteTitle,
+    type: cardtype,
+    date: Zotero.ZotCard.Utils.cardDate(note),
+    tags: tags,
+    note: noteContent,
+    author: author,
     dateAdded: Zotero.ZotCard.Utils.sqlToDate(note.dateAdded, 'yyyy-MM-dd HH:mm:ss'),
-    dateModified: Zotero.ZotCard.Utils.sqlToDate(note.dateModified, 'yyyy-MM-dd HH:mm:ss'),
-    date: date,
-    note: note.getNote()
+    dateModified: Zotero.ZotCard.Utils.sqlToDate(note.dateModified, 'yyyy-MM-dd HH:mm:ss')
   }
 }
 
-window.Zotero.ZotCard.Utils.cardDate = function (item) {
+// 标签: [无] [v1]  => [无, v1]
+Zotero.getMainWindow().Zotero.ZotCard.Utils.getCardItemValue = function (noteContent, name) {
+  let reg = new RegExp(`${name}[:：](.*)`)
+  let match1 = reg.exec(Zotero.ZotCard.Utils.htmlToText(noteContent))
+  let content = ''
+  if (match1) {
+    if (match1[1].match(/[:：]/)) {
+      content = match1[1].replace(/[^\s]*[:：].*$/, '').trim()
+    } else {
+      content = match1[1]
+    }
+  }
+  return content
+}
+
+Zotero.getMainWindow().Zotero.ZotCard.Utils.refreshOptions = function (cardItem, options) {
+  // options:
+  // {
+  //    startDate: '',
+  //    endDate: '',
+  //    cardtypes: [],
+  //    cardtags: [],
+  //    cardauthors: []
+  // }
+  if (!options) {
+    options = {}
+  }
+  options = Object.assign({
+    startDate: '',
+    endDate: '',
+    cardtypes: [],
+    cardtags: [],
+    cardauthors: []
+  }, options)
+
+  if (!options.startDate || cardItem.date < options.startDate) {
+    options.startDate = cardItem.date
+  }
+  if (!options.endDate || cardItem.date > options.endDate) {
+    options.endDate = cardItem.date
+  }
+  if (!options.cardtypes.includes(cardItem.type)) {
+    options.cardtypes.push(cardItem.type)
+  }
+  if (cardItem.author && !options.cardauthors.includes(cardItem.author)) {
+    options.cardauthors.push(cardItem.author)
+  }
+  if (cardItem.tags.length === 0) {
+    if (!options.cardtags.includes('无')) {
+      options.cardtags.push('无')
+    }
+  } else {
+    let diff = cardItem.tags.filter(e => !options.cardtags.includes(e))
+    options.cardtags.push(...diff)
+  }
+
+  return options
+}
+
+Zotero.getMainWindow().Zotero.ZotCard.Utils.bulidOptions = function (cards) {
+  let options = {}
+  cards.forEach(element => {
+    options = Zotero.ZotCard.Utils.refreshOptions(element, options)
+  })
+  return options
+}
+
+Zotero.getMainWindow().Zotero.ZotCard.Utils.cardDate = function (item) {
   let dateString
-  let text = Zotero.ZotCard.Utils.htmlToText(item.getNote())
-  Zotero.debug(text)
-  // let match1 = text.match(/日期[:：] *?(\d{4}[-/年.]\d{1,2}[-/月.]\d{1,2}日{0,1})/g)
-  let match1 = text.match(/\u65e5\u671f[:\uff1a] *?(\d{4}[-/\u5e74.]\d{1,2}[-/\u6708.]\d{1,2}\u65e5{0,1})/g)
+  let noteContent = Zotero.ZotCard.Utils.htmlToText(item.getNote())
+  let dateContent = Zotero.ZotCard.Utils.getCardItemValue(noteContent, '日期')
+  let match1 = dateContent.match(/\d{4}[-/\u5e74.]\d{1,2}[-/\u6708.]\d{1,2}\u65e5{0,1}/g)
   if (!match1) {
-    // let match3 = text.match(/日期[:：] *?(\d{8})/g)
-    let match3 = text.match(/\u65e5\u671f[:\uff1a] *?(\d{8})/g)
+    let match3 = dateContent.match(/\d{8}/g)
     if (match3) {
-      let match4 = match3[0].match(/\d{8}/g)
-      Zotero.debug(`${match4}`)
-      dateString = `${match4[0].substr(0, 4)}-${match4[0].substr(4, 2)}-${match4[0].substr(6, 2)}`
+      dateString = `${match3[0].substr(0, 4)}-${match3[0].substr(4, 2)}-${match3[0].substr(6, 2)}`
     } else {
       Zotero.debug(`不包含有效日期，取创建日期。${match3}`)
       dateString = Zotero.ZotCard.Utils.sqlToDate(item.dateAdded, 'yyyy-MM-dd')
     }
   } else {
-    // let match2 = match1[0].match(/\d{4}[-/年.]\d{1,2}[-/月.]\d{1,2}日{0,1}/g)
     let match2 = match1[0].match(/\d{4}[-/\u5e74.]\d{1,2}[-/\u6708.]\d{1,2}\u65e5{0,1}/g)
     Zotero.debug(`${match2}`)
-    // dateString = match2[0].replace(/年|月|\./g, '-').replace(/日/g, '')
     dateString = match2[0].replace(/\u5e74|\u6708|\./g, '-').replace(/\u65e5/g, '')
   }
-  return dateString
+  let now = new Date(dateString)
+  return Zotero.ZotCard.Utils.formatDate(now, 'yyyy-MM-dd')
 }
 
-window.Zotero.ZotCard.Utils.swap = function (array, index1, index2) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.swap = function (array, index1, index2) {
   let e = array[index1]
   array[index1] = array[index2]
   array[index2] = e
 }
 
-window.Zotero.ZotCard.Utils.sqlToDate = function (date, format) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.sqlToDate = function (date, format) {
   let d = Zotero.Date.sqlToDate(date, true)
   let dt = new Date(d - new Date().getTimezoneOffset())
   return format ? Zotero.ZotCard.Utils.formatDate(dt, format) : dt
 }
 
-window.Zotero.ZotCard.Utils.sqlToLocale = function (valueText) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.sqlToLocale = function (valueText) {
   var date = Zotero.Date.sqlToDate(valueText, true)
   if (date) {
     if (Zotero.Date.isSQLDate(valueText)) {
@@ -332,10 +414,10 @@ window.Zotero.ZotCard.Utils.sqlToLocale = function (valueText) {
   }
 }
 
-window.Zotero.ZotCard.Utils.getSelectedItems = function (itemType) {
-  var zitems = window.ZoteroPane.getSelectedItems()
+Zotero.getMainWindow().Zotero.ZotCard.Utils.getSelectedItems = function (itemType) {
+  var zitems = Zotero.getMainWindow().ZoteroPane.getSelectedItems()
   if (!zitems.length) {
-    if (isDebug()) Zotero.debug('zitems.length: ' + zitems.length)
+    if (Zotero.getMainWindow().Zotero.ZotCard.Utils.isDebug()) Zotero.debug('zitems.length: ' + zitems.length)
     return false
   }
 
@@ -343,18 +425,18 @@ window.Zotero.ZotCard.Utils.getSelectedItems = function (itemType) {
     if (!Array.isArray(itemType)) {
       itemType = [itemType]
     }
-    var siftedItems = window.Zotero.ZotCard.Utils.siftItems(zitems, itemType)
-    if (isDebug()) Zotero.debug('siftedItems.matched: ' + JSON.stringify(siftedItems.matched))
+    var siftedItems = Zotero.ZotCard.Utils.siftItems(zitems, itemType)
+    if (Zotero.getMainWindow().Zotero.ZotCard.Utils.isDebug()) Zotero.debug('siftedItems.matched: ' + JSON.stringify(siftedItems.matched))
     return siftedItems.matched
   } else {
     return zitems
   }
 }
 
-window.Zotero.ZotCard.Utils.getSelectedItemTypes = function () {
-  var zitems = window.ZoteroPane.getSelectedItems()
+Zotero.getMainWindow().Zotero.ZotCard.Utils.getSelectedItemTypes = function () {
+  var zitems = Zotero.getMainWindow().ZoteroPane.getSelectedItems()
   if (!zitems.length) {
-    if (isDebug()) Zotero.debug('zitems.length: ' + zitems.length)
+    if (Zotero.getMainWindow().Zotero.ZotCard.Utils.isDebug()) Zotero.debug('zitems.length: ' + zitems.length)
     return false
   }
 
@@ -373,11 +455,11 @@ window.Zotero.ZotCard.Utils.getSelectedItemTypes = function () {
   return itemTypes
 }
 
-window.Zotero.ZotCard.Utils.siftItems = function (itemArray, itemTypeArray) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.siftItems = function (itemArray, itemTypeArray) {
   var matchedItems = []
   var unmatchedItems = []
   while (itemArray.length > 0) {
-    if (window.Zotero.ZotCard.Utils.checkItemType(itemArray[0], itemTypeArray)) {
+    if (Zotero.getMainWindow().Zotero.ZotCard.Utils.checkItemType(itemArray[0], itemTypeArray)) {
       matchedItems.push(itemArray.shift())
     } else {
       unmatchedItems.push(itemArray.shift())
@@ -390,7 +472,7 @@ window.Zotero.ZotCard.Utils.siftItems = function (itemArray, itemTypeArray) {
   }
 }
 
-window.Zotero.ZotCard.Utils.checkItemType = function (itemObj, itemTypeArray) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.checkItemType = function (itemObj, itemTypeArray) {
   var matchBool = false
 
   for (var idx = 0; idx < itemTypeArray.length; idx++) {
@@ -416,7 +498,7 @@ window.Zotero.ZotCard.Utils.checkItemType = function (itemObj, itemTypeArray) {
   return matchBool
 }
 
-window.Zotero.ZotCard.Utils.promptForRestart = function (message) {
+Zotero.getMainWindow().Zotero.ZotCard.Utils.promptForRestart = function (message) {
   // Prompt to restart
   var ps = Services.prompt
   var buttonFlags = ps.BUTTON_POS_0 * ps.BUTTON_TITLE_IS_STRING + ps.BUTTON_POS_1 * ps.BUTTON_TITLE_IS_STRING;
