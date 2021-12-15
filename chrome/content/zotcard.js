@@ -971,6 +971,21 @@ zotcard.compressimg = async function () {
   pw.addDescription(Utils.getString('uread.click_on_close'))
 }
 
+zotcard.print = async function () {
+  var zitems = Zotero.ZotCard.Utils.getSelectedItems(['note'])
+  if (!zitems || zitems.length <= 0) {
+    Zotero.ZotCard.Utils.error(this.getString('zotcard.only_note'))
+    return
+  }
+  if (zitems.length !== 1) {
+    Zotero.ZotCard.Utils.error(this.getString('zotcard.only_note'))
+    return
+  }
+
+  var zitem = zitems[0]
+  Zotero.openInViewer('chrome://zoterozotcard/content/cardcontent.html?id=' + zitem.id)
+}
+
 zotcard.config = function () {
   Zotero.ZotCard.Utils.warning(`在接下来的about:config窗口中进行配置。
 默认：
@@ -1303,6 +1318,9 @@ if (typeof window !== 'undefined') {
   if (!window.Zotero) window.Zotero = {}
   if (!window.Zotero.ZotCard) window.Zotero.ZotCard = {}
   // note sure about any of this
+  window.Zotero.ZotCard.getNoteLineHeight = function () { return zotcard.getNoteLineHeight() }
+
+
   window.Zotero.ZotCard.quotes = function () { zotcard.quotes() }
   window.Zotero.ZotCard.concept = function () { zotcard.concept() }
   window.Zotero.ZotCard.character = function () { zotcard.character() }
@@ -1321,7 +1339,8 @@ if (typeof window !== 'undefined') {
   window.Zotero.ZotCard.close = function () { zotcard.close() }
   window.Zotero.ZotCard.closeall = function () { zotcard.closeall() }
   window.Zotero.ZotCard.compressimg = function () { zotcard.compressimg() }
-
+  window.Zotero.ZotCard.print = function () { zotcard.print() }
+  
   window.Zotero.ZotCard.config = function () { zotcard.config() }
   window.Zotero.ZotCard.reset = function () { zotcard.reset() }
   window.Zotero.ZotCard.backup = function () { zotcard.backup() }

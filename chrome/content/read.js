@@ -1,5 +1,7 @@
 'use strict'
 
+// io.dataIn.title: ...
+// io.dataIn.desc: ...
 // io.dataIn.cards:
 // [{
 //    id: '',
@@ -33,6 +35,7 @@
 
 var io = window.arguments[0]
 var cards = io.dataIn.cards
+var title = io.dataIn.title
 var results = cards
 var options = Object.assign({
   startDate: '',
@@ -61,8 +64,10 @@ function start () {
   document.getElementById('card-width').value = Zotero.Prefs.get('zotcard.config.read.card-width') || '350'
   document.getElementById('card-height').value = Zotero.Prefs.get('zotcard.config.read.card-height') || ''
   document.getElementById('highlight').checked = Zotero.Prefs.get('zotcard.config.read.highlight') || false
+  document.getElementById('fit-height').checked = Zotero.Prefs.get('zotcard.config.read.fit-height') || false
   document.getElementById('setting-bar').style.display = 'none'
-
+  document.getElementById('title').textContent = title
+  
   document.getElementById('start-date').value = filters.startDate || options.startDate
   document.getElementById('end-date').value = filters.endDate || options.endDate
   document.getElementById('start-date').hidden = !filters.startDate && !filters.endDate
@@ -71,17 +76,12 @@ function start () {
   document.getElementById('dateselect').value = !filters.startDate && !filters.endDate ? 'all' : ''
   if (options.cardtypes.length > 0) {
     options.cardtypes.sort((e1, e2) => {
-      if (e1 === '其他') {
-        return 1
-      } else if (e2 === '其他') {
-        return -1
-      }
-      return 0
+      return e2.count - e1.count
     })
     options.cardtypes.forEach(element => {
       let option = document.createElement('option')
-      option.setAttribute('value', element)
-      option.textContent = element
+      option.setAttribute('value', element.name)
+      option.textContent = `${element.name}(${element.count})`
       document.getElementById('typeselect').append(option)
     })
     document.getElementById('typeselect').value = filters.cardtype
@@ -89,10 +89,13 @@ function start () {
     document.getElementById('typeselect').value = ''
   }
   if (options.cardauthors.length > 0) {
+    options.cardauthors.sort((e1, e2) => {
+      return e2.count - e1.count
+    })
     options.cardauthors.forEach(element => {
       let option = document.createElement('option')
-      option.setAttribute('value', element)
-      option.textContent = element
+      option.setAttribute('value', element.name)
+      option.textContent = `${element.name}(${element.count})`
       document.getElementById('authorselect').append(option)
     })
     document.getElementById('authorselect').value = filters.cardauthor
@@ -104,17 +107,12 @@ function start () {
   }
   if (options.cardtags.length > 0) {
     options.cardtags.sort((e1, e2) => {
-      if (e1 === '无') {
-        return -1
-      } else if (e2 === '无') {
-        return 1
-      }
-      return 0
+      return e2.count - e1.count
     })
     options.cardtags.forEach(element => {
       let option = document.createElement('option')
-      option.setAttribute('value', element)
-      option.textContent = element
+      option.setAttribute('value', element.name)
+      option.textContent = `${element.name}(${element.count})`
       document.getElementById('tagselect').append(option)
     })
     document.getElementById('tagselect').value = filters.cardtag
@@ -133,7 +131,6 @@ function start () {
   document.getElementById(`orderby${orderby}`).textContent = (desc === '1' ? '▼' : '▲')
 
   document.getElementById('concentration').hidden = false
-  document.getElementById('title').textContent = io.dataIn.title
   loadNum()
 
   if (cards.length === 0) {
@@ -359,8 +356,12 @@ function refreshCard (id) {
   cardContentAll.innerHTML = matchNote(item.getNote())
   let cardTitle = cardDiv.querySelector(`.card-title`)
   cardTitle.innerHTML = `<h3 class="linenowrap" style="text-align: center;">${item.getNoteTitle()}</h3>`
+
   let index = indexOfCards(id)
   cards[index] = Zotero.ZotCard.Utils.toCardItem(item)
+  cardDiv.querySelector(`#dateModified`).textContent = `修改时间：${cards[index].dateModified}`
+  cardDiv.querySelector(`#words`).textContent = `字数：${cards[index].words}`
+
   options = Zotero.ZotCard.Utils.refreshOptions(cards[index], options)
 }
 
@@ -607,6 +608,26 @@ function createCard (card, index) {
   span.textContent = ' | '
   divWarp.appendChild(span)
 
+  let span12 = document.createElement('span')
+  span12.setAttribute('class', 'pointer')
+  span12.setAttribute('title', '打印')
+  span12.setAttribute('cardid', card.id)
+  span12.innerHTML = '<svg t="1639382675748" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1274" width="16" height="16"><path d="M873.9328 533.333333 824.1664 533.333333C805.3248 533.333333 790.033067 518.075733 790.033067 499.2 790.033067 480.324267 805.3248 465.066667 824.1664 465.066667L873.9328 465.066667C911.581867 465.066667 942.199467 434.449067 942.199467 396.8L942.199467 136.533333C942.199467 98.884267 911.581867 68.266667 873.9328 68.266667L136.516267 68.266667C98.8672 68.266667 68.2496 98.884267 68.2496 136.533333L68.2496 396.8C68.2496 434.449067 98.8672 465.066667 136.516267 465.066667L188.330667 465.066667C207.172267 465.066667 222.464 480.324267 222.464 499.2 222.464 518.075733 207.172267 533.333333 188.330667 533.333333L136.516267 533.333333C61.252267 533.333333-0.017067 472.098133-0.017067 396.8L-0.017067 136.533333C-0.017067 61.2352 61.252267 0 136.516267 0L873.9328 0C949.230933 0 1010.466133 61.2352 1010.466133 136.533333L1010.466133 396.8C1010.466133 472.098133 949.230933 533.333333 873.9328 533.333333" p-id="1275" fill="#009193"></path><path d="M783.117653 1010.199893 714.509653 1010.199893C695.668053 1010.199893 680.37632 994.942293 680.37632 976.06656 680.37632 957.190827 695.668053 941.933227 714.509653 941.933227L783.117653 941.933227C786.940587 941.933227 790.04672 938.827093 790.04672 935.00416L790.04672 288.416427 222.477653 288.416427 222.477653 935.00416C222.477653 938.827093 225.583787 941.933227 229.372587 941.933227L533.978453 941.933227C552.820053 941.933227 568.111787 957.190827 568.111787 976.06656 568.111787 994.942293 552.820053 1010.199893 533.978453 1010.199893L229.372587 1010.199893C187.93472 1010.199893 154.210987 976.47616 154.210987 935.00416L154.210987 254.283093C154.210987 235.40736 169.468587 220.14976 188.34432 220.14976L824.180053 220.14976C843.021653 220.14976 858.313387 235.40736 858.313387 254.283093L858.313387 935.00416C858.313387 976.47616 824.589653 1010.199893 783.117653 1010.199893" p-id="1276" fill="#009193"></path><path d="M866.484907 288.39936 143.98464 288.39936C125.14304 288.39936 109.851307 273.14176 109.851307 254.266027 109.851307 235.390293 125.14304 220.132693 143.98464 220.132693L866.484907 220.132693C885.326507 220.132693 900.61824 235.390293 900.61824 254.266027 900.61824 273.14176 885.326507 288.39936 866.484907 288.39936" p-id="1277" fill="#009193"></path><path d="M559.284907 463.366827 343.118507 463.366827C324.242773 463.366827 308.985173 448.109227 308.985173 429.233493 308.985173 410.35776 324.242773 395.10016 343.118507 395.10016L559.284907 395.10016C578.126507 395.10016 593.41824 410.35776 593.41824 429.233493 593.41824 448.109227 578.126507 463.366827 559.284907 463.366827" p-id="1278" fill="#009193"></path><path d="M667.368107 609.56672 343.10144 609.56672C324.25984 609.56672 308.968107 594.30912 308.968107 575.433387 308.968107 556.557653 324.25984 541.300053 343.10144 541.300053L667.368107 541.300053C686.209707 541.300053 701.50144 556.557653 701.50144 575.433387 701.50144 594.30912 686.209707 609.56672 667.368107 609.56672" p-id="1279" fill="#009193"></path><path d="M667.368107 755.766613 343.10144 755.766613C324.25984 755.766613 308.968107 740.509013 308.968107 721.63328 308.968107 702.757547 324.25984 687.499947 343.10144 687.499947L667.368107 687.499947C686.209707 687.499947 701.50144 702.757547 701.50144 721.63328 701.50144 740.509013 686.209707 755.766613 667.368107 755.766613" p-id="1280" fill="#009193"></path></svg>'
+  span12.onclick = function (e) {
+    let span = e.target
+    while (span.tagName !== 'SPAN') {
+      span = span.parentElement
+    }
+    let id = span.getAttribute('cardid')
+    Zotero.openInViewer('chrome://zoterozotcard/content/cardcontent.html?id=' + id)
+  }
+  divWarp.appendChild(span12)
+  
+  span = document.createElement('span')
+  span.setAttribute('class', 'placeholder-color')
+  span.textContent = ' | '
+  divWarp.appendChild(span)
+
   let span4 = document.createElement('span')
   span4.setAttribute('class', 'pointer')
   span4.setAttribute('title', '专注模式')
@@ -653,16 +674,29 @@ function createCard (card, index) {
   cardContent.appendChild(cardTitle)
   cardDiv.appendChild(cardContent)
 
+  hr = document.createElement('hr')
+  cardDiv.appendChild(hr)
+
+  let footer = document.createElement('div')
+  footer.setAttribute('class', 'footer')
+
+  let span14 = document.createElement('span')
+  span14.setAttribute('id', 'dateModified')
+  span14.textContent = `修改时间：${card.dateModified}`
+  footer.appendChild(span14)
+
+  let span13 = document.createElement('span')
+  span13.setAttribute('id', 'words')
+  span13.textContent = `字数：${card.words}`
+  footer.appendChild(span13)
+
+  cardDiv.appendChild(footer)
+
   return cardDiv
 }
 
 function matchNote (note) {
-  let newNote = note
-  let match1 = note.match(/^<div.*style=.*box-shadow:.*?>/g)
-  let match2 = note.match(/^<div.*style=.*border-radius:.*?>/g)
-  if (match1 && match2 && match1[0] === match2[0]) {
-    newNote = note.replace(match1[0], match1[0].replace(/style=".*?"/g, ''))
-  }
+  let newNote = Zotero.getMainWindow().Zotero.ZotCard.Utils.clearShadowAndBorder(note)
   let filterText = document.getElementById('filter-text').value
   if (document.getElementById('highlight').checked && filterText) {
     newNote = newNote.replace(filterText, '<span class="highlight">' + filterText + '</span>')
@@ -834,12 +868,18 @@ function oneCardEdit () {
 function oneCardRefresh () {
   let id = document.getElementById('concentration').getAttribute('card-id')
   let item = Zotero.Items.get(id)
-  let note = item.getNote()
-  document.getElementById('one-card-content').innerHTML = matchNote(note)
-  document.getElementById('one-card-dateModified').textContent = item.dateModified
-  document.getElementById('one-card-hangzis').textContent = Zotero.ZotCard.Utils.hangzi(note)
+  let card = Zotero.ZotCard.Utils.toCardItem(item)
+  document.getElementById('one-card-content').innerHTML = matchNote(card.note)
+  document.getElementById('one-card-dateModified').textContent = card.dateModified
+  document.getElementById('one-card-hangzis').textContent = card.words
 
   refreshCard(id)
+}
+
+function oneCardPrint () {
+  let id = document.getElementById('concentration').getAttribute('card-id')
+
+  Zotero.openInViewer('chrome://zoterozotcard/content/cardcontent.html?id=' + id)
 }
 
 function oneCardCopy () {

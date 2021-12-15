@@ -279,10 +279,10 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.toCardItem = function (note) {
   let cardtype = match3 ? match3[0] : '其他'
 
   let author = Zotero.ZotCard.Utils.getCardItemValue(noteContent, '作者')
-  let tags = Zotero.ZotCard.Utils.getCardItemValue(noteContent, '标签').split(/[\[ \]]/).filter(e => e && e !== '无')
+  let tags = Zotero.ZotCard.Utils.getCardItemValue(noteContent, '标签').split(/[\[ \],，]/).filter(e => e && e !== '无')
 
   note.getTags().forEach(tag => {
-    tags.push(tag.getTag())
+    tags.push(tag.tag)
   })
 
   return {
@@ -293,6 +293,7 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.toCardItem = function (note) {
     date: Zotero.ZotCard.Utils.cardDate(note),
     tags: tags,
     note: noteContent,
+    words: Zotero.getMainWindow().Zotero.ZotCard.Utils.hangzi(noteContent),
     author: author,
     dateAdded: Zotero.ZotCard.Utils.sqlToDate(note.dateAdded, 'yyyy-MM-dd HH:mm:ss'),
     dateModified: Zotero.ZotCard.Utils.sqlToDate(note.dateModified, 'yyyy-MM-dd HH:mm:ss')
@@ -301,7 +302,7 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.toCardItem = function (note) {
 
 // 标签: [无] [v1]  => [无, v1]
 Zotero.getMainWindow().Zotero.ZotCard.Utils.getCardItemValue = function (noteContent, name) {
-  let reg = new RegExp(`${name}[:：](.*)`)
+  let reg = new RegExp(`(?:^|\n| )${name}[:：](.*)`)
   let match1 = reg.exec(Zotero.ZotCard.Utils.htmlToText(noteContent))
   let content = ''
   if (match1) {
@@ -319,9 +320,9 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.refreshOptions = function (cardItem,
   // {
   //    startDate: '',
   //    endDate: '',
-  //    cardtypes: [],
-  //    cardtags: [],
-  //    cardauthors: []
+  //    cardtypes: [{name: '', count: 0}, ...],
+  //    cardtags: [{name: '', count: 0}, ...],
+  //    cardauthors: [{name: '', count: 0}, ...]
   // }
   if (!options) {
     options = {}
@@ -340,22 +341,34 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.refreshOptions = function (cardItem,
   if (!options.endDate || cardItem.date > options.endDate) {
     options.endDate = cardItem.date
   }
-  if (!options.cardtypes.includes(cardItem.type)) {
-    options.cardtypes.push(cardItem.type)
+
+  Zotero.getMainWindow().Zotero.ZotCard.Utils._calculateOptionItem(options.cardtypes, cardItem.type)
+  if (cardItem.author) {
+    Zotero.getMainWindow().Zotero.ZotCard.Utils._calculateOptionItem(options.cardauthors, cardItem.author)
   }
-  if (cardItem.author && !options.cardauthors.includes(cardItem.author)) {
-    options.cardauthors.push(cardItem.author)
-  }
+
   if (cardItem.tags.length === 0) {
-    if (!options.cardtags.includes('无')) {
-      options.cardtags.push('无')
-    }
+    Zotero.getMainWindow().Zotero.ZotCard.Utils._calculateOptionItem(options.cardtags, '无')
   } else {
     let diff = cardItem.tags.filter(e => !options.cardtags.includes(e))
-    options.cardtags.push(...diff)
+    diff.forEach(element => {
+      Zotero.getMainWindow().Zotero.ZotCard.Utils._calculateOptionItem(options.cardtags, element)
+    })
   }
 
   return options
+}
+
+Zotero.getMainWindow().Zotero.ZotCard.Utils._calculateOptionItem = function (items, name) {
+  let filters = items.filter(e => e.name === name)
+  if (filters && filters.length > 0) {
+    filters[0].count = filters[0].count + 1
+  } else {
+    items.push({
+      name: name,
+      count: 1
+    })
+  }
 }
 
 Zotero.getMainWindow().Zotero.ZotCard.Utils.bulidOptions = function (cards) {
@@ -412,6 +425,16 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.sqlToLocale = function (valueText) {
   } else {
     valueText = ''
   }
+}
+
+Zotero.getMainWindow().Zotero.ZotCard.Utils.clearShadowAndBorder = function (note) {
+  let newNote = note
+  let match1 = note.match(/^<div.*style=.*box-shadow:.*?>/g)
+  let match2 = note.match(/^<div.*style=.*border-radius:.*?>/g)
+  if (match1 && match2 && match1[0] === match2[0]) {
+    newNote = note.replace(match1[0], match1[0].replace(/style=".*?"/g, ''))
+  }
+  return newNote
 }
 
 Zotero.getMainWindow().Zotero.ZotCard.Utils.getSelectedItems = function (itemType) {

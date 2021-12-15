@@ -107,7 +107,7 @@ function start () {
         map.lastDayKey = item.key
       }
 
-      let hangzi = Zotero.ZotCard.Utils.hangzi(noteContent)
+      let hangzi = cardItem.words
       map.totals++
       if (hangzi > map.maxHangzi) {
         map.maxHangzi = hangzi

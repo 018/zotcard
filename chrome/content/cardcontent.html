@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
+		<title>卡片内容</title>
+		<script src="chrome://zotero/content/include.js"></script>
+		<script src="chrome://zoterozotcard/content/cardcontent.js"></script>
+		
+		<style>
+			body {
+				margin: 0 3px;
+				padding: 0;
+			}
+
+			p {
+				padding: 0;
+			}
+
+			header {
+				display: flex;
+				justify-content: flex-start;
+				flex-direction: row;
+				flex-wrap: nowrap;
+				align-items: center;
+				margin: 5px 3px;
+				font-size: 12px;
+			}
+
+			.placeholder-color {
+				color: #C0C4CC !important;
+			}
+
+			.spaced {
+				margin-left: 10px;
+			}
+		</style>
+	</head>
+	<body>
+		<header id="header">
+			<span>字数：</span>
+			<span id="words">0</span>
+			<span class="spaced">字体大小：</span>
+			<select id="fontsize" onchange="fontsizechange()">
+				<option value="8">8</option>
+				<option value="9">9</option>
+				<option value="10">10</option>
+				<option value="11">11</option>
+				<option value="12">12</option>
+				<option value="13">13</option>
+				<option value="14">14</option>
+				<option value="15">15</option>
+				<option value="16">16</option>
+				<option value="17">17</option>
+			</select>
+			<span class="spaced">行间距：</span>
+			<select id="linespacing" onchange="linespacingchange()">
+				<option value="0.8">0.8</option>
+				<option value="0.9">0.9</option>
+				<option value="1">1</option>
+				<option value="1.1">1.1</option>
+				<option value="1.2">1.2</option>
+				<option value="1.3">1.3</option>
+				<option value="1.4">1.4</option>
+				<option value="1.5">1.5</option>
+				<option value="1.6">1.6</option>
+				<option value="1.7">1.7</option>
+			</select>
+			<span class="spaced">段间距：</span>
+			<select id="paragraphspacing" onchange="paragraphspacingchange()">
+				<option value="0">0</option>
+				<option value="1">1</option>
+				<option value="2">2</option>
+				<option value="3">3</option>
+				<option value="4">4</option>
+				<option value="5">5</option>
+				<option value="6">6</option>
+				<option value="7">7</option>
+				<option value="8">8</option>
+				<option value="9">9</option>
+				<option value="10">10</option>
+				<option value="11">11</option>
+				<option value="12">12</option>
+				<option value="13">13</option>
+				<option value="14">14</option>
+				<option value="15">15</option>
+				<option value="16">16</option>
+				<option value="17">17</option>
+			</select>
+			<button class="spaced" onclick="print1()">打印</button>
+		</header>
+		<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
+		<div id="readcontent" onclick="document.getElementById('header').style.display = 'flex'">
+			<div>
+				<h3 style="text-align: center;">短文卡 - <span>管理职能</span></h3>
+				<p style="color: #999999; display: flex; justify-content: space-between;"><span>标签：[管理学] [管理职能] [v1] </span> <span>日期：2021-11-26</span></p>
+				<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
+				<p><strong>正文</strong>：</p>
+				<p><strong>1、计划。</strong>该职能是制定愿景、使命、价值观，根据这三个再确定战略以及设定短中长目标，并制定方案以整合和协调各种活动。<br /><strong>2、组织。</strong>该职能是为了实行「计划」定制的「目标」而搭建起来的组织过程，包括组织结构的设计，不断的优化，日常工作时协作，以及人力资源的管理。<br /><strong>3、领导。</strong>该职能是影响团队来实现组织目标的过程。它实际上就是组织行为学的知识，包括上下沟通、包含态度、人格、知觉等个体行为、激发员工动机。<br /><strong>4、控制。</strong>该职能是控制、比较和纠正工作绩效的过程。包括了控制组织绩效和员工绩效，使「计划」在有效「领导」的「组织」下顺利完成。</p>
+				<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
+				<p style="color: #999999;">出处：[美]斯蒂芬·P. 罗宾斯,[美]玛丽·库尔特《管理学(第13版)》(2017) 第二部分</p>
+			</div>
+		</div>
+	</body>
+</html>

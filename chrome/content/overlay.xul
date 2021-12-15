@@ -113,6 +113,13 @@
                     class="dynamic-menu only-note"
                     label="&zotero.zotcard.compressimg.label;"
                     oncommand="Zotero.ZotCard.compressimg()"/>
+                <menuseparator
+                    class="dynamic-menu only-note only-simple" />
+                <menuitem
+                    id="zotero-itemmenu-zotcard-print"
+                    class="dynamic-menu only-note only-simple"
+                    label="&zotero.zotcard.print.label;"
+                    oncommand="Zotero.ZotCard.print()"/>
             </menupopup>
         </menu>
     </popup>
