@@ -1,11 +1,15 @@
 'use strict'
 
+let noteContent
+let noteTitle
+
 function start () {
   let id = getQueryVariable('id')
   let note = Zotero.Items.get(id)
   if (note) {
     document.title = note.getNoteTitle()
-    let noteContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.clearShadowAndBorder(note.getNote())
+    noteContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.clearShadowAndBorder(note.getNote())
+    noteTitle = note.getNoteTitle()
     document.getElementById('words').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.hangzi(noteContent)
     Zotero.debug(noteContent)
     document.getElementById('readcontent').innerHTML = noteContent
@@ -18,47 +22,96 @@ function start () {
       document.getElementById('fontsize').value = configJSON.fontsize
       document.getElementById('linespacing').value = configJSON.linespacing
       document.getElementById('paragraphspacing').value = configJSON.paragraphspacing
+      document.getElementById('titlestyle').value = configJSON.titlestyle
     } else {
       document.getElementById('fontsize').value = Zotero.Prefs.get('note.fontSize')
       document.getElementById('linespacing').value = Zotero.ZotCard.getNoteLineHeight() || '1'
       document.getElementById('paragraphspacing').value = Zotero.Prefs.get('note.fontSize')
+      document.getElementById('titlestyle').value = 'sample'
     }
 
     document.getElementById('readcontent').style.fontSize = document.getElementById('fontsize').value + 'px'
-    document.getElementById('readcontent').style.lineHeight = document.getElementById('linespacing').value 
+    document.getElementById('readcontent').style.lineHeight = document.getElementById('linespacing').value
     document.querySelectorAll('#readcontent p').forEach(e => e.style.margin = document.getElementById('paragraphspacing').value + 'px 0')
+    reftitlestyle()
   } else {
     document.title = '异常'
     document.getElementById('readcontent').innerHTML = '错误的笔记id。'
   }
 }
 
-function fontsizechange() {
+function fontsizechange () {
   let value = document.getElementById('fontsize').value
   document.getElementById('readcontent').style.fontSize = value + 'px'
 
   saveConfig()
 }
 
-function linespacingchange() {
+function linespacingchange () {
   let value = document.getElementById('linespacing').value
   document.getElementById('readcontent').style.lineHeight = value
 
   saveConfig()
 }
 
-function paragraphspacingchange() {
+function paragraphspacingchange () {
   let value = document.getElementById('paragraphspacing').value
   document.querySelectorAll('#readcontent p').forEach(e => e.style.margin = value + 'px 0')
 
   saveConfig()
 }
 
+function reftitlestyle () {
+  let value = document.getElementById('titlestyle').value
+  switch (value) {
+    case 'h1':
+      titleReplace(`<h1>${noteTitle}</h1>`)
+      break
+    case 'h2':
+      titleReplace(`<h2>${noteTitle}</h2>`)
+      break
+    case 'h3':
+      titleReplace(`<h3>${noteTitle}</h3>`)
+      break
+    case 'h4':
+      titleReplace(`<h4>${noteTitle}</h4>`)
+      break
+    case 'body':
+      titleReplace(`<p>${noteTitle}</p>`)
+      break
+    case 'bodybold':
+      titleReplace(`<p style="font-weight: bold;">${noteTitle}</p>`)
+      break
+    case 'sample':
+    default:
+      document.getElementById('readcontent').innerHTML = noteContent
+      break
+  }
+}
+
+function titlestylechange () {
+  reftitlestyle()
+  saveConfig()
+}
+
+function titleReplace (titleHtml) {
+  let newNoteContent = ''
+  noteContent.split('\n').forEach(line => {
+    if (line.replace(/\<.*?\>/g, '') === noteTitle) {
+      newNoteContent += titleHtml + '\n'
+    } else {
+      newNoteContent += line + '\n'
+    }
+  })
+  document.getElementById('readcontent').innerHTML = newNoteContent
+}
+
 function saveConfig() {
   let config = {
     fontsize: document.getElementById('fontsize').value,
     linespacing: document.getElementById('linespacing').value,
-    paragraphspacing: document.getElementById('paragraphspacing').value
+    paragraphspacing: document.getElementById('paragraphspacing').value,
+    titlestyle: document.getElementById('titlestyle').value
   }
   Zotero.Prefs.set('zotcard.config.print', JSON.stringify(config))
 }
