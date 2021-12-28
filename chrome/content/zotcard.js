@@ -41,6 +41,8 @@ zotcard.init = function () {
 
   this.initNoteLineHeight()
 
+  this.initNoteParagraphSpacing()
+
   // Unregister callback when the window closes (important to avoid a memory leak)
   window.addEventListener('unload', function (e) {
     Zotero.Notifier.unregisterObserver(notifierID)
@@ -251,6 +253,85 @@ zotcard.initNoteLineHeight = function () {
     document.getElementById('note-font-size-menu').after(menu)
 
     this.refreshLineHeigthMenuItemChecked()
+  }
+}
+
+zotcard.initNoteParagraphSpacing = function () {
+  if (!document.getElementById('note-paragraph-spacing-menu')) {
+    let menu = document.createElement('menu')
+    menu.setAttribute('id', 'note-paragraph-spacing-menu')
+    menu.setAttribute('label', '笔记段间距')
+    let menupopup = document.createElement('menupopup')
+    menu.append(menupopup)
+    let menuitem0 = document.createElement('menuitem')
+    menuitem0.setAttribute('type', 'checkbox')
+    menuitem0.setAttribute('label', '3')
+    menuitem0.setAttribute('paragraph-spacing', '3')
+    menuitem0.setAttribute('oncommand', 'Zotero.ZotCard.noteParagraphSpacing("3")')
+    menupopup.append(menuitem0)
+    menuitem0 = document.createElement('menuitem')
+    menuitem0.setAttribute('type', 'checkbox')
+    menuitem0.setAttribute('label', '5')
+    menuitem0.setAttribute('paragraph-spacing', '5')
+    menuitem0.setAttribute('oncommand', 'Zotero.ZotCard.noteParagraphSpacing("5")')
+    menupopup.append(menuitem0)
+    menuitem0 = document.createElement('menuitem')
+    menuitem0.setAttribute('type', 'checkbox')
+    menuitem0.setAttribute('label', '7')
+    menuitem0.setAttribute('paragraph-spacing', '7')
+    menuitem0.setAttribute('oncommand', 'Zotero.ZotCard.noteParagraphSpacing("7")')
+    menupopup.append(menuitem0)
+    let menuitem18 = document.createElement('menuitem')
+    menuitem18.setAttribute('type', 'checkbox')
+    menuitem18.setAttribute('label', '9')
+    menuitem18.setAttribute('paragraph-spacing', '9')
+    menuitem18.setAttribute('oncommand', 'Zotero.ZotCard.noteParagraphSpacing("9")')
+    menupopup.append(menuitem18)
+    let menuitem2 = document.createElement('menuitem')
+    menuitem2.setAttribute('type', 'checkbox')
+    menuitem2.setAttribute('label', '11')
+    menuitem2.setAttribute('paragraph-spacing', '11')
+    menuitem2.setAttribute('oncommand', 'Zotero.ZotCard.noteParagraphSpacing("11")')
+    menupopup.append(menuitem2)
+    let menuitem13 = document.createElement('menuitem')
+    menuitem13.setAttribute('type', 'checkbox')
+    menuitem13.setAttribute('label', '13')
+    menuitem13.setAttribute('paragraph-spacing', '13')
+    menuitem13.setAttribute('oncommand', 'Zotero.ZotCard.noteParagraphSpacing("13")')
+    menupopup.append(menuitem13)
+    let menuitem1 = document.createElement('menuitem')
+    menuitem1.setAttribute('type', 'checkbox')
+    menuitem1.setAttribute('label', '15')
+    menuitem1.setAttribute('paragraph-spacing', '15')
+    menuitem1.setAttribute('oncommand', 'Zotero.ZotCard.noteParagraphSpacing("15")')
+    menupopup.append(menuitem1)
+    let menuitem12 = document.createElement('menuitem')
+    menuitem12.setAttribute('type', 'checkbox')
+    menuitem12.setAttribute('label', '17')
+    menuitem12.setAttribute('paragraph-spacing', '17')
+    menuitem12.setAttribute('oncommand', 'Zotero.ZotCard.noteParagraphSpacing("17")')
+    menupopup.append(menuitem12)
+    let menuitem14 = document.createElement('menuitem')
+    menuitem14.setAttribute('type', 'checkbox')
+    menuitem14.setAttribute('label', '19')
+    menuitem14.setAttribute('paragraph-spacing', '19')
+    menuitem14.setAttribute('oncommand', 'Zotero.ZotCard.noteParagraphSpacing("19")')
+    menupopup.append(menuitem14)
+    let menuitem16 = document.createElement('menuitem')
+    menuitem16.setAttribute('type', 'checkbox')
+    menuitem16.setAttribute('label', '21')
+    menuitem16.setAttribute('paragraph-spacing', '21')
+    menuitem16.setAttribute('oncommand', 'Zotero.ZotCard.noteParagraphSpacing("21")')
+    menupopup.append(menuitem16)
+    let menuitem15 = document.createElement('menuitem')
+    menuitem15.setAttribute('type', 'checkbox')
+    menuitem15.setAttribute('label', '默认')
+    menuitem15.setAttribute('paragraph-spacing', '')
+    menuitem15.setAttribute('oncommand', 'Zotero.ZotCard.noteParagraphSpacing("")')
+    menupopup.append(menuitem15)
+    document.getElementById('note-line-heigth-menu').after(menu)
+
+    this.refreshParagraphSpacingMenuItemChecked()
   }
 }
 
@@ -1238,6 +1319,53 @@ zotcard.getNoteLineHeight = function () {
   return '1'
 }
 
+zotcard.refreshParagraphSpacingMenuItemChecked = function () {
+  let height = this.getNoteParagraphSpacing()
+  for (let menuitem of document.querySelectorAll(`#note-paragraph-spacing-menu menuitem`)) {
+    if (menuitem.getAttribute('paragraph-spacing') === height) {
+      menuitem.setAttribute('checked', true)
+    } else {
+      menuitem.removeAttribute('checked')
+    }
+  }
+}
+
+zotcard.noteParagraphSpacing = function (paragraphSpacing) {
+  Zotero.debug(`paragraphSpacing = ${paragraphSpacing}`)
+  let val = Zotero.Prefs.get('note.css')
+  if (val) {
+    if (paragraphSpacing) {
+      if (val.match(/p +{ padding: 0; margin: (\d*)px 0; }/g)) {
+        val = val.replace(/p +{ padding: 0; margin: (\d*)px 0; }/, `p { padding: 0; margin: ${paragraphSpacing}px 0; }`)
+      } else {
+        val += ` p { padding: 0; margin: ${paragraphSpacing}px 0; }`
+      }
+    } else {
+      val = val.replace(/p +{ padding: 0; margin: (\d*)px 0; }/g, '')
+    }
+  } else {
+    if (paragraphSpacing) {
+      val = `p { padding: 0; margin: ${paragraphSpacing}px 0; }`
+    }
+  }
+  Zotero.debug(`note.css = ${val}`)
+  Zotero.Prefs.set('note.css', val)
+
+  this.refreshParagraphSpacingMenuItemChecked()
+  this.effectNoteCss()
+}
+
+zotcard.getNoteParagraphSpacing = function () {
+  let val = Zotero.Prefs.get('note.css')
+  if (val) {
+    let match = val.match(/p +{ padding: 0; margin: (\d*)px 0; }/)
+    if (match) {
+      return match[1].split(';')[0]
+    }
+  }
+  return ''
+}
+
 zotcard.noteBGColor = function (color) {
   let val = Zotero.Prefs.get('note.css')
   if (val) {
@@ -1319,6 +1447,7 @@ if (typeof window !== 'undefined') {
   if (!window.Zotero.ZotCard) window.Zotero.ZotCard = {}
   // note sure about any of this
   window.Zotero.ZotCard.getNoteLineHeight = function () { return zotcard.getNoteLineHeight() }
+  window.Zotero.ZotCard.getNoteParagraphSpacing = function () { return zotcard.getNoteParagraphSpacing() }
 
 
   window.Zotero.ZotCard.quotes = function () { zotcard.quotes() }
@@ -1361,6 +1490,7 @@ if (typeof window !== 'undefined') {
   window.Zotero.ZotCard.readcollectioncard = function () { zotcard.readcollectioncard() }
   window.Zotero.ZotCard.collectionreport = function () { zotcard.collectionreport() }
   window.Zotero.ZotCard.noteLineHeight = function (height) { zotcard.noteLineHeight(height) }
+  window.Zotero.ZotCard.noteParagraphSpacing = function (paragraphSpacing) { zotcard.noteParagraphSpacing(paragraphSpacing) }
 }
 
 if (typeof module !== 'undefined') module.exports = zotcard
