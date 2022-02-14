@@ -650,7 +650,7 @@ function weekSelectChange() {
       break
   }
 
-  let minWeek = Math.max(0, currentWeek - (weeks - 1))
+  let minWeek = Math.max(1, currentWeek - (weeks - 1))
   document.getElementById('weeks').innerHTML = ''
   for (let w = minWeek; w <= currentWeek; w++) {
     let value = 0

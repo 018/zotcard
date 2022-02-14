@@ -561,6 +561,10 @@ zotcard.newCard = async function (name, stand) {
     return
   }
 
+  if (stand && !ZoteroPane.getSelectedCollection()) {
+    Zotero.ZotCard.Utils.warning('请选择分类。')
+  }
+
   let authors = []
   let title = ''
   let shortTitle = ''

@@ -12,7 +12,7 @@
         RDF:about="urn:mozilla:install-manifest"
         em:id="zoterozotcard@018.ai"
         em:name="ZotCard"
-        em:version="1.9.3"
+        em:version="2.0.0"
         em:type="2"
         em:iconURL="chrome://zoterozotcard/skin/zotcard.png"
         em:icon64URL="chrome://zoterozotcard/skin/zotcard64.png"
@@ -26,7 +26,7 @@
             <Description>
                 <em:id>zotero@chnm.gmu.edu</em:id>
                 <em:minVersion>5.0.66</em:minVersion>
-                <em:maxVersion>5.0.*</em:maxVersion>
+                <em:maxVersion>*</em:maxVersion>
             </Description>
         </em:targetApplication>
     </RDF:Description>
