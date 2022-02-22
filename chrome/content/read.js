@@ -355,7 +355,7 @@ function refreshCard (id) {
   let cardContentAll = cardDiv.querySelector(`.card-all`)
   cardContentAll.innerHTML = matchNote(item.getNote())
   let cardTitle = cardDiv.querySelector(`.card-title`)
-  cardTitle.innerHTML = `<h3 class="linenowrap" style="text-align: center;">${item.getNoteTitle()}</h3>`
+  cardTitle.innerHTML = `<h1 class="linenowrap" style="text-align: center;">${item.getNoteTitle()}</h1>`
 
   let index = indexOfCards(id)
   cards[index] = Zotero.ZotCard.Utils.toCardItem(item)
@@ -669,7 +669,7 @@ function createCard (card, index) {
 
   let cardTitle = document.createElement('div')
   cardTitle.setAttribute('class', 'card-title')
-  cardTitle.innerHTML = `<h3 class="linenowrap" style="text-align: center;">${card.title}</h3>`
+  cardTitle.innerHTML = `<h1 class="linenowrap" style="text-align: center;">${card.title}</h1>`
   cardTitle.hidden  = extra[card.id].expand
   cardContent.appendChild(cardTitle)
   cardDiv.appendChild(cardContent)

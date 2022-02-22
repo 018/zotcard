@@ -107,6 +107,7 @@
                     label="&zotero.zotcard.closeall.label;"
                     oncommand="Zotero.ZotCard.closeall()"/>
                 <menuseparator
+                    id="zotero-itemmenu-zotcard-compressimg-separator"
                     class="dynamic-menu only-note" />
                 <menuitem
                     id="zotero-itemmenu-zotcard-compressimg"
@@ -120,6 +121,13 @@
                     class="dynamic-menu only-note only-simple"
                     label="&zotero.zotcard.print.label;"
                     oncommand="Zotero.ZotCard.print()"/>
+                <menuseparator
+                    class="dynamic-menu only-note only-simple" />
+                <menuitem
+                    id="zotero-itemmenu-zotcard-notesourcecode"
+                    class="dynamic-menu only-note only-simple"
+                    label="&zotero.zotcard.notesourcecode.label;"
+                    oncommand="Zotero.ZotCard.notesourcecode()"/>
             </menupopup>
         </menu>
     </popup>

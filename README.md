@@ -21,15 +21,15 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记�
 
   ![默认卡片样式-默认](https://raw.githubusercontent.com/018/zotcard/main/image/default-style.png)
 
-- 社交样式：[下载](https://raw.githubusercontent.com/018/zotcard/main/zotcardstyle/social.zotcardstyle) (「右键」-「链接存储为...」)
+- 社交样式（仅支持Zotero5）：[下载](https://raw.githubusercontent.com/018/zotcard/main/zotcardstyle/social.zotcardstyle) (「右键」-「链接存储为...」)
 
   ![默认卡片样式-社交样式](https://raw.githubusercontent.com/018/zotcard/main/image/social-style.png)
 
-- 卡片样式：[下载](https://raw.githubusercontent.com/018/zotcard/main/zotcardstyle/card.zotcardstyle) (「右键」-「链接存储为...」)
+- 卡片样式（仅支持Zotero5）：[下载](https://raw.githubusercontent.com/018/zotcard/main/zotcardstyle/card.zotcardstyle) (「右键」-「链接存储为...」)
 
   ![默认卡片样式-卡片样式](https://raw.githubusercontent.com/018/zotcard/main/image/card-style.png)
 
-- 便签样式：[下载](https://raw.githubusercontent.com/018/zotcard/main/zotcardstyle/memo.zotcardstyle) (「右键」-「链接存储为...」)
+- 便签样式（仅支持Zotero5）：[下载](https://raw.githubusercontent.com/018/zotcard/main/zotcardstyle/memo.zotcardstyle) (「右键」-「链接存储为...」)
 
   ![默认卡片样式-便签样式](https://raw.githubusercontent.com/018/zotcard/main/image/memo-style.png)
 
@@ -76,6 +76,8 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记�
 
 - `extensions.zotero.zotcard.general.visible`：短文卡显示
 
+还可以支持批量建卡。
+![批量建卡](https://raw.githubusercontent.com/018/zotcard/main/image/batchnewcard.png)
 
 
 ## 自定义卡
@@ -175,7 +177,7 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记�
 
 **调整浮动编辑窗口**
 
-在通过**打开浮动编辑窗口**打开的浮动编辑窗口，默认会堆一块。通过此功能可以设置显示在屏幕上一行多少个，平铺在屏幕上。
+在通过**打开浮动编辑窗口**打开的浮动编辑窗口，默认会堆一块。通过此功能可以设置显示在屏幕上一行多少个和高度，平铺在屏幕上。
 
 **关闭所选浮动编辑窗口**
 
@@ -185,9 +187,19 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记�
 
 此功能关闭所有浮动编辑窗口。
 
-**压缩图片**
+**压缩图片（仅支持Zotero5）**
 
 此功能调用tinypng接口，设置api key即可图片压缩，还可多次压缩。为笔记压缩，尽可能可同步。可以设置`zotcard.config.compress_with_width_and_height`为true，跟随宽高进行压缩，属于高度压缩会影响图片质量。
+
+**打印**
+
+此功能可调整格式然后直接打印。
+
+**笔记源代码**
+
+由于Zotero6去掉了查看源代码，此功能可以编辑笔记的源代码。
+
+
 
 
 ## 分类操作
@@ -206,11 +218,15 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记�
 
 <img src="https://raw.githubusercontent.com/018/zotcard/main/image/card-operation.png" alt="卡片操作" width="300"/>
 
-## 笔记行间距
+## 笔记行间距（仅支持Zotero5）
 
 <img src="https://raw.githubusercontent.com/018/zotcard/main/image/line-spacing.png" alt="笔记行间距" width="300"/>
 
 支持设置笔记行间距。
+
+## 笔记段间距（仅支持Zotero5）
+
+支持设置笔记段间距。
 
 
 ## 选项
@@ -237,7 +253,7 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记�
 
 作者为你提供了三种默认卡片样式：默认、社交和卡片。请参考上文图片，根据喜好进行下载，然后通过此功能进行替换。
 
-**笔记背景**
+**笔记背景（仅支持Zotero5）**
 
 你可以修改笔记的背景，这里设置之后会对所有笔记（卡片）的背景生效，目前预设了：
 

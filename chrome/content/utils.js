@@ -27,6 +27,12 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.confirm = function (message) {
   return ps.confirm(null, Zotero.getString('general.warning'), message)
 }
 
+Zotero.getMainWindow().Zotero.ZotCard.Utils.version = function () {
+  return parseInt(Zotero.version.substr(0, 1))
+}
+
+
+
 Zotero.getMainWindow().Zotero.ZotCard.Utils.getParam = function (url, name) {
   if (!url) return ''
 
@@ -250,7 +256,7 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.formatDate = function (date, format)
 
 Zotero.getMainWindow().Zotero.ZotCard.Utils.hangzi = function (html) {
   var content = Zotero.ZotCard.Utils.htmlToText(html)
-  Zotero.debug(`content: ${content}`)
+  Zotero.debug(`zotcard@content: ${content}`)
   let m1 = content.match(/[\u4E00-\u9FA5]/g)
   let m2 = content.match(/[\u9FA6-\u9FEF]/g)
   let m3 = content.match(/\w+/g)

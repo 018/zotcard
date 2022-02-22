@@ -11,11 +11,15 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 function onload () {
   let column = Zotero.Prefs.get('zotcard.config.column_edt')
   document.getElementById('column_edt').value = column || '4'
+  let height = Zotero.Prefs.get('zotcard.config.height_edt')
+  document.getElementById('height_edt').value = height || '300'
 }
 
 function ok () {
   var column = document.getElementById('column_edt').value
   Zotero.Prefs.set('zotcard.config.column_edt', column)
+  var height = document.getElementById('height_edt').value
+  Zotero.Prefs.set('zotcard.config.height_edt', height)
 
   var width = window.screen.availWidth / column
   var wm = Services.wm;
@@ -25,6 +29,7 @@ function ok () {
   while (e.hasMoreElements()) {
     var win = e.getNext()
     win.outerWidth = width
+    win.outerHeight = height
     if (w < window.screen.availWidth && h < window.screen.availHeight) {
       win.moveTo(w, h)
     }

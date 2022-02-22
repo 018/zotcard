@@ -11,7 +11,7 @@
 <!DOCTYPE window SYSTEM "chrome://zoterozotcard/locale/overlay.dtd">
 
 <dialog
-    id="zotcard-adjust"
+    id="zotcard-batchnewcard"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     orient="vertical"
     buttons="accept,cancel"
@@ -19,18 +19,13 @@
     ondialogcancel="window.close();return true;"
     onload="onload()"
     flex="1"
-    title="&zotero.zotcard.adjust.title;"
+    title="&zotero.zotcard.batchnewcard.title;"
     width="200"
     height="100">
     
     <script src="chrome://zotero/content/include.js"/>
-    <script src="chrome://zoterozotcard/content/adjust.js"/>
+    <script src="chrome://zoterozotcard/content/batchnewcard.js"/>
 
-    <groupbox orient="vertical">
-        <label value="&zotero.zotcard.adjust.column.label;"/>
-        <textbox id="column_edt" flex="1"/>
-
-        <label value="&zotero.zotcard.adjust.height.label;"/>
-        <textbox id="height_edt" flex="1"/>
+    <groupbox id="groupbox" orient="vertical">
     </groupbox>
 </dialog>

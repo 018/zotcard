@@ -18,9 +18,13 @@
 
 <!ENTITY zotero.zotcard.compressimg.label "Compress Image">
 <!ENTITY zotero.zotcard.print.label "Print">
+<!ENTITY zotero.zotcard.notesourcecode.label "View Note Source Code">
 
 <!ENTITY zotero.zotcard.adjust.title "Adjust">
 <!ENTITY zotero.zotcard.adjust.column.label "Column">
+<!ENTITY zotero.zotcard.adjust.height.label "Height">
+
+<!ENTITY zotero.zotcard.batchnewcard.title "Batch New Card">
 
 <!ENTITY zotero.zotcard.readcollectioncard.label "Read Card">
 <!ENTITY zotero.zotcard.collectionreport.label "Card Report">

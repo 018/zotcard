@@ -18,9 +18,13 @@
 
 <!ENTITY zotero.zotcard.compressimg.label "压缩图片">
 <!ENTITY zotero.zotcard.print.label "打印">
+<!ENTITY zotero.zotcard.notesourcecode.label "笔记源代码">
 
 <!ENTITY zotero.zotcard.adjust.title "调整">
 <!ENTITY zotero.zotcard.adjust.column.label "一行的个数">
+<!ENTITY zotero.zotcard.adjust.height.label "高度(px)">
+
+<!ENTITY zotero.zotcard.batchnewcard.title "批量建卡">
 
 <!ENTITY zotero.zotcard.readcollectioncard.label "读卡">
 <!ENTITY zotero.zotcard.collectionreport.label "卡片报告">
