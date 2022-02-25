@@ -219,7 +219,7 @@ function loadCards () {
 
   let orderby = Zotero.Prefs.get('zotcard.config.read.orderby') || 'date'
   let desc = Zotero.Prefs.get('zotcard.config.read.orderbydesc')
-  desc = desc === undefined ? true : desc
+  desc = desc === undefined ? false : desc
   Zotero.debug(`${orderby}, ${desc}`)
 
   document.getElementById('content-list').innerHTML = ''
@@ -398,6 +398,19 @@ function selectItem (id) {
   Zotero.getMainWindow().focus()
 }
 
+function deleteItem (id) {
+  var toTrash = {
+    title: Zotero.getString('pane.items.trash.title'),
+    text: Zotero.getString('pane.items.trash')
+  };
+  var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
+  if (promptService.confirm(window, toTrash.title, toTrash.text)) {
+    Zotero.Items.trashTx(id)
+    extra[id].deleted = true
+    hideOrShowCard(id)
+  }
+}
+
 function clearOrderby () {
   document.querySelectorAll('#orderby .tag').forEach(element => {
     element.textContent = ''
@@ -429,6 +442,23 @@ function createCard (card, index) {
       span = span.parentElement
     }
     selectItem(span.getAttribute('cardid'))
+  }
+  divWarp.appendChild(span1)
+
+  span1 = document.createElement('span')
+  span1.setAttribute('class', 'pointer')
+  span1.setAttribute('title', !extra[card.id].deleted ? '删除条目' : '已删除')
+  span1.setAttribute('candelete', !extra[card.id].deleted ? '1' : '0')
+  span1.setAttribute('cardid', card.id)
+  span1.innerHTML = !extra[card.id].deleted ? '<svg t="1645782356108" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1254" width="16" height="16"><path d="M928.16 144H736V64a32 32 0 0 0-32-32H320a32 32 0 0 0-32 32v80H95.84a32 32 0 0 0 0 64H129.6l77.92 698.656A96 96 0 0 0 302.912 992h418.144a96.032 96.032 0 0 0 95.424-85.344L894.4 208h33.728a32 32 0 0 0 0.032-64zM352 96h320v48H352V96z m400.896 803.552a32 32 0 0 1-31.808 28.448H302.912a32 32 0 0 1-31.808-28.448L193.984 208h636.032l-77.12 691.552z" p-id="1255" fill="#009193"></path><path d="M608 820.928a32 32 0 0 0 32-32V319.104a32 32 0 0 0-64 0v469.824a32 32 0 0 0 32 32zM432 820.928a32 32 0 0 0 32-32V319.104a32 32 0 0 0-64 0v469.824a32 32 0 0 0 32 32z" p-id="1256" fill="#009193"></path></svg>' : '<svg t="1645782356108" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1254" width="16" height="16"><path d="M928.16 144H736V64a32 32 0 0 0-32-32H320a32 32 0 0 0-32 32v80H95.84a32 32 0 0 0 0 64H129.6l77.92 698.656A96 96 0 0 0 302.912 992h418.144a96.032 96.032 0 0 0 95.424-85.344L894.4 208h33.728a32 32 0 0 0 0.032-64zM352 96h320v48H352V96z m400.896 803.552a32 32 0 0 1-31.808 28.448H302.912a32 32 0 0 1-31.808-28.448L193.984 208h636.032l-77.12 691.552z" p-id="1255" fill="#dbdbdb"></path><path d="M608 820.928a32 32 0 0 0 32-32V319.104a32 32 0 0 0-64 0v469.824a32 32 0 0 0 32 32zM432 820.928a32 32 0 0 0 32-32V319.104a32 32 0 0 0-64 0v469.824a32 32 0 0 0 32 32z" p-id="1256" fill="#dbdbdb"></path></svg>'
+  span1.onclick = function (e) {
+    let span = e.target
+    while (span.tagName !== 'SPAN') {
+      span = span.parentElement
+    }
+    if (span.getAttribute('candelete') === '1') {
+      deleteItem(span.getAttribute('cardid'))
+    }
   }
   divWarp.appendChild(span1)
 
@@ -786,7 +816,7 @@ function showConcentration (cardid) {
   document.getElementById('one-card-dateAdded').textContent = card.dateAdded
   document.getElementById('one-card-dateModified').textContent = card.dateModified
   document.getElementById('one-card-date').textContent = card.date ? card.date : '无'
-  document.getElementById('one-card-hangzis').textContent = Zotero.ZotCard.Utils.hangzi(card.note)
+  document.getElementById('one-card-hangzis').textContent = card.words
   document.getElementById(`tag-${card.id}`).setAttribute('class', 'readed')
   document.getElementById(`tag-${card.id}`).textContent = '◉'
 

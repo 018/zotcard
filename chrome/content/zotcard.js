@@ -83,7 +83,20 @@ zotcard.noteEditorOnKeyup = function (e) {
   }
 
   let noteEditor = e.currentTarget
-  let note = Zotero.ZotCard.Utils.version() >= 6 ? noteEditor.editorInstance._iframeWindow.document.body.innerHTML : noteEditor.value
+  let note
+  if (Zotero.ZotCard.Utils.version() >= 6) {
+    let parser = Components.classes['@mozilla.org/xmlextras/domparser;1'].createInstance(Components.interfaces.nsIDOMParser)
+    let doc = parser.parseFromString(document.getElementById('zotero-note-editor').editorInstance._iframeWindow.document.body.innerHTML, 'text/html')
+    let proseMirror = doc.querySelector('.ProseMirror')
+    if (proseMirror) {
+      note = proseMirror.innerHTML
+    } else {
+      note = noteEditor.editorInstance._iframeWindow.document.body.innerHTML
+    }
+
+  } else {
+    note = noteEditor.value
+  }
   Zotero.debug(`zotcard@note: ${note}`)
   let hangzis = Zotero.ZotCard.Utils.hangzi(note)
   let liness = Zotero.ZotCard.Utils.lines(note)
