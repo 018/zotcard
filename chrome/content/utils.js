@@ -377,6 +377,23 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils._calculateOptionItem = function (ite
   }
 }
 
+Zotero.getMainWindow().Zotero.ZotCard.Utils.getReaderSelectedText = function () {
+  let currentReader = Zotero.Reader.getByTabID(Zotero_Tabs.selectedID)
+  if (!currentReader) {
+    return '';
+  }
+  let textareas = currentReader._iframeWindow.document.getElementsByTagName('textarea');
+
+  for (let i = 0; i < textareas.length; i++) {
+    // Choose the selection textare
+    if (textareas[i].style["z-index"] == -1 && textareas[i].style['width'] == '0px') {
+      // Trim
+      return textareas[i].value.replace(/(^\s*)|(\s*$)/g, '');
+    }
+  }
+  return ''
+}
+
 Zotero.getMainWindow().Zotero.ZotCard.Utils.bulidOptions = function (cards) {
   let options = {}
   cards.forEach(element => {

@@ -132,6 +132,57 @@
         </menu>
     </popup>
 
+
+    <popup id="context-pane-add-child-note-button-popup">
+        <menuseparator
+            id="zotero-itemmenu-zotcard-pane-separator2"
+            class="pane-dynamic-menu pane-only-regular pane-only-simple" />
+        
+        <menuitem
+            id="context-pane-add-child-note-button-popup-zotcard-abstract"
+            class="pane-dynamic-menu pane-only-regular pane-only-simple"
+            label="&zotero.zotcard.abstract.label;"
+            oncommand="Zotero.ZotCard.abstract(true)"/>
+        <menuitem
+            id="context-pane-add-child-note-button-popup-zotcard-quotes"
+            class="pane-dynamic-menu pane-only-regular pane-only-simple"
+            label="&zotero.zotcard.quotes.label;"
+            oncommand="Zotero.ZotCard.quotes(true)"/>
+        <menuitem
+            id="context-pane-add-child-note-button-popup-zotcard-concept"
+            class="pane-dynamic-menu pane-only-regular pane-only-simple"
+            label="&zotero.zotcard.concept.label;"
+            oncommand="Zotero.ZotCard.concept(true)"/>
+        <menuitem
+            id="context-pane-add-child-note-button-popup-zotcard-character"
+            class="pane-dynamic-menu pane-only-regular pane-only-simple"
+            label="&zotero.zotcard.character.label;"
+            oncommand="Zotero.ZotCard.character(true)"/>
+        <menuitem
+            id="context-pane-add-child-note-button-popup-zotcard-not_commonsense"
+            class="pane-dynamic-menu pane-only-regular pane-only-simple"
+            label="&zotero.zotcard.not_commonsense.label;"
+            oncommand="Zotero.ZotCard.not_commonsense(true)"/>
+        <menuitem
+            id="context-pane-add-child-note-button-popup-zotcard-skill"
+            class="pane-dynamic-menu pane-only-regular pane-only-simple"
+            label="&zotero.zotcard.skill.label;"
+            oncommand="Zotero.ZotCard.skill(true)"/>
+        <menuitem
+            id="context-pane-add-child-note-button-popup-zotcard-structure"
+            class="pane-dynamic-menu pane-only-regular pane-only-simple"
+            label="&zotero.zotcard.structure.label;"
+            oncommand="Zotero.ZotCard.structure(true)"/>
+        <menuitem
+            id="context-pane-add-child-note-button-popup-zotcard-general"
+            class="pane-dynamic-menu pane-only-regular pane-only-simple"
+            label="&zotero.zotcard.general.label;"
+            oncommand="Zotero.ZotCard.general(true)"/>
+        <menuseparator
+            id="context-pane-add-child-note-button-popup-zotcard-separator2"
+            class="pane-dynamic-menu pane-only-regular pane-only-simple" />
+    </popup>
+
     <popup id="zotero-collectionmenu">
         <menuseparator />
         <menuitem

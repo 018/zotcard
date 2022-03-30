@@ -2,6 +2,9 @@
 zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记，提供了如概念卡、人物卡、反常识卡等等卡片模版，只需一步即可直接写卡，无需复杂模版。还提供复制多张卡片及批量打开浮动编辑窗口，调整浮动编辑窗口，方便拼卡成文。
 
 <img src="https://raw.githubusercontent.com/018/zotcard/main/image/card.png" alt="卡" width="300"/>
+<img src="https://raw.githubusercontent.com/018/zotcard/main/image/card-pane.png" alt="卡" width="300"/>
+
+还支持在打开文献的页面中直接建卡，而且把选择的文字带过去，模版中使用${text}替代。
 
 ## 默认卡
 
@@ -127,7 +130,7 @@ zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记�
 
 `<br />`为换行，跟`p`的区别就是行间距不一样，`br`的行间距比较小。
 
-另外还有书籍中的信息：`{authors}`为作者，`{title}`为书名，`{shortTitle}`为短标题，`{archive}`为归档，`{archiveLocation}`为归档位置，`{url}`为网址，`{date}`为日期，`{year}`为年份，`{extra}`为其他，`{publisher}`为出版社，`{ISBN}`为ISBN，`{numPages}`为总页数，时间信息：`{today}`为今天日期，`{month}`为月份，`{dayOfYear}`为今年第几天，`{weekOfYear}`为今年第几周（默认是以周日作为一周的第一天，以周一作为第一天可以配置`extensions.zotero.zotcard.startOfWeek`为1。），`{week}`为星期几（值为日、一、二、三、四、五、六），`{week_en}`为英文的星期几（值为Sun.、Mon.、Tues.、Wed.、Thurs.、Fri.、Sat.），`{now}`为现在时间。
+另外还有书籍中的信息：`{text}`或`${text}`为文献中选中的文字，`{authors}`或`${authors}`为作者，`{title}`或`${title}`为书名，`{shortTitle}`或`${shortTitle}`为短标题，`{archive}`或`${archive}`为归档，`{archiveLocation}`或`${archiveLocation}`为归档位置，`{url}`或`${url}`为网址，`{date}`或`${date}`为日期，`{year}`或`${year}`为年份，`{extra}`或`${extra}`为其他，`{publisher}`或`${publisher}`为出版社，`{publicationTitle}`或`${publicationTitle}`为期刊，`{ISBN}`或`${ISBN}`为ISBN，`{numPages}`或`${numPages}`为总页数，时间信息：`{today}`或`${today}`为今天日期，`{month}`或`${month}`为月份，`{dayOfYear}`或`${dayOfYear}`为今年第几天，`{weekOfYear}`或`${weekOfYear}`为今年第几周（默认是以周日作为一周的第一天，以周一作为第一天可以配置`extensions.zotero.zotcard.startOfWeek`为1。），`{week}`或`${week}`为星期几（值为日、一、二、三、四、五、六），`{week_en}`或`${week_en}`为英文的星期几（值为Sun.、Mon.、Tues.、Wed.、Thurs.、Fri.、Sat.），`{now}`或`${now}`为现在时间。
 
 有一个技巧，就是在Zotero的笔记中编辑好，然后右键「源代码」，复制出来也可以。
 

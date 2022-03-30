@@ -779,7 +779,7 @@ function copyAll () {
     if (!Zotero.ZotCard.Utils.copyHtmlToClipboard(htmls)) {
       Zotero.ZotCard.Utils.error('复制失败。')
     } else {
-      Zotero.ZotCard.Utils.success(`成功复制 ${cards.length} 张卡，现在可以往编辑软件粘贴了。`)
+      Zotero.ZotCard.Utils.success(`成功复制 ${document.getElementById('content-list').children.length} 张卡，现在可以往编辑软件粘贴了。`)
     }
     document.getElementById('searching').hidden = true
   }

@@ -39,6 +39,7 @@ zotcard.init = function () {
 
   document.getElementById('zotero-note-editor').addEventListener('keyup', this.noteEditorOnKeyup.bind(this), false)
   document.getElementById('zotero-itemmenu').addEventListener('popupshowing', this.refreshZoteroItemPopup.bind(this), false)
+  document.getElementById('context-pane-add-child-note-button-popup').addEventListener('popupshowing', this.refreshZoteroPanePopup.bind(this), false)
 
   document.getElementById('zotero-toolspopup-zotcard-option-notebackgroundcolor').hidden = Zotero.ZotCard.Utils.version() >= 6;
   
@@ -69,6 +70,7 @@ zotcard.init = function () {
     }
     document.getElementById('zotero-note-editor').removeEventListener('keyup', this.noteEditorOnKeyup.bind(this), false)
     document.getElementById('zotero-itemmenu').removeEventListener('popupshowing', this.refreshZoteroItemPopup.bind(this), false)
+    document.getElementById('context-pane-add-child-note-button-popup').removeEventListener('popupshowing', this.refreshZoteroPanePopup.bind(this), false)
   }, false)
 }
 
@@ -126,7 +128,15 @@ zotcard.itemsTreeOnSelect = function () {
   }
 }
 
+zotcard.refreshZoteroPanePopup = function () {
+  this.refreshZoteroCardPopup(true)
+}
+
 zotcard.refreshZoteroItemPopup = function () {
+  this.refreshZoteroCardPopup(false)
+}
+
+zotcard.refreshZoteroCardPopup = function (pane) {
   let items = Zotero.ZotCard.Utils.getSelectedItems()
   let itemTypes = Zotero.ZotCard.Utils.getSelectedItemTypes()
   let onlyNote = itemTypes && itemTypes.length === 1 && itemTypes[0] === 'note'
@@ -135,73 +145,77 @@ zotcard.refreshZoteroItemPopup = function () {
 
   Zotero.debug(`${onlyNote}, ${onlyRegular}, ${onlySimple}`)
 
-  let zotcardMenu = document.getElementById('zotero-itemmenu-zotcard')
-  zotcardMenu.disabled = false
-  if (!items) {
-    zotcardMenu.disabled = true
-    Zotero.debug(`Not Select Item`)
-  } else if (items.length > 1 && !onlyNote) {
-    zotcardMenu.disabled = true
-    Zotero.debug(`Mutil-Select Items but not onlyNote`)
-  } else if (itemTypes.length > 1) {
-    zotcardMenu.disabled = true
-    Zotero.debug(`Mutil item types`)
-  } else if (onlySimple && !onlyRegular && !onlyNote) {
-    zotcardMenu.disabled = true
-    Zotero.debug(`Simple but not onlyRegular and onlyNote`)
+  if (!pane) {
+    let zotcardMenu = document.getElementById('zotero-itemmenu-zotcard')
+    zotcardMenu.disabled = false
+    if (!items) {
+      zotcardMenu.disabled = true
+      Zotero.debug(`Not Select Item`)
+    } else if (items.length > 1 && !onlyNote) {
+      zotcardMenu.disabled = true
+      Zotero.debug(`Mutil-Select Items but not onlyNote`)
+    } else if (itemTypes.length > 1) {
+      zotcardMenu.disabled = true
+      Zotero.debug(`Mutil item types`)
+    } else if (onlySimple && !onlyRegular && !onlyNote) {
+      zotcardMenu.disabled = true
+      Zotero.debug(`Simple but not onlyRegular and onlyNote`)
+    }
+
+    document.querySelectorAll('.dynamic-menu').forEach(element => {
+      element.hidden = false
+    })
+    document.querySelectorAll('.only-regular').forEach(element => {
+      element.hidden = element.hidden ? element.hidden : !onlyRegular
+    })
+    document.querySelectorAll('.only-note').forEach(element => {
+      element.hidden = element.hidden ? element.hidden : !onlyNote
+    })
+    document.querySelectorAll('.only-simple').forEach(element => {
+      element.hidden = element.hidden ? element.hidden : !onlySimple
+    })
   }
-  document.querySelectorAll('.dynamic-menu').forEach(element => {
-    element.hidden = false
-  })
-  document.querySelectorAll('.only-regular').forEach(element => {
-    element.hidden = element.hidden ? element.hidden : !onlyRegular
-  })
-  document.querySelectorAll('.only-note').forEach(element => {
-    element.hidden = element.hidden ? element.hidden : !onlyNote
-  })
-  document.querySelectorAll('.only-simple').forEach(element => {
-    element.hidden = element.hidden ? element.hidden : !onlySimple
-  })
 
-  this.initDefCardMenu('quotes')
-  this.initDefCardMenu('concept')
-  this.initDefCardMenu('character')
-  this.initDefCardMenu('not_commonsense')
-  this.initDefCardMenu('skill')
-  this.initDefCardMenu('structure')
-  this.initDefCardMenu('abstract')
-  this.initDefCardMenu('general')
+  this.initDefCardMenu('quotes', pane)
+  this.initDefCardMenu('concept', pane)
+  this.initDefCardMenu('character', pane)
+  this.initDefCardMenu('not_commonsense', pane)
+  this.initDefCardMenu('skill', pane)
+  this.initDefCardMenu('structure', pane)
+  this.initDefCardMenu('abstract', pane)
+  this.initDefCardMenu('general', pane)
 
-  document.querySelectorAll('.card').forEach(element => {
+  document.querySelectorAll(pane ? '.pane-card' : '.card').forEach(element => {
     element.hidden = true
   })
-  if (onlyRegular && onlySimple) {
+  if (pane || (onlyRegular && onlySimple)) {
     let quantity = this.initPrefs('card_quantity')
     Zotero.debug(`zotcard@${quantity}`)
     for (let index = 0; index < quantity; index++) {
       let name = `card${index + 1}`
-      let id = `zotero-itemmenu-zotcard-${name}`
+      let id = pane ? `zotero-itemmenu-zotcard-pane-${name}` : `zotero-itemmenu-zotcard-${name}`
       let pref = this.initPrefs(name)
       let card = document.getElementById(id)
       if (!card) {
         card = document.createElement('menuitem')
         card.setAttribute('id', id)
         card.setAttribute('name', name)
-        card.setAttribute('class', 'card')
-        card.onclick = function (e) { this.newCard(e.target.getAttribute('name')) }.bind(this)
-        document.getElementById('zotero-itemmenu-zotcard-menupopup').append(card)
+        card.setAttribute('class', pane ? 'pane-card' : 'card')
+        card.onclick = function (e) { this.newCard(pane, e.target.getAttribute('name')) }.bind(this)
+        document.getElementById(pane ? 'context-pane-add-child-note-button-popup' : 'zotero-itemmenu-zotcard-menupopup').append(card)
       }
       card.setAttribute('label', `${pref.card ? pref.label : '-'}`)
       card.hidden = !pref.visible
     }
-    document.getElementById('zotero-itemmenu-zotcard-separator2').hidden = quantity === 0
+    document.getElementById(pane ? 'zotero-itemmenu-zotcard-pane-separator2' : 'zotero-itemmenu-zotcard-separator2').hidden = quantity === 0
     Zotero.debug(`zotcard@${quantity}`)
 
-    if (!document.getElementById('zotero-itemmenu-zotcard-menupopup-batch')) {
+    let batchid = pane ? 'zotero-itemmenu-zotcard-pane-menupopup-batch' : 'zotero-itemmenu-zotcard-menupopup-batch'
+    if (!document.getElementById(batchid)) {
       let menuitem = document.createElement('menuitem')
-      menuitem.setAttribute('id', `zotero-itemmenu-zotcard-menupopup-batch`)
+      menuitem.setAttribute('id', batchid)
       menuitem.setAttribute('label', `批量建卡`)
-      menuitem.setAttribute('class', `card`)
+      menuitem.setAttribute('class', pane ? 'pane-card' : 'card')
       menuitem.onclick = function () {
         let io = {
           dataIn: {
@@ -245,23 +259,26 @@ zotcard.refreshZoteroItemPopup = function () {
           io.dataOut.forEach(async function (element) {
             Zotero.debug('uRead@element: ' + element)
             for (let index = 0; index < element.value; index++) {
-              _this.newCard(element.id)
+              _this.newCard(pane, element.id)
             }
           })
         }
       }.bind(this)
+      let menuseparatorid = pane ? 'zotero-itemmenu-zotcard-pane-menupopup-batch-menuseparator' : 'zotero-itemmenu-zotcard-menupopup-batch-menuseparator'
       let menuseparator = document.createElement('menuseparator');
-      menuitem.setAttribute('id', `zotero-itemmenu-zotcard-menupopup-batch-menuseparator`)
-      menuseparator.setAttribute('class', `card`)
-      document.getElementById('zotero-itemmenu-zotcard-menupopup').append(menuseparator)
-      document.getElementById('zotero-itemmenu-zotcard-menupopup').append(menuitem)
+      menuitem.setAttribute('id', menuseparatorid)
+      menuseparator.setAttribute('class', pane ? 'pane-card' : 'card')
+      document.getElementById(pane ? 'context-pane-add-child-note-button-popup' : 'zotero-itemmenu-zotcard-menupopup').append(menuseparator)
+      document.getElementById(pane ? 'context-pane-add-child-note-button-popup' : 'zotero-itemmenu-zotcard-menupopup').append(menuitem)
     } else {
-      document.getElementById('zotero-itemmenu-zotcard-menupopup-batch').hidden = false
-      document.getElementById('zotero-itemmenu-zotcard-menupopup-batch-menuseparator').hidden = false
+      let batchid = pane ? 'zotero-itemmenu-zotcard-pane-menupopup-batch' : 'zotero-itemmenu-zotcard-menupopup-batch'
+      let menuseparatorid = pane ? 'zotero-itemmenu-zotcard-pane-menupopup-batch-menuseparator' : 'zotero-itemmenu-zotcard-menupopup-batch-menuseparator'
+      document.getElementById(batchid).hidden = false
+      document.getElementById(menuseparatorid).hidden = false
     }
   }
 
-  if (Zotero.ZotCard.Utils.version() >= 6) {
+  if (!pane && Zotero.ZotCard.Utils.version() >= 6) {
     document.getElementById('zotero-itemmenu-zotcard-compressimg').hidden = true
     document.getElementById('zotero-itemmenu-zotcard-compressimg-separator').hidden = true
   }
@@ -302,7 +319,7 @@ zotcard.initStandCardMenu = function () {
         card.setAttribute('id', id)
         card.setAttribute('name', name)
         card.setAttribute('class', 'stand-card')
-        card.onclick = function (e) { this.newCard(e.target.getAttribute('name'), true) }.bind(this)
+        card.onclick = function (e) { this.newCard(false, e.target.getAttribute('name'), true) }.bind(this)
         document.getElementById('zotero-tb-note-add').firstChild.append(card)
       }
       card.setAttribute('label', `${pref.card ? ('新建独立' + pref.label) : '-'}`)
@@ -356,7 +373,7 @@ zotcard.initStandCardMenu = function () {
         io.dataOut.forEach(async function (element) {
           Zotero.debug('uRead@element: ' + element)
           for (let index = 0; index < element.value; index++) {
-            _this.newCard(element.id, true)
+            _this.newCard(false, element.id, true)
           }
         })
       }
@@ -496,10 +513,14 @@ zotcard.initNoteParagraphSpacing = function () {
   }
 }
 
-zotcard.initDefCardMenu = function (type) {
+zotcard.initDefCardMenu = function (type, pane) {
   let pref = this.initPrefs(type)
-  let quotes = document.getElementById(`zotero-itemmenu-zotcard-${type}`)
-  quotes.hidden = quotes.hidden ? quotes.hidden : !pref.visible
+  let quotes = document.getElementById(pane ? `context-pane-add-child-note-button-popup-zotcard-${type}` : `zotero-itemmenu-zotcard-${type}`)
+  if (pane) {
+    quotes.hidden = !pref.visible
+  } else {
+    quotes.hidden = quotes.hidden ? quotes.hidden : !pref.visible
+  }
   quotes.setAttribute('label', pref.label)
 }
 
@@ -510,7 +531,7 @@ zotcard.initStandDefCardMenu = function (type) {
     menuitem.setAttribute('id', `zotero-tb-note-add-zotcard-${type}`)
     menuitem.setAttribute('label', `新建独立${pref.label}`)
     menuitem.onclick = function () {
-      this.newCard(type, true)
+      this.newCard(false, type, true)
     }.bind(this)
     document.getElementById('zotero-tb-note-add').firstChild.append(menuitem)
   }
@@ -600,15 +621,17 @@ zotcard.initPrefs = function (item) {
       case 'quotes':
         beforeDefs = ['<h3>## 金句卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>原文</strong>：<span>&lt;摘抄&gt;</span></p><p>- <strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p>- <strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
           '<h3>## 金句卡 - <span style="color: #bbbbbb;">&lt;标题&gt;</span></h3>\\n<p>- <strong>原文</strong>：<span style="color: #bbbbbb;">&lt;摘抄&gt;</span></p><p>- <strong>复述</strong>：<span style="color: #bbbbbb;">&lt;用自己的话复述&gt;</span></p><p>- <strong>启发</strong>：<span style="color: #bbbbbb;">&lt;有什么启发&gt;</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span style="color: #bbbbbb;">&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
-          '<h3>## 金句卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>原文</strong>：<span>&lt;摘抄&gt;</span></p><p>- <strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p>- <strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>']
-        def = '<h1>## 金句卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>原文</strong>：<span>&lt;摘抄&gt;</span></p><p><strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p><strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：{today}</p>'
+          '<h3>## 金句卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>原文</strong>：<span>&lt;摘抄&gt;</span></p><p>- <strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p>- <strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>',
+          '<h1>## 金句卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>原文</strong>：<span>&lt;摘抄&gt;</span></p><p><strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p><strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：{today}</p>']
+        def = '<h1>## 金句卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>原文</strong>：<span>${text ? text : "&lt;摘抄&gt;"}</span></p><p><strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p><strong>出处</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;页码&gt;</span>` : ""}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
         pref = this.initPref('金句卡', item, beforeDefs, def)
         break
       case 'concept':
         beforeDefs = ['<h3>## 概念卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>提出者</strong>：<span>&lt;姓名&gt;</span>, <span>&lt;年份&gt;</span></p><p>- <strong>描述</strong>：<span>&lt;具体描述或摘抄&gt;</span></p><p>- <strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p>- <strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
           '<h3>## 概念卡 - <span style="color: #bbbbbb;">&lt;标题&gt;</span></h3>\\n<p>- <strong>提出者</strong>：<span style="color: #bbbbbb;">&lt;姓名&gt;</span>, <span style="color: #bbbbbb;">&lt;年份&gt;</span></p><p>- <strong>描述</strong>：<span style="color: #bbbbbb;">&lt;具体描述或摘抄&gt;</span></p><p>- <strong>复述</strong>：<span style="color: #bbbbbb;">&lt;用自己的话复述&gt;</span></p><p>- <strong>启发</strong>：<span style="color: #bbbbbb;">&lt;有什么启发&gt;</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span style="color: #bbbbbb;">&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
-          '<h3>## 概念卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>提出者</strong>：<span>&lt;姓名&gt;</span>, <span>&lt;年份&gt;</span></p><p>- <strong>描述</strong>：<span>&lt;具体描述或摘抄&gt;</span></p><p>- <strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p>- <strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>']
-        def = '<h1>## 概念卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>提出者</strong>：<span>&lt;姓名&gt;</span>, <span>&lt;年份&gt;</span></p><p><strong>描述</strong>：<span>&lt;具体描述或摘抄&gt;</span></p><p><strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p><strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：{today}</p>'
+          '<h3>## 概念卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>提出者</strong>：<span>&lt;姓名&gt;</span>, <span>&lt;年份&gt;</span></p><p>- <strong>描述</strong>：<span>&lt;具体描述或摘抄&gt;</span></p><p>- <strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p>- <strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>',
+          '<h1>## 概念卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>提出者</strong>：<span>&lt;姓名&gt;</span>, <span>&lt;年份&gt;</span></p><p><strong>描述</strong>：<span>&lt;具体描述或摘抄&gt;</span></p><p><strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p><strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：{today}</p>']
+        def = '<h1>## 概念卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>提出者</strong>：<span>&lt;姓名&gt;</span>, <span>&lt;年份&gt;</span></p><p><strong>描述</strong>：<span>&lt;具体描述或摘抄&gt;</span></p><p><strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p><strong>出处</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;页码&gt;</span>` : ""}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
         pref = this.initPref('概念卡', item, beforeDefs, def)
         break
       case 'character':
@@ -616,42 +639,48 @@ zotcard.initPrefs = function (item) {
           '<h3>## 人物卡 - <span style="color: #bbbbbb;">&lt;姓名&gt;</span></h3>\\n<p>- <strong>简介</strong>：<span style="color: #bbbbbb;">&lt;出生日期，出生地，毕业院校，生平等&gt;</span></p><p>- <strong>作品</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span style="color: #bbbbbb;">...</span></p><p>- <strong>成就</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span style="color: #bbbbbb;">...</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span style="color: #bbbbbb;">&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
           '<h3>## 人物卡 - <span>&lt;姓名&gt;</span></h3>\\n<p>- <strong>简介</strong>：<span>&lt;出生日期，出生地，毕业院校，生平等&gt;</span></p><p>- <strong>作品</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span>...</span></p><p>- <strong>成就</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span>...</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>',
           '<h3>## 人物卡 - <span>&lt;姓名&gt;</span></h3>\\n<p>- <strong>简介</strong>：<span>&lt;出生日期，出生地，毕业院校，生平等&gt;</span></p><p>- <strong>作品</strong>：</p><p>- <strong>成就</strong>：</p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>',
-          '<h3>## 人物卡 - <span>&lt;姓名&gt;</span></h3>\\n<p>- <strong>简介</strong>：<span>&lt;出生日期，出生地，毕业院校，生平等&gt;</span></p><p>- <strong>作品</strong>：</p><p>- <strong>成就</strong>：</p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>']
-        def = '<h1>## 人物卡 - <span>&lt;姓名&gt;</span></h1>\\n<p><strong>简介</strong>：<span>&lt;出生日期，出生地，毕业院校，生平等&gt;</span></p><p><strong>作品</strong>：</p><p><strong>成就</strong>：</p><p><strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：{today}</p>'
+          '<h3>## 人物卡 - <span>&lt;姓名&gt;</span></h3>\\n<p>- <strong>简介</strong>：<span>&lt;出生日期，出生地，毕业院校，生平等&gt;</span></p><p>- <strong>作品</strong>：</p><p>- <strong>成就</strong>：</p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>',
+          '<h1>## 人物卡 - <span>&lt;姓名&gt;</span></h1>\\n<p><strong>简介</strong>：<span>&lt;出生日期，出生地，毕业院校，生平等&gt;</span></p><p><strong>作品</strong>：</p><p><strong>成就</strong>：</p><p><strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：{today}</p>']
+        def = '<h1>## 人物卡 - <span>&lt;姓名&gt;</span></h1>\\n<p><strong>简介</strong>：<span>&lt;出生日期，出生地，毕业院校，生平等&gt;</span></p><p><strong>作品</strong>：</p><p><strong>成就</strong>：</p><p><strong>出处</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;页码&gt;</span>` : ""}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
         pref = this.initPref('人物卡', item, beforeDefs, def)
         break
       case 'not_commonsense':
         beforeDefs = ['<h3>## 反常识卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>常识</strong>：<span>&lt;认知中的常识&gt;</span></p><p>- <strong>反常识</strong>：<span>&lt;需要刷新的认知&gt;</span></p><p>- <strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
           '<h3>## 反常识卡 - <span style="color: #bbbbbb;">&lt;标题&gt;</span></h3>\\n<p>- <strong>常识</strong>：<span style="color: #bbbbbb;">&lt;认知中的常识&gt;</span></p><p>- <strong>反常识</strong>：<span style="color: #bbbbbb;">&lt;需要刷新的认知&gt;</span></p><p>- <strong>启发</strong>：<span style="color: #bbbbbb;">&lt;有什么启发&gt;</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span style="color: #bbbbbb;">&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
-          '<h3>## 反常识卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>常识</strong>：<span>&lt;认知中的常识&gt;</span></p><p>- <strong>反常识</strong>：<span>&lt;需要刷新的认知&gt;</span></p><p>- <strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>']
-        def = '<h1>## 反常识卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>常识</strong>：<span>&lt;认知中的常识&gt;</span></p><p><strong>反常识</strong>：<span>&lt;需要刷新的认知&gt;</span></p><p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p><strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：{today}</p>'
+          '<h3>## 反常识卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>常识</strong>：<span>&lt;认知中的常识&gt;</span></p><p>- <strong>反常识</strong>：<span>&lt;需要刷新的认知&gt;</span></p><p>- <strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>',
+          '<h1>## 反常识卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>常识</strong>：<span>&lt;认知中的常识&gt;</span></p><p><strong>反常识</strong>：<span>&lt;需要刷新的认知&gt;</span></p><p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p><strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：{today}</p>']
+        def = '<h1>## 反常识卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>常识</strong>：<span>&lt;认知中的常识&gt;</span></p><p><strong>反常识</strong>：<span>&lt;需要刷新的认知&gt;</span></p><p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p><strong>出处</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;页码&gt;</span>` : ""}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
         pref = this.initPref('反常识卡', item, beforeDefs, def)
         break
       case 'skill':
         beforeDefs = ['<h3>## 技巧卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p>- <strong>步骤</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
           '<h3>## 技巧卡 - <span style="color: #bbbbbb;">&lt;标题&gt;</span></h3>\\n<p>- <strong>描述</strong>：<span style="color: #bbbbbb;">&lt;描述作用&gt;</span></p><p>- <strong>步骤</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span style="color: #bbbbbb;">...</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span style="color: #bbbbbb;">&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
-          '<h3>## 技巧卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p>- <strong>步骤</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>']
-        def = '<h1>## 技巧卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p><strong>步骤</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p><strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：{today}</p>'
+          '<h3>## 技巧卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p>- <strong>步骤</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>',
+          '<h1>## 技巧卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p><strong>步骤</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p><strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：{today}</p>']
+        def = '<h1>## 技巧卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p><strong>步骤</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p><strong>出处</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;页码&gt;</span>` : ""}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
         pref = this.initPref('技巧卡', item, beforeDefs, def)
         break
       case 'structure':
         beforeDefs = ['<h3>## 结构卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p>- <strong>内容</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(2)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(3)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
           '<h3>## 结构卡 - <span style="color: #bbbbbb;">&lt;标题&gt;</span></h3>\\n<p>- <strong>描述</strong>：<span style="color: #bbbbbb;">&lt;描述作用&gt;</span></p><p>- <strong>内容</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1)&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b.&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c.&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(2)&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(3)&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span style="color: #bbbbbb;">...</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span style="color: #bbbbbb;">&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
-          '<h3>## 结构卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p>- <strong>内容</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(2)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(3)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>']
-        def = '<h1>## 结构卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p><strong>内容</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(2)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(3)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p><strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：{today}</p>'
+          '<h3>## 结构卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p>- <strong>内容</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(2)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(3)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>',
+          '<h1>## 结构卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p><strong>内容</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(2)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(3)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p><strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：{today}</p>']
+        def = '<h1>## 结构卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p><strong>内容</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(2)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(3)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p><strong>出处</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;页码&gt;</span>` : ""}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
         pref = this.initPref('结构卡', item, beforeDefs, def)
         break
       case 'abstract':
-        beforeDefs = ['<h3>## 摘要卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>摘要</strong>：<span>&lt;原文句子&gt;</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>']
-        def = '<h1>## 摘要卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>摘要</strong>：<span>&lt;原文句子&gt;</span></p><p><strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：{today}</p>'
+        beforeDefs = ['<h3>## 摘要卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>摘要</strong>：<span>&lt;原文句子&gt;</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>',
+        '<h1>## 摘要卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>摘要</strong>：<span>&lt;原文句子&gt;</span></p><p><strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：{today}</p>']
+        def = '<h1>## 摘要卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>摘要</strong>：<span>${text ? text : "&lt;原文句子&gt;"}</span></p><p><strong>出处</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;页码&gt;</span>` : ""}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
         pref = this.initPref('摘要卡', item, beforeDefs, def)
         break
       case 'general':
         beforeDefs = ['<h3>## 通用卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>想法</strong>：</p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
           '<h3>## 通用卡 - <span style="color: #bbbbbb;">&lt;标题&gt;</span></h3>\\n<p>- <strong>想法</strong>：</p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span style="color: #bbbbbb;">&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
           '<h3>## 通用卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>想法</strong>：</p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>',
-          '<h3>## 短文卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>正文</strong>：</p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>']
-        def = '<h1>## 短文卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>正文</strong>：</p><p><strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：{today}</p>'
+          '<h3>## 短文卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>正文</strong>：</p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>',
+          '<h1>## 短文卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>正文</strong>：</p><p><strong>出处</strong>：${authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：{today}</p>']
+        def = '<h1>## 短文卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>正文</strong>：</p><p><strong>出处</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;页码&gt;</span>` : ""}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
         pref = this.initPref('短文卡', item, beforeDefs, def)
         break
       case 'card_quantity':
@@ -713,7 +742,7 @@ zotcard.notifierCallback = {
   }
 }
 
-zotcard.newCard = async function (name, stand) {
+zotcard.newCard = async function (pane, name, stand) {
   var pref = this.initPrefs(name)
   if (!pref) {
     Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.please_configure', 'zotcard.' + name))
@@ -734,27 +763,33 @@ zotcard.newCard = async function (name, stand) {
     Zotero.ZotCard.Utils.warning('请选择分类。')
   }
 
-  let authors = []
-  let title = ''
-  let shortTitle = ''
-  let archive = ''
-  let archiveLocation = ''
-  let url = ''
-  let date = ''
-  let year = ''
-  let extra = ''
-  let publisher = ''
-  let ISBN = ''
-  let numPages = ''
-  let now = new Date()
-  let firstDay = new Date()
+  var itemType = ''
+  var authors = []
+  var title = ''
+  var shortTitle = ''
+  var archive = ''
+  var archiveLocation = ''
+  var url = ''
+  var date = ''
+  var year = ''
+  var extra = ''
+  var publisher = ''
+  var publicationTitle = ''
+  var ISBN = ''
+  var numPages = ''
+  var nowDate = new Date()
+  var now = Zotero.ZotCard.Utils.formatDate(nowDate, 'yyyy-MM-dd HH:mm:ss')
+  var today = Zotero.ZotCard.Utils.formatDate(nowDate, 'yyyy-MM-dd')
+  var month = Zotero.ZotCard.Utils.formatDate(nowDate, 'yyyy-MM')
+  var text = ''
+  var firstDay = new Date()
   firstDay.setMonth(0)
   firstDay.setDate(1)
   firstDay.setHours(0)
   firstDay.setMinutes(0)
   firstDay.setSeconds(0)
   firstDay.setMilliseconds(0)
-  let dateGap = now.getTime() - firstDay.getTime() + 1
+  let dateGap = nowDate.getTime() - firstDay.getTime() + 1
   let dayOfYear = Math.ceil(dateGap / (24 * 60 * 60 * 1000))
   // 0: 周日开始
   // 1: 周一开始
@@ -764,22 +799,36 @@ zotcard.newCard = async function (name, stand) {
     Zotero.Prefs.set('zotcard.startOfWeek', startOfWeek)
   }
   firstDay.setDate(1 + (7 - firstDay.getDay() + startOfWeek) % 7)
-  dateGap = now.getTime() - firstDay.getTime()
+  dateGap = nowDate.getTime() - firstDay.getTime()
   let weekOfYear = Math.ceil(dateGap / (7 * 24 * 60 * 60 * 1000)) + 1
-  let week = ['日', '一', '二', '三', '四', '五', '六'][now.getDay()]
-  let weekEn = ['Sun.', 'Mon.', 'Tues.', 'Wed.', 'Thurs.', 'Fri.', 'Sat.'][now.getDay()]
+  let week = ['日', '一', '二', '三', '四', '五', '六'][nowDate.getDay()]
+  let weekEn = ['Sun.', 'Mon.', 'Tues.', 'Wed.', 'Thurs.', 'Fri.', 'Sat.'][nowDate.getDay()]
   if (!stand) {
-    var zitems = Zotero.ZotCard.Utils.getSelectedItems('regular')
-    if (!zitems || zitems.length <= 0) {
-      Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.unsupported_entries'))
-      return
-    }
-    if (zitems.length !== 1) {
-      Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.only_one'))
-      return
+    var zitem
+    if (pane) {
+      var reader = Zotero.Reader.getByTabID(Zotero_Tabs.selectedID)
+      if (reader) {
+        zitem = Zotero.Items.get(Zotero.Items.get(reader.itemID).parentID)
+      }
+      if (!zitem) {
+        Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.unsupported_entries'))
+        return
+      }
+
+      text = Zotero.getMainWindow().Zotero.ZotCard.Utils.getReaderSelectedText().replace(/ /g, '')
+    } else {
+      var zitems = Zotero.ZotCard.Utils.getSelectedItems('regular')
+      if (!zitems || zitems.length <= 0) {
+        Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.unsupported_entries'))
+        return
+      }
+      if (zitems.length !== 1) {
+        Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.only_one'))
+        return
+      }
+      zitem = zitems[0]
     }
 
-    var zitem = zitems[0]
     var creatorsData = zitem.getCreators()
     var creatorTypeAuthor = Zotero.CreatorTypes.getID('author')
     for (let i = 0; i < creatorsData.length; i++) {
@@ -791,6 +840,7 @@ zotcard.newCard = async function (name, stand) {
       }
     }
 
+    itemType = zitem.itemType
     title = zitem.getField('title')
     shortTitle = zitem.getField('shortTitle')
     archive = zitem.getField('archive')
@@ -800,16 +850,44 @@ zotcard.newCard = async function (name, stand) {
     year = zitem.getField('year')
     extra = zitem.getField('extra')
     publisher = zitem.getField('publisher')
+    publicationTitle = zitem.getField('publicationTitle')
     ISBN = zitem.getField('ISBN')
     numPages = zitem.getField('numPages')
   }
 
   var item = new Zotero.Item('note')
-  item.setNote(pref.card.replace(/\{authors\}/g, authors.toString())
+  var content = pref.card
+
+  let econtent = 'function jscontent() {var itemType = "' + itemType +
+    '", authors = [' + authors.map(e => '"' + e + '"').join(',') + '], title = "' + title +
+    '", shortTitle = "' + shortTitle +
+    '", archive = "' + archive +
+    '", archiveLocation = "' + archiveLocation +
+    '", url = "' + url +
+    '", date = "' + date +
+    '", year = "' + year +
+    '", dayOfYear = ' + dayOfYear +
+    ', weekOfYear = ' + weekOfYear +
+    ', week = "' + week +
+    '", week_en = "' + week_en +
+    '", extra = "' + extra +
+    '", publisher = "' + publisher +
+    '", publicationTitle = "' + publicationTitle +
+    '", ISBN = "' + ISBN +
+    '", numPages = ' + (numPages || '0') +
+    ', now = "' + now +
+    '", today = "' + today +
+    '", month = "' + month +
+    '", text = "' + text + '"; return `' + content + '`}; jscontent()'
+  Zotero.debug(econtent)
+  content = Zotero.getMainWindow().eval(econtent)
+  
+  content = content.replace(/\{authors\}/g, authors.toString())
+    .replace(/\{itemType\}/g, itemType)
     .replace(/\{title\}/g, title)
-    .replace(/\{now\}/g, Zotero.ZotCard.Utils.formatDate(now, 'yyyy-MM-dd HH:mm:ss'))
-    .replace(/\{today\}/g, Zotero.ZotCard.Utils.formatDate(now, 'yyyy-MM-dd'))
-    .replace(/\{month\}/g, Zotero.ZotCard.Utils.formatDate(now, 'yyyy-MM'))
+    .replace(/\{now\}/g, now)
+    .replace(/\{today\}/g, today)
+    .replace(/\{month\}/g, month)
     .replace(/\{dayOfYear\}/g, dayOfYear)
     .replace(/\{weekOfYear\}/g, weekOfYear)
     .replace(/\{week\}/g, week)
@@ -822,9 +900,12 @@ zotcard.newCard = async function (name, stand) {
     .replace(/\{year\}/g, year)
     .replace(/\{extra\}/g, extra)
     .replace(/\{publisher\}/g, publisher)
+    .replace(/\{publicationTitle\}/g, publicationTitle)
     .replace(/\{ISBN\}/g, ISBN)
     .replace(/\{numPages\}/g, numPages)
-    .replace(/\\n/g, '\n'))
+    .replace(/\\n/g, '\n')
+    .replace(/\{text\}/g, text)
+  item.setNote(content)
   if (stand) {
     item.addToCollection(ZoteroPane.getSelectedCollection().id)
   } else {
@@ -833,41 +914,47 @@ zotcard.newCard = async function (name, stand) {
   item.libraryID = ZoteroPane.getSelectedLibraryID()
   var itemID = await item.saveTx()
   if (isDebug()) Zotero.debug('item.id: ' + itemID)
-  ZoteroPane.selectItem(itemID)
-
-  document.getElementById('zotero-note-editor').focus()
+  if (pane) {
+    var reader = Zotero.Reader.getByTabID(Zotero_Tabs.selectedID)
+    if (reader) {
+      reader._window.ZoteroContextPane.update()
+    }
+  } else {
+    ZoteroPane.selectItem(itemID)
+    document.getElementById('zotero-note-editor').focus()
+  }
 }
 
-zotcard.quotes = function () {
-  this.newCard('quotes')
+zotcard.quotes = function (pane) {
+  this.newCard(pane, 'quotes')
 }
 
-zotcard.concept = function () {
-  this.newCard('concept')
+zotcard.concept = function (pane) {
+  this.newCard(pane, 'concept')
 }
 
-zotcard.character = function () {
-  this.newCard('character')
+zotcard.character = function (pane) {
+  this.newCard(pane, 'character')
 }
 
-zotcard.not_commonsense = function () {
-  this.newCard('not_commonsense')
+zotcard.not_commonsense = function (pane) {
+  this.newCard(pane, 'not_commonsense')
 }
 
-zotcard.skill = function () {
-  this.newCard('skill')
+zotcard.skill = function (pane) {
+  this.newCard(pane, 'skill')
 }
 
-zotcard.structure = function () {
-  this.newCard('structure')
+zotcard.structure = function (pane) {
+  this.newCard(pane, 'structure')
 }
 
-zotcard.abstract = function () {
-  this.newCard('abstract')
+zotcard.abstract = function (pane) {
+  this.newCard(pane, 'abstract')
 }
 
-zotcard.general = function () {
-  this.newCard('general')
+zotcard.general = function (pane) {
+  this.newCard(pane, 'general')
 }
 
 zotcard.readcard = function () {
@@ -1643,14 +1730,15 @@ if (typeof window !== 'undefined') {
   window.Zotero.ZotCard.getNoteParagraphSpacing = function () { return zotcard.getNoteParagraphSpacing() }
 
 
-  window.Zotero.ZotCard.quotes = function () { zotcard.quotes() }
-  window.Zotero.ZotCard.concept = function () { zotcard.concept() }
-  window.Zotero.ZotCard.character = function () { zotcard.character() }
-  window.Zotero.ZotCard.not_commonsense = function () { zotcard.not_commonsense() }
-  window.Zotero.ZotCard.skill = function () { zotcard.skill() }
-  window.Zotero.ZotCard.structure = function () { zotcard.structure() }
-  window.Zotero.ZotCard.abstract = function () { zotcard.abstract() }
-  window.Zotero.ZotCard.general = function () { zotcard.general() }
+  window.Zotero.ZotCard.quotes = function (pane) { zotcard.quotes(pane) }
+  window.Zotero.ZotCard.concept = function (pane) { zotcard.concept(pane) }
+  window.Zotero.ZotCard.character = function (pane) { zotcard.character(pane) }
+  window.Zotero.ZotCard.not_commonsense = function (pane) { zotcard.not_commonsense(pane) }
+  window.Zotero.ZotCard.skill = function (pane) { zotcard.skill(pane) }
+  window.Zotero.ZotCard.structure = function (pane) { zotcard.structure(pane) }
+  window.Zotero.ZotCard.abstract = function (pane) { zotcard.abstract(pane) }
+  window.Zotero.ZotCard.general = function (pane) { zotcard.general(pane) }
+
   window.Zotero.ZotCard.readcard = function () { zotcard.readcard() }
   window.Zotero.ZotCard.replace = function () { zotcard.replace() }
   window.Zotero.ZotCard.doReplace = function () { zotcard.doReplace() }
