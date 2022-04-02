@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
@@ -37,9 +38,9 @@
 	</head>
 	<body>
 		<header id="header">
-			<span>字数：</span>
+			<span id="wordnumbertitle">字数：</span>
 			<span id="words">0</span>
-			<span class="spaced">字体大小：</span>
+			<span id="fontsizetitle" class="spaced">字体大小：</span>
 			<select id="fontsize" onchange="fontsizechange()">
 				<option value="8">8</option>
 				<option value="9">9</option>
@@ -52,7 +53,7 @@
 				<option value="16">16</option>
 				<option value="17">17</option>
 			</select>
-			<span class="spaced">行间距：</span>
+			<span id="linespacingtitle" class="spaced">行间距：</span>
 			<select id="linespacing" onchange="linespacingchange()">
 				<option value="0.8">0.8</option>
 				<option value="0.9">0.9</option>
@@ -65,7 +66,7 @@
 				<option value="1.6">1.6</option>
 				<option value="1.7">1.7</option>
 			</select>
-			<span class="spaced">段间距：</span>
+			<span id="paragraphspacingtitle" class="spaced">段间距：</span>
 			<select id="paragraphspacing" onchange="paragraphspacingchange()">
 				<option value="0">0</option>
 				<option value="1">1</option>
@@ -86,17 +87,17 @@
 				<option value="16">16</option>
 				<option value="17">17</option>
 			</select>
-			<span class="spaced">标题样式：</span>
+			<span id="titlestyletitle" class="spaced">标题样式：</span>
 			<select id="titlestyle" onchange="titlestylechange()">
-				<option value="sample">原样</option>
-				<option value="h1">标题一</option>
-				<option value="h2">标题二</option>
-				<option value="h3">标题三</option>
-				<option value="h4">标题四</option>
-				<option value="body">正文</option>
-				<option value="bodybold">正文(加粗)</option>
+				<option id="titlestyle_nonetitle" value="sample">原样</option>
+				<option id="titlestyle_h1title" value="h1">标题一</option>
+				<option id="titlestyle_h2title" value="h2">标题二</option>
+				<option id="titlestyle_h3title" value="h3">标题三</option>
+				<option id="titlestyle_h4title" value="h4">标题四</option>
+				<option id="titlestyle_bodytitle" value="body">正文</option>
+				<option id="titlestyle_bodyboldtitle" value="bodybold">正文(加粗)</option>
 			</select>
-			<button class="spaced" onclick="print1()">打印</button>
+			<button  id="printtitle"class="spaced" onclick="print1()">打印</button>
 		</header>
 		<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
 		<div id="readcontent" onclick="document.getElementById('header').style.display = 'flex'">

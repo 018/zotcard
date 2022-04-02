@@ -8,18 +8,8 @@
 /* global Zotero, ZoteroPane, ZOTERO_CONFIG */
 Components.utils.import('resource://gre/modules/Services.jsm');
 
-var _bundle = Cc['@mozilla.org/intl/stringbundle;1'].getService(Components.interfaces.nsIStringBundleService).createBundle('chrome://zoterozotcard/locale/zotcard.properties')
-
 function isDebug () {
   return typeof Zotero !== 'undefined' && typeof Zotero.Debug !== 'undefined' && Zotero.Debug.enabled
-}
-
-function getString (name, ...params) {
-  if (params !== undefined) {
-    return _bundle.formatStringFromName(name, params, params.length)
-  } else {
-    return _bundle.GetStringFromName(name)
-  }
 }
 
 function checkItemType (itemObj, itemTypeArray) {
@@ -105,8 +95,7 @@ function replaceNoTag(note, preIdx, text, replaceto) {
 function replace() {
   var zitems = getSelectedItems(['note'])
   if (!zitems || zitems.length <= 0) {
-    var ps = Components.classes['@mozilla.org/embedcomp/prompt-service;1'].getService(Components.interfaces.nsIPromptService)
-    ps.alert(window, getString('zotcard.warning'), getString('zotcard.only_note'))
+    Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.only_note'))
     return
   }
 

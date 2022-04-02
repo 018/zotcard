@@ -33,7 +33,7 @@
 //    text: ''
 // }
 
-var io = window.arguments[0]
+var io = Zotero.getMainWindow().Zotero.ZotCard.read
 var cards = io.dataIn.cards
 var title = io.dataIn.title
 var results = cards
@@ -173,10 +173,10 @@ function search () {
       return false
     }
     if (tag !== 'all') {
-      if (tag && tag !== '无' && !e.tags.includes(tag)) {
+      if (tag && tag !== Zotero.ZotCard.Utils.getString('zotcard.none') && !e.tags.includes(tag)) {
         return false
       }
-      if (tag === '无' && e.tags.length > 0) {
+      if (tag !== Zotero.ZotCard.Utils.getString('zotcard.none') && e.tags.length > 0) {
         return false
       }
     }
@@ -357,20 +357,24 @@ function refreshCard (id) {
   let cardTitle = cardDiv.querySelector(`.card-title`)
   cardTitle.innerHTML = `<h1 class="linenowrap" style="text-align: center;">${item.getNoteTitle()}</h1>`
 
-  let index = indexOfCards(id)
-  cards[index] = Zotero.ZotCard.Utils.toCardItem(item)
-  cardDiv.querySelector(`#dateModified`).textContent = `修改时间：${cards[index].dateModified}`
-  cardDiv.querySelector(`#words`).textContent = `字数：${cards[index].words}`
+  let index = indexOfCards(cards, id)
+  let newItem = Zotero.ZotCard.Utils.toCardItem(item)
+  cards[index] = newItem
+  cardDiv.querySelector(`#dateModified`).textContent = Zotero.ZotCard.Utils.getString('zotcard.readcard.modifydate') + newItem.dateModified
+  cardDiv.querySelector(`#words`).textContent = Zotero.ZotCard.Utils.getString('zotcard.cardcontent.wordnumbertitle') + newItem.words
 
-  options = Zotero.ZotCard.Utils.refreshOptions(cards[index], options)
+  options = Zotero.ZotCard.Utils.refreshOptions(newItem, options)
+
+  index = indexOfCards(results, id)
+  results[index] = newItem
 }
 
 function copyCard (id) {
   let card = cardOfCards(id)
   if (!Zotero.ZotCard.Utils.copyHtmlToClipboard(card.note)) {
-    Zotero.ZotCard.Utils.error('复制失败。')
+    Zotero.ZotCard.Utils.error(Zotero.ZotCard.Utils.getString('zotcard.readcard.copythefailure'))
   } else {
-    Zotero.ZotCard.Utils.success('复制成功，现在可以往编辑软件粘贴了。')
+    Zotero.ZotCard.Utils.success(Zotero.ZotCard.Utils.getString('zotcard.readcard.copysucceeded'))
   }
 }
 
@@ -649,7 +653,7 @@ function createCard (card, index) {
       span = span.parentElement
     }
     let id = span.getAttribute('cardid')
-    Zotero.openInViewer('chrome://zoterozotcard/content/cardcontent.html?id=' + id)
+    Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer('chrome://zoterozotcard/content/cardcontent.html?id=' + id)
   }
   divWarp.appendChild(span12)
   
@@ -712,12 +716,12 @@ function createCard (card, index) {
 
   let span14 = document.createElement('span')
   span14.setAttribute('id', 'dateModified')
-  span14.textContent = `修改时间：${card.dateModified}`
+  span14.textContent = Zotero.ZotCard.Utils.getString('zotcard.readcard.modifydate') + card.dateModified
   footer.appendChild(span14)
 
   let span13 = document.createElement('span')
   span13.setAttribute('id', 'words')
-  span13.textContent = `字数：${card.words}`
+  span13.textContent = Zotero.ZotCard.Utils.getString('zotcard.cardcontent.wordnumbertitle') + card.words
   footer.appendChild(span13)
 
   cardDiv.appendChild(footer)
@@ -734,7 +738,7 @@ function matchNote (note) {
   return newNote
 }
 
-function indexOfCards (id) {
+function indexOfCards (cards, id) {
   for (let index = 0; index < cards.length; index++) {
     if (`${cards[index].id}` === id) {
       return index
@@ -777,9 +781,9 @@ function copyAll () {
       htmls += element.querySelector('.card-all').innerHTML
     }
     if (!Zotero.ZotCard.Utils.copyHtmlToClipboard(htmls)) {
-      Zotero.ZotCard.Utils.error('复制失败。')
+      Zotero.ZotCard.Utils.error(Zotero.ZotCard.Utils.getString('zotcard.readcard.copythefailure'))
     } else {
-      Zotero.ZotCard.Utils.success(`成功复制 ${document.getElementById('content-list').children.length} 张卡，现在可以往编辑软件粘贴了。`)
+      Zotero.ZotCard.Utils.success(Zotero.ZotCard.Utils.getString('zotcard.readcard.copysucceededcount', document.getElementById('content-list').children.length))
     }
     document.getElementById('searching').hidden = true
   }
@@ -815,7 +819,7 @@ function showConcentration (cardid) {
   document.getElementById('one-card-content').innerHTML = matchNote(card.note)
   document.getElementById('one-card-dateAdded').textContent = card.dateAdded
   document.getElementById('one-card-dateModified').textContent = card.dateModified
-  document.getElementById('one-card-date').textContent = card.date ? card.date : '无'
+  document.getElementById('one-card-date').textContent = card.date ? card.date : Zotero.ZotCard.Utils.getString('zotcard.none')
   document.getElementById('one-card-hangzis').textContent = card.words
   document.getElementById(`tag-${card.id}`).setAttribute('class', 'readed')
   document.getElementById(`tag-${card.id}`).textContent = '◉'
@@ -858,7 +862,7 @@ function emptyResult () {
 function empty () {
   document.getElementById('read').hidden = false
   document.getElementById('loading').hidden = false
-  document.getElementById('loading').textContent = '无卡片数据。'
+  document.getElementById('loading').textContent = Zotero.ZotCard.Utils.getString('zotcard.readcard.nocard')
   document.getElementById('content').hidden = true
   document.getElementById('concentration').hidden = true
   document.body.style.backgroundColor = '#F5F5F5'
@@ -909,19 +913,23 @@ function oneCardRefresh () {
 function oneCardPrint () {
   let id = document.getElementById('concentration').getAttribute('card-id')
 
-  Zotero.openInViewer('chrome://zoterozotcard/content/cardcontent.html?id=' + id)
+  Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer('chrome://zoterozotcard/content/cardcontent.html?id=' + id)
 }
 
 function oneCardCopy () {
   let html = document.getElementById('one-card-content').innerHTML
   if (!Zotero.ZotCard.Utils.copyHtmlToClipboard(html)) {
-    Zotero.ZotCard.Utils.error('复制失败。')
+    Zotero.ZotCard.Utils.error(Zotero.ZotCard.Utils.getString('zotcard.readcard.copythefailure'))
   } else {
-    Zotero.ZotCard.Utils.success('复制成功，现在可以往编辑软件粘贴了。')
+    Zotero.ZotCard.Utils.success(Zotero.ZotCard.Utils.getString('zotcard.readcard.copysucceeded'))
   }
 }
 
 window.addEventListener('load', start)
+
+window.addEventListener('unload', () => {
+  delete Zotero.getMainWindow().Zotero.ZotCard.read
+})
 
 window.addEventListener('keypress', function (event) {
   if (document.getElementById('concentration').hidden) {

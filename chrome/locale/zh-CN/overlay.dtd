@@ -46,5 +46,8 @@
 <!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.purple.label "莫兰迪色系-紫">
 <!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.reset.label "重置">
 <!ENTITY zotero.zotcard.option.github.label "官网">
+<!ENTITY zotero.toolspopup.zotcard.support.label "打赏">
+<!ENTITY zotero.zotcard.support.wechatoralipay.label "微信支付宝">
+<!ENTITY zotero.zotcard.support.buymeacoffee.label "Buy Me A Coffee">
 
 

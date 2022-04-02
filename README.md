@@ -1,6 +1,9 @@
 # zotcard
 zotcard是Zotero的一个插件，它可以帮助你快速写卡片、或笔记，提供了如概念卡、人物卡、反常识卡等等卡片模版，只需一步即可直接写卡，无需复杂模版。还提供复制多张卡片及批量打开浮动编辑窗口，调整浮动编辑窗口，方便拼卡成文。
 
+仅支持中文和英文。
+Only Chinese and English are supported.
+
 <img src="https://raw.githubusercontent.com/018/zotcard/main/image/card.png" alt="卡" width="300"/>
 <img src="https://raw.githubusercontent.com/018/zotcard/main/image/card-pane.png" alt="卡" width="300"/>
 

@@ -8,7 +8,7 @@ var options = {}
   type: '', // collection|savedSearch|library
   key: '' // user|group|...
 }*/
-var io = window.arguments && window.arguments.length > 0 ? window.arguments[0] : undefined
+var io = Zotero.getMainWindow().Zotero.ZotCard.report
 let nowDate = new Date()
 let currentYear = nowDate.getYear() + 1900
 let currentMonth = nowDate.getMonth() + 1
@@ -20,14 +20,14 @@ function start () {
   document.getElementById('loading').hidden = false
   document.getElementById('content').hidden = true
   if (!io) {
-    document.getElementById('loading').textContent = '参数错误。'
+    document.getElementById('loading').textContent = 'Param Error.'
     return
   }
 
   document.getElementById('loading').hidden = false
   document.getElementById('content').hidden = true
   if (io.libraryID === Zotero.Libraries.userLibraryID && !io.selectedCollection) {
-    document.getElementById('username').textContent = Zotero.Users.getCurrentUsername() || Zotero.Prefs.get('sync.server.username') || '我'
+    document.getElementById('username').textContent = Zotero.Users.getCurrentUsername() || Zotero.Prefs.get('sync.server.username') || ''
   } else {
     document.getElementById('username').textContent = io.name
   }
@@ -80,7 +80,7 @@ function start () {
         map.others.push({
           title: noteTitle,
           content: item.key,
-          message: '日期格式错误。'
+          message: Zotero.ZotCard.Utils.getString('zotcard.report.dateincorrect')
         })
       }
 
@@ -131,7 +131,7 @@ function start () {
           map.tags[cardTag] = map.tags[cardTag] + 1
         })
       } else {
-        let cardTag = '无'
+        let cardTag = Zotero.ZotCard.Utils.getString('zotcard.none')
         if (!map.tags.hasOwnProperty(cardTag)) {
           map.tags[cardTag] = 0
         }
@@ -166,7 +166,7 @@ function start () {
           map.years[year].tags[cardTag] = map.years[year].tags[cardTag] + 1
         })
       } else {
-        let cardTag = '无'
+        let cardTag = Zotero.ZotCard.Utils.getString('zotcard.none')
         if (!map.years[year].tags.hasOwnProperty(cardTag)) {
           map.years[year].tags[cardTag] = 0
         }
@@ -264,7 +264,7 @@ function start () {
     document.getElementById('progress').textContent = ''
     document.getElementById('loading').hidden = map.totals > 0
     document.getElementById('content').hidden = map.totals === 0
-    document.getElementById('loading').textContent = '未找到卡片，赶紧写卡吧。'
+    document.getElementById('loading').textContent = Zotero.ZotCard.Utils.getString('zotcard.report.nocard')
     
     document.getElementById('totals').textContent = map.totals
     document.getElementById('hangzis').textContent = map.hangzis
@@ -286,7 +286,9 @@ function start () {
 
     let noCardDays = (new Date(today) - new Date(map.lastDay)) / (24 * 60 * 60 * 1000)
     if (noCardDays > 0) {
-      document.getElementById('no-card').innerHTML = `，已经连续 <span class="orangered">${noCardDays}</span> 天没写卡了`
+      document.getElementById('no-card').innerHTML = Zotero.ZotCard.Utils.getString('zotcard.report.nowritten', noCardDays)
+    } else {
+      document.getElementById('no-card').innerHTML = '.'
     }
 
     document.getElementById('now').textContent = now
@@ -332,7 +334,9 @@ function start () {
           }
         }
         Zotero.debug(`${cardtype}, ${contents.length}`)
-        window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, io)
+
+        Zotero.getMainWindow().Zotero.ZotCard.read = io
+        Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer(Zotero.locale.startsWith('zh') ? 'chrome://zoterozotcard/content/read.html' : 'chrome://zoterozotcard/content/read_en.html')
       }
       let span2 = document.createElement('span')
       span2.setAttribute('class', `label`)
@@ -412,7 +416,9 @@ function start () {
           }
         }
         Zotero.debug(`${cardtag}, ${contents.length}`)
-        window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, io)
+
+        Zotero.getMainWindow().Zotero.ZotCard.read = io
+        Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer(Zotero.locale.startsWith('zh') ? 'chrome://zoterozotcard/content/read.html' : 'chrome://zoterozotcard/content/read_en.html')
       }
       div.textContent = `${cardArrs[index].name}(${cardArrs[index].value})`
       div.onclick = onclick
@@ -468,7 +474,7 @@ function start () {
       divYears.setAttribute('class', 'year-section')
       let pYearItemLabel = document.createElement('p')
       pYearItemLabel.setAttribute('class', 'item-label')
-      pYearItemLabel.innerHTML = `年一共<span class="uread-color">${item.value.dates.length}</span>天写卡，占一年的 <span class="uread-color">${parseInt(item.value.dates.length / totalDate * 100)}%</span>，累计 <span class="uread-color">${item.value.hangzis}</span> 字，写卡 <span class="uread-color">${item.value.totals}</span> 张。其中`
+      pYearItemLabel.innerHTML = Zotero.ZotCard.Utils.getString('zotcard.report.yearinfo', `<span class="uread-color"> ${item.value.dates.length} </span>`, `<span class="uread-color"> ${parseInt(item.value.dates.length / totalDate * 100)}% </span>`, `<span class="uread-color"> ${item.value.hangzis} </span>`, `<span class="uread-color"> ${item.value.totals} </span>`)
       pYearItemLabel.append(cards(item.name, item.value.cards))
       pYearItemLabel.append('，')
       pYearItemLabel.append(tags(item.name, item.value.tags))
@@ -509,7 +515,7 @@ function start () {
           tmp.setDate(tmp.getDate() - 1)
           let io = {
             dataIn: {
-              title: `${year}年`,
+              title: `${year}`,
               cards: contents,
               options: options,
               filters:{
@@ -518,7 +524,9 @@ function start () {
               }
             }
           }
-          window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, io)
+
+          Zotero.getMainWindow().Zotero.ZotCard.read = io
+          Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer(Zotero.locale.startsWith('zh') ? 'chrome://zoterozotcard/content/read.html' : 'chrome://zoterozotcard/content/read_en.html')
         }
         let span1 = document.createElement('span')
         span1.setAttribute('class', `${value > 0 ? 'pointer' : ''} value ${value === 0 ? 'zero' : 'uread-color'}`)
@@ -530,7 +538,7 @@ function start () {
         div.appendChild(span1)
         let span2 = document.createElement('span')
         span2.setAttribute('class', `label${item.name === `${currentYear}` && m === currentMonth ? ' current' : ''}`)
-        span2.textContent = `${m}月`
+        span2.textContent = `${m}`
         span2.setAttribute('year', item.name)
         span2.setAttribute('totals', value)
         span2.setAttribute('month', m)
@@ -616,7 +624,9 @@ function dateSelectChange () {
         }
       }
       Zotero.debug(`${date}, ${contents.length}`)
-      window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, io)
+
+      Zotero.getMainWindow().Zotero.ZotCard.read = io
+      Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer(Zotero.locale.startsWith('zh') ? 'chrome://zoterozotcard/content/read.html' : 'chrome://zoterozotcard/content/read_en.html')
     }
     let span1 = document.createElement('span')
     span1.setAttribute('class', `${value > 0 ? 'pointer' : ''} value ${value === 0 ? 'zero' : 'uread-color'}`)
@@ -678,13 +688,15 @@ function weekSelectChange() {
       let options = Zotero.ZotCard.Utils.bulidOptions(contents)
       let io = {
         dataIn: {
-          title: `${year}年第${week}周`,
+          title: Zotero.ZotCard.Utils.getString('zotcard.report.weekyear', year, week),
           cards: contents,
           options: options
         }
       }
       Zotero.debug(`${year}, ${week}, ${contents.length}`)
-      window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, io)
+
+      Zotero.getMainWindow().Zotero.ZotCard.read = io
+      Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer(Zotero.locale.startsWith('zh') ? 'chrome://zoterozotcard/content/read.html' : 'chrome://zoterozotcard/content/read_en.html')
     }
     let span1 = document.createElement('span')
     span1.setAttribute('class', `${value > 0 ? 'pointer' : ''} value ${value === 0 ? 'zero' : 'uread-color'}`)
@@ -709,7 +721,7 @@ function readWithYear (year, filters) {
   var progressWin = new Zotero.ProgressWindow({ window })
   let itemProgress = new progressWin.ItemProgress(
     `chrome://zotero-platform/content/treesource-collection${Zotero.hiDPISuffix}.png`,
-    '处理中 ...'
+    Zotero.ZotCard.Utils.getString('zotcard.loding')
   )
   itemProgress.setProgress(50)
   progressWin.show()
@@ -717,14 +729,16 @@ function readWithYear (year, filters) {
   let options = Zotero.ZotCard.Utils.bulidOptions(contents)
   let io = {
     dataIn: {
-      title: `${year}年`,
+      title: `${year}`,
       cards: contents,
       options: options,
       filters: filters
     }
   }
   progressWin.close()
-  window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, io)
+
+  Zotero.getMainWindow().Zotero.ZotCard.read = io
+  Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer(Zotero.locale.startsWith('zh') ? 'chrome://zoterozotcard/content/read.html' : 'chrome://zoterozotcard/content/read_en.html')
 }
 
 function collects (filters) {
@@ -732,20 +746,22 @@ function collects (filters) {
   let options = Zotero.ZotCard.Utils.bulidOptions(contents)
   let io = {
     dataIn: {
-      title: `收藏`,
+      title: Zotero.ZotCard.Utils.getString('zotcard.report.collect'),
       cards: contents,
       options: options,
       filters: filters
     }
   }
-  window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, io)
+
+  Zotero.getMainWindow().Zotero.ZotCard.read = io
+  Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer(Zotero.locale.startsWith('zh') ? 'chrome://zoterozotcard/content/read.html' : 'chrome://zoterozotcard/content/read_en.html')
 }
 
 function readAll () {
   var progressWin = new Zotero.ProgressWindow({ window })
   let itemProgress = new progressWin.ItemProgress(
     `chrome://zotero-platform/content/treesource-collection${Zotero.hiDPISuffix}.png`,
-    '处理中 ...'
+    Zotero.ZotCard.Utils.getString('zotcard.loding')
   )
   itemProgress.setProgress(50)
   progressWin.show()
@@ -754,13 +770,15 @@ function readAll () {
   let options = Zotero.ZotCard.Utils.bulidOptions(contents)
   let io = {
     dataIn: {
-      title: `所有`,
+      title: Zotero.ZotCard.Utils.getString('zotcard.all'),
       cards: contents,
       options: options
     }
   }
   progressWin.close()
-  window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, io)
+
+  Zotero.getMainWindow().Zotero.ZotCard.read = io
+  Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer(Zotero.locale.startsWith('zh') ? 'chrome://zoterozotcard/content/read.html' : 'chrome://zoterozotcard/content/read_en.html')
 }
 
 function calculateYear (year) {
@@ -808,7 +826,7 @@ function cards (year, cards) {
   const hidable = 5
   let div = document.createElement('div')
   div.setAttribute('class', 'content-line')
-  div.textContent = '卡片分类情况 '
+  div.textContent = Zotero.ZotCard.Utils.getString('zotcard.report.cardclassification')
   cardArrs.sort((a, b) => b.value - a.value)
   cardArrs.forEach((card, index) => {
     let cardtypemini = document.createElement('div')
@@ -879,7 +897,7 @@ function tags (year, tags) {
   const hidable = 5
   let div = document.createElement('div')
   div.setAttribute('class', 'content-line')
-  div.textContent = '卡片标签情况 '
+  div.textContent = Zotero.ZotCard.Utils.getString('zotcard.report.cardtag')
   tagArrs.sort((a, b) => b.value - a.value)
   tagArrs.forEach((tag, index) => {
     let tagmini = document.createElement('div')
@@ -1003,3 +1021,7 @@ function diffDay (d1, d2) {
 }
 
 window.addEventListener('load', start)
+
+window.addEventListener('unload', () => {
+  delete Zotero.getMainWindow().Zotero.ZotCard.report
+})

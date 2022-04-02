@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
+		<title>Read Card</title>
+		<script src="chrome://zotero/content/include.js"></script>
+		<script src="chrome://zoterozotcard/content/read.js"></script>
+		
+		<style>
+			body {
+				margin: 0;
+				padding: 0;
+				background: #F5F5F5;
+			}
+
+			#read {
+				padding: 20px;
+			}
+			
+			header {
+				background-color: #D2D8E2;
+				margin: -20px -20px 0 -20px;
+				padding: 10px 20px;
+			}
+
+			.header {
+				display: flex;
+				justify-content: space-between;
+				padding: 10px 0;
+				flex-direction: column;
+			}
+
+			.header .bar {
+				display: flex;
+				justify-content: space-between;
+				width: 100%;
+			}
+
+			footer {
+				font-size: 12px;
+				color: gray;
+				margin: 10px 10px;
+			}
+
+			#desc {
+				color: #909399;
+			}
+
+			#content-list {
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+				justify-content: flex-start;
+				align-items: flex-start;
+			}
+
+			.one-card-bar {
+				display: flex;
+				justify-content: space-between;
+			}
+
+			.card {
+				word-wrap: break-word;
+				margin-right: 10px;
+				margin-bottom: 20px;
+				padding: 10px;
+				background-color: #fff;
+				border-radius: 4px;
+				box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+			}
+
+			.card-bar {
+				display: flex;
+				justify-content: space-between;
+				margin-bottom: 5px;
+				align-items: center;
+			}
+
+			.card-all {
+				overflow: auto;
+			}
+
+			#concentration {
+				width: 100%;
+				background-color: rgb(39, 39, 39);
+				top: 0;
+				left: 0;
+				margin: 0;
+				padding: 0;
+			}
+
+			#concentration-content {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+
+			.one-card-wrap {
+				width: 50%;
+				max-width: 50%;
+				word-wrap: break-word;
+				margin: 100px 0;
+				padding: 10px;
+			}
+
+			.one-card {
+				padding: 10px;
+				background-color: #fff;
+				border-radius: 4px;
+				box-shadow: 0 4px 6px rgba(255, 255, 255, 0.12), 0 0 6px rgba(255, 255, 255, 0.04);
+			}
+
+			.one-card-bar {
+				display: flex;
+				justify-content: space-between;
+			}
+
+			.card hr {
+				height: 1px;
+				border: none;
+				background-color: rgb(189, 188, 188);
+			}
+
+			hr {
+				height: 1px;
+				border: none;
+				background-color: rgb(189, 188, 188);
+			}
+
+			.pointer {
+				cursor: pointer;
+			}
+
+			.linenowrap {
+				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+			}
+
+			.one-card-info {
+				display: flex;
+				justify-content: space-between;
+				color: rgb(168, 168, 168);
+				font-size: 12px;
+			}
+
+			#one-card-content {
+				overflow-x: auto;
+			}
+
+			.paging {
+				width: 50px;
+				line-height: 100px;
+				text-align: center;
+				color: rgb(168, 168, 168);
+			}
+
+			.uread {
+				color: #009193;
+			}
+
+			.readed {
+				color: orangered;
+				margin-left: 6px;
+			}
+
+			.placeholder-color {
+				color: #C0C4CC !important;
+			}
+
+			#setting-bar {
+				display: flex;
+				height: 40px;
+				align-items: center;
+				justify-content: flex-end;
+				background-color: #fff;
+				margin: 0 -20px;
+				padding: 0 20px;
+			}
+
+			#setting-bar .input {
+				width: 50px;
+			}
+
+			.inputsection {
+				margin-right: 20px;
+			}
+
+			.search {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+
+			.search .input {
+				width: 120px;
+			}
+
+			.search select {
+				font-size: 12px;
+			}
+
+			.bicon {
+				margin-right: 5px;
+			}
+
+			.highlight {
+				background-color: #009193;
+    			color: white;
+				padding: 2px;
+			}
+
+			.footer {
+				display: flex;
+				justify-content: space-between;
+				color: #999999;
+				font-size: 12px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="read">
+			<header class="search">
+				<div>
+					<span>Card Date：</span>
+					<input type="date" class="input" id="start-date" onchange="datechange(event)"></input>
+					<span id="split-date"> ~ </span>
+					<input type="date" class="input" id="end-date" onchange="datechange(event)"></input>
+					<select id="dateselect" onchange="dateselectchange(event)">
+						<option value="">Custom</option>
+						<option value="all">All</option>
+						<option value="today">Today</option>
+						<option value="yesterday">Yesterday</option>
+						<option value="week">This Week</option>
+						<option value="mouth">This Mouth</option>
+						<option value="quarter">This Season</option>
+						<option value="year">This Year</option>
+					</select>
+					<span class="placeholder-color"> ｜ </span>
+					<span>Card Type：</span>
+					<select id="typeselect">
+						<option value="all">All</option>
+					</select>
+					<span class="placeholder-color"> ｜ </span>
+					<span class="author">Card Author：</span>
+					<select class="author" id="authorselect">
+						<option value="">None</option>
+						<option value="all">All Author</option>
+					</select>
+					<span class="author placeholder-color"> ｜ </span>
+					<span>Card Tag：</span>
+					<select id="tagselect">
+						<option value="all">All</option>
+					</select>
+					<span class="placeholder-color"> ｜ </span>
+					<span>Text：</span>
+					<input class="input" id="filter-text"></input>
+					<input type="checkbox" id="highlight">Highlight</input>
+					<span class="placeholder-color"> ｜ </span>
+					<button onclick="search()">Search</button>
+				</div>
+				<svg onclick="document.getElementById('setting-bar').style.display = (document.getElementById('setting-bar').style.display === 'flex' ? 'none' : 'flex')" t="1637724875167" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1202" width="16" height="16"><path d="M940 596l-76-57.6c0.8-8 1.6-16.8 1.6-26.4s-0.8-18.4-1.6-26.4l76-57.6c20.8-16 26.4-44 12.8-68l-84.8-143.2c-9.6-16.8-28-27.2-47.2-27.2-6.4 0-12 0.8-18.4 3.2L712 228c-15.2-10.4-31.2-19.2-47.2-26.4l-13.6-92c-4-26.4-26.4-45.6-53.6-45.6H426.4c-27.2 0-49.6 19.2-53.6 44.8L360 201.6c-16 7.2-31.2 16-47.2 26.4l-90.4-35.2c-6.4-2.4-12.8-3.2-19.2-3.2-19.2 0-37.6 9.6-46.4 26.4L71.2 360c-13.6 22.4-8 52 12.8 68l76 57.6c-0.8 9.6-1.6 18.4-1.6 26.4s0 16.8 1.6 26.4l-76 57.6c-20.8 16-26.4 44-12.8 68l84.8 143.2c9.6 16.8 28 27.2 47.2 27.2 6.4 0 12-0.8 18.4-3.2L312 796c15.2 10.4 31.2 19.2 47.2 26.4l13.6 92c3.2 25.6 26.4 45.6 53.6 45.6h171.2c27.2 0 49.6-19.2 53.6-44.8l13.6-92.8c16-7.2 31.2-16 47.2-26.4l90.4 35.2c6.4 2.4 12.8 3.2 19.2 3.2 19.2 0 37.6-9.6 46.4-26.4l85.6-144.8c12.8-23.2 7.2-51.2-13.6-67.2zM704 512c0 105.6-86.4 192-192 192S320 617.6 320 512s86.4-192 192-192 192 86.4 192 192z" p-id="1203" data-spm-anchor-id="a313x.7781069.0.i2"></path></svg>
+			</header>
+			<div id="setting-bar">
+				<div class="inputsection">
+					<span>Card Width：</span>
+					<input class="input" id="card-width"></input>
+				</div>
+				<div class="inputsection">
+					<span>Card Height：</span>
+					<input class="input" id="card-height"></input>
+					<input type="checkbox" id="fit-height">Fit Height</input>
+				</div>
+				<button onclick="ok()">OK</button>
+			</div>
+			<p id="loading">Loading ...</p>
+			<div id="content">
+				<div class="header">
+					<div class="bar">
+						<div>
+							<img id="searching" src="chrome://zotero/skin/spinner-16px.png"></img>
+							<b><span id="title"></span></b><span> has <span id="totals">0</span> card, and it finds <span id="filters">0</span> cards.</span>
+						</div>
+						<div>
+							<span onclick="copyAll(this)" class="pointer uread">Copy(<span id="copys">0</span>)</span><span class="placeholder-color"> ｜ </span>
+							<input type="checkbox" id="showHidden" onchange="loadCards()"><span class="pointer uread"><span id="showHiddenText">Show hidden cards</span>(<span id="hides">0</span>)</span></input><span class="placeholder-color"> ｜ </span>
+							<span onclick="expandAll(true)" class="pointer uread">Expand all(<span id="expands">0</span>)</span><span class="placeholder-color"> ｜ </span>
+							<span onclick="expandAll(false)" class="pointer uread">Collapse all(<span id="collapses">0</span>)</span>
+						</div>
+						<div id="orderby">
+							<span class="pointer uread" onclick="orderby(this, 'date')"><span id="orderbydate" class="tag">▼</span>Card Date</span><span class="placeholder-color"> ｜ </span>
+							<span class="pointer uread" onclick="orderby(this, 'dateAdded')"><span id="orderbydateAdded" class="tag"></span>Create Date</span><span class="placeholder-color"> ｜ </span>
+							<span class="pointer uread" onclick="orderby(this, 'dateModified')"><span id="orderbydateModified" class="tag"></span>Modify Date</span><span class="placeholder-color"> ｜ </span>
+							<span class="pointer uread" onclick="orderby(this, 'title')"><span id="orderbytitle" class="tag"></span>Title</span><span class="placeholder-color"> ｜ </span>
+							<span class="pointer uread" onclick="orderby(this, 'words')"><span id="orderbywords" class="tag"></span>Word Number</span>
+						</div>
+					</div>
+					<p id="desc" hidden class="placeholder-color"><span id="desc-text"></span> <span onclick="document.getElementById('desc').hidden = true" class="pointer"><svg t="1639362734677" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1209" width="12" height="12"><path d="M550.848 502.496l308.64-308.896a31.968 31.968 0 1 0-45.248-45.248l-308.608 308.896-308.64-308.928a31.968 31.968 0 1 0-45.248 45.248l308.64 308.896-308.64 308.896a31.968 31.968 0 1 0 45.248 45.248l308.64-308.896 308.608 308.896a31.968 31.968 0 1 0 45.248-45.248l-308.64-308.864z" p-id="1210" fill="#C0C4CC"></path></svg></span></p>
+				</div>
+				<p id="content-empty">No Card。</p>
+				<div id="content-list">
+					<div class="card">
+						<div class="card-bar">
+							<span>编辑</span> ｜
+							<span>刷新</span> ｜
+							<span>关闭</span> ｜
+							<span>定位条目</span> ｜
+							<span>收起</span>
+						</div>
+						<div class="card-content">
+							<div>
+								<h3 style="text-align: center;">金句卡 - <span>人生是一个不断面对问题并解决问题的过程</span></h3>
+								<p style="color: #999999; display: flex; justify-content: space-between;"><span>标签：[自律] [问题] </span> <span>日期：2021-10-12</span></p>
+								<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
+								<p><strong>复述</strong>：<span>人生就是一个不断发现问题、面对问题、解决问题的过程。问题激发我们的智慧，锤炼我们的勇气，为了解决问题，我们的心智会不断的成熟。一味的回避问题会错失解决问题、推动心灵成长的让我们患上心理疾病。我们应该拥有承担，敢于面对，这样才能使得我们心灵变得健康和成熟。</span></p>
+								<p><strong>启发</strong>：<span>&lt;无&gt;</span></p>
+								<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
+								<p style="color: #999999;">出处：[美] M.斯科特·派克《少有人走的路：心智成熟的旅程》(2017) P<span>3～4</span></p>
+							</div>
+						</div>
+					</div>
+					<div class="card">
+						<div class="card-bar">
+							<span>定位条目</span> ｜
+							<span>关闭</span> ｜
+							<span>收起</span>
+						</div>
+						<div class="card-content">
+							<div class="card-all">
+								<div >
+									<h3 style="text-align: center;">金句卡 - <span>人生是一个不断面对问题并解决问题的过程</span></h3>
+									<p style="color: #999999; display: flex; justify-content: space-between;"><span>标签：[自律] [问题] </span> <span>日期：2021-10-12</span></p>
+									<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
+									<p><strong>原文</strong>：人生是一个不断面对问题并解决问题的过程。问题可以开启我们的智慧，激发我们的勇气。为解决问题而努力，我们的思想和心灵就会不断成长，心智就会不断成熟。<br />“问题”是我们成功与失败的分水岭。承受面对问题和解决问题的痛苦，我们就能从痛苦中学到很多东西。</p>
+									<p>回避问题和逃避痛苦的倾向，是人类心理疾病的根源。如果不顾一切地逃避问题和痛苦，不仅错失了解决问题、推动心灵成长的契机，而且还会使我们患上心理疾病。<br />正确的做法是：我们要让我们自己，也要让我们的孩子认识到，人生的问题和痛苦具有非凡的价值。用于承担责任，敢于面对困难，才能够使心灵变得健康。</p>
+									<p><strong>复述</strong>：<span>人生就是一个不断发现问题、面对问题、解决问题的过程。问题激发我们的智慧，锤炼我们的勇气，为了解决问题，我们的心智会不断的成熟。一味的回避问题会错失解决问题、推动心灵成长的让我们患上心理疾病。我们应该拥有承担，敢于面对，这样才能使得我们心灵变得健康和成熟。</span></p>
+									<p><strong>启发</strong>：<span>&lt;无&gt;</span></p>
+									<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
+									<p style="color: #999999;">出处：[美] M.斯科特·派克《少有人走的路：心智成熟的旅程》(2017) P<span>3～4</span></p>
+								</div>
+							</div>
+							<div class="card-title" hidden>
+								<h3 style="text-align: center;">金句卡 - 人生是一个不断面对问题并解决问题的过程</h3>
+							</div>
+						</div>
+					</div>
+					<div class="card">
+						<div class="card-bar">
+							<span>定位条目</span> ｜
+							<span>移除显示</span> ｜
+							<span>收起</span>
+						</div>
+						<div class="card-content">
+							<div class="card-all">
+								<div >
+									<h3 style="text-align: center;">金句卡 - <span>人生是一个不断面对问题并解决问题的过程</span></h3>
+									<p><strong>启发</strong>：<span>&lt;无&gt;</span></p>
+									<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
+									<p style="color: #999999;">出处：[美] M.斯科特·派克《少有人走的路：心智成熟的旅程》(2017) P<span>3～4</span></p>
+								</div>
+							</div>
+							<div class="card-title" hidden>
+								<h3 style="text-align: center;">金句卡 - 人生是一个不断面对问题并解决问题的过程</h3>
+							</div>
+						</div>
+					</div>
+					<div class="card">
+						<div class="card-bar">
+							<span>定位条目</span> ｜
+							<span>移除显示</span> ｜
+							<span>收起</span>
+						</div>
+						<div class="card-content">
+							<div class="card-all">
+								<div >
+									<h3 style="text-align: center;">金句卡 - <span>人生是一个不断面对问题并解决问题的过程</span></h3>
+									<p style="color: #999999; display: flex; justify-content: space-between;"><span>标签：[自律] [问题] </span> <span>日期：2021-10-12</span></p>
+									<p><strong>复述</strong>：<span>人生就是一个不断发现问题、面对问题、解决问题的过程。问题激发我们的智慧，锤炼我们的勇气，为了解决问题，我们的心智会不断的成熟。一味的回避问题会错失解决问题、推动心灵成长的让我们患上心理疾病。我们应该拥有承担，敢于面对，这样才能使得我们心灵变得健康和成熟。</span></p>
+									<p><strong>启发</strong>：<span>&lt;无&gt;</span></p>
+									<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
+									<p style="color: #999999;">出处：[美] M.斯科特·派克《少有人走的路：心智成熟的旅程》(2017) P<span>3～4</span></p>
+								</div>
+							</div>
+							<div class="card-title" hidden>
+								<h3 style="text-align: center;">金句卡 - 人生是一个不断面对问题并解决问题的过程</h3>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<footer>
+				<hr>
+				<p>This function by ZotCard generated (https://github.com/018/zotcard)<br />
+					1. The rules of card fetching are all notes whose titles are not "目录", "豆瓣短评" or "初步评价".<br />
+					2. Card date: if the content contains "日期:" or "日期：" and the date format is 2021-01-01, 2021/01/01, 2021.01.01, 2021 or 20210101, the date is captured as the card date, otherwise the default creation date is taken as the card date.<br />
+			</footer>
+		</div>
+		<div id="concentration">
+			<div id="concentration-content">
+				<span class="pointer paging" id="one-card-previous" onclick="oneCardPrevious(this)">◀︎</span>
+				<div class="one-card-wrap">
+					<div class="one-card">
+						<div class="one-card-bar">
+							<div>
+								<span onclick="oneCardLocation(this)" class="pointer uread" title="定位条目"><svg t="1637916032653" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15303" width="16" height="16"><path d="M512 947.2c-96.290133 0-332.8-355.191467-332.8-520.533333 0-183.808 148.992-332.8 332.8-332.8s332.8 148.992 332.8 332.8c0 165.341867-236.509867 520.533333-332.8 520.533333z m0-51.2c62.600533 0 281.6-328.9088 281.6-469.333333a281.6 281.6 0 1 0-563.2 0c0 140.424533 218.999467 469.333333 281.6 469.333333z m0-358.4a128 128 0 1 1 0-256 128 128 0 0 1 0 256z m0-51.2a76.8 76.8 0 1 0 0-153.6 76.8 76.8 0 0 0 0 153.6z" p-id="15304" fill="#009193"></path></svg></span><span class="placeholder-color"> ｜ </span>
+								<span onclick="oneCardEdit(this)" class="pointer uread bicon" title="编辑"><svg t="1637914560073" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1217" width="16" height="16"><path d="M358.165868 554.624796c-0.533143 0.680499-1.066285 1.391696-1.303692 2.251274l-41.104163 150.700257c-2.400676 8.772804 0.059352 18.226107 6.550183 24.892947 4.860704 4.742001 11.261485 7.350408 18.077727 7.350408 2.252297 0 4.504594-0.267083 6.727215-0.860601l149.630902-40.808428c0.23843 0 0.357134 0.207731 0.534166 0.207731 1.718131 0 3.408633-0.62217 4.683672-1.927909l400.113747-400.054395c11.883655-11.897981 18.404162-28.109198 18.404162-45.74281 0-19.989263-8.476045-39.963177-23.324218-54.767348l-37.786605-37.844933c-14.81645-14.848173-34.822087-23.338544-54.797024-23.338544-17.631566 0-33.842783 6.520507-45.75816 18.388812L358.758362 553.232077C358.344946 553.615816 358.462626 554.179658 358.165868 554.624796M862.924953 257.19778l-39.742143 39.71349-64.428382-65.451688 39.180348-39.179324c6.193049-6.222725 18.194384-5.318122 25.308409 1.822508l37.813211 37.845956c3.943822 3.941775 6.195096 9.18622 6.195096 14.372336C867.223862 250.574942 865.710392 254.42769 862.924953 257.19778M429.322487 560.907896l288.712541-288.728914 64.459081 65.49569L494.314711 625.838721 429.322487 560.907896zM376.718409 677.970032l20.863167-76.580143 55.656601 55.657624L376.718409 677.970032z" p-id="1218" fill="#009193"></path><path d="M888.265084 415.735539c-15.144932 0-27.562752 12.313443-27.620058 27.665083l0 372.98283c0 19.559475-15.885805 35.444257-35.475979 35.444257L194.220958 851.827709c-19.559475 0-35.504632-15.883759-35.504632-35.444257L158.716326 207.602222c0-19.575848 15.945157-35.474956 35.504632-35.474956l406.367171 0c15.231913 0 27.592428-12.371772 27.592428-27.606755 0-15.202237-12.360516-27.590382-27.592428-27.590382L190.013123 116.930129c-47.684022 0-86.49291 38.779212-86.49291 86.49291L103.520213 820.59231c0 47.713698 38.808888 86.47756 86.49291 86.47756l639.334083 0c47.715745 0 86.509283-38.763862 86.509283-86.47756L915.856489 443.222567C915.794068 428.048983 903.408993 415.735539 888.265084 415.735539" p-id="1219" fill="#009193"></path></svg></span>
+								<span onclick="oneCardRefresh(this)" class="pointer uread bicon" title="刷新"><svg t="1637915170102" class="icon" viewBox="0 0 1282 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3401" width="16" height="16"><path d="M1276.284799 473.062139l-150.178456 149.495828a33.244049 33.244049 0 0 1-44.848749 0l-149.427564-149.495828c-17.748363-20.47888-5.870612-27.987803 6.826293-39.592502h136.52587A443.2995 443.2995 0 0 0 254.456926 304.45269l-74.679651-29.353062a523.440185 523.440185 0 0 1 976.15997 158.370009h113.862576a26.417756 26.417756 0 0 1 6.484978 39.592502zM203.669302 440.97856l150.178457 149.495827a26.486019 26.486019 0 0 1-6.484978 39.592503H217.048838a443.709077 443.709077 0 0 0 791.850045 120.825395l75.430543 29.353062a523.235396 523.235396 0 0 1-949.332636-150.178457H15.604917c-12.355591-11.604699-24.233342-19.113622-6.826294-39.592503l149.427565-149.495827a33.244049 33.244049 0 0 1 45.463114 0z" p-id="3402" fill="#009193"></path></svg></span>
+								<span onclick="oneCardCopy(this)" class="pointer uread" title="复制"><svg t="1637915219750" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4289" width="16" height="16"><path d="M720 192h-544A80.096 80.096 0 0 0 96 272v608C96 924.128 131.904 960 176 960h544c44.128 0 80-35.872 80-80v-608C800 227.904 764.128 192 720 192z m16 688c0 8.8-7.2 16-16 16h-544a16 16 0 0 1-16-16v-608a16 16 0 0 1 16-16h544a16 16 0 0 1 16 16v608z" p-id="4290" fill="#009193"></path><path d="M848 64h-544a32 32 0 0 0 0 64h544a16 16 0 0 1 16 16v608a32 32 0 1 0 64 0v-608C928 99.904 892.128 64 848 64z" p-id="4291" fill="#009193"></path><path d="M608 360H288a32 32 0 0 0 0 64h320a32 32 0 1 0 0-64zM608 520H288a32 32 0 1 0 0 64h320a32 32 0 1 0 0-64zM480 678.656H288a32 32 0 1 0 0 64h192a32 32 0 1 0 0-64z" p-id="4292" fill="#009193"></path></svg></span><span class="placeholder-color"> ｜ </span>
+								<span onclick="oneCardRemove(this)" id="oneCardRemove" class="pointer uread" title="关闭"><svg t="1637915315755" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5198" width="16" height="16"><path d="M944.1 462.9c-0.2-0.1-0.4-0.2-0.5-0.4-3.7-2.8-17-12.8-34.4-24.8-1.6-1.1-2-2.7-2-3.5-0.1-0.8 0-2.3 1.4-3.7 13.5-13 26.6-26.6 39-40.6 0.6-0.6 1-1.2 1.5-1.8 12.5-16.6 13-39.2 1.2-56.3-2-2.9-4.4-5.4-7.2-7.3-5.4-3.8-11.7-5.2-18-4.2-12 1.9-20.8 12.1-26.4 19.7-46.3 58.6-205.3 210.2-385.6 210.3-48-0.5-95.1-8.9-140.1-25l-39.7-16.1c-37.8-17.1-74-38-107.5-62.2l-28.1-21.1c-25.5-19.6-49.1-41.8-70-66-0.7-0.8-1.4-1.6-2.2-2.3l-1.8-1.7c-6.2-5.8-11.5-10.8-17.8-13.5-5.3-2.3-15.8-4.6-26.6 5-19 17-14.2 41.3-3.3 58.4 1.1 1.7 2.4 3.3 3.8 4.8 15.9 16 32.7 31.5 50.1 46 1.5 1.3 1.7 2.9 1.7 3.7 0 0.8-0.3 2.4-2 3.6-12.7 9-22.1 15.9-24.7 17.8-0.1 0-0.2 0.1-0.7 0.4-7.8 4.5-13.3 11.7-15.5 20.2-2.4 8.9-0.8 18.4 4.3 26.1 9.5 15.5 29.7 20.8 46 12.1 5.6-3 11.8-7.6 20.5-14 7.4-5.5 16.6-12.3 28.2-20.1 1.7-1.2 4-1.1 5.8 0.1 28.8 19.9 59.4 37.9 90.8 53.6 1.6 0.8 2.3 2.2 2.5 2.9 0.2 0.7 0.5 2.1-0.4 3.6l-28.7 48.3c-4.6 7.6-5.8 16.6-3.5 25.1 2.3 8.6 7.9 15.8 15.9 20.3l0.2 0.1c16.2 8.9 37 3.5 46.5-12l32.9-56.2c1.2-2.1 3.8-2.9 6.1-2.1 38.2 14 78.1 23.2 118.7 27.4 2.6 0.3 4.5 2.3 4.5 4.7V671c0 18.3 15.4 33.3 34.3 33.3s34.3-14.9 34.3-33.3v-49.6c0-2.4 1.9-4.4 4.5-4.7 40.1-4.2 79.5-13.7 117-28.2 2.3-0.9 5 0 6.2 2l34.2 58.5 0.1 0.1c9.5 15.7 29.7 21.1 46.1 12.4l0.3-0.2c7.9-4.5 13.5-11.7 15.8-20.3 2.3-8.5 1.1-17.4-3.5-25L737 562.4c-1.3-2.2-0.5-5.1 1.9-6.4 38.7-21.1 75.7-45.8 110-73.3 1.7-1.4 4.2-1.5 6-0.3 25.1 16.5 45.5 31.2 51.1 35.4 1.9 1.4 3.8 2.5 5.8 3.3 15.9 6.7 34.5 0.9 43.3-13.6 9.2-15.3 4.4-34.9-11-44.6z" p-id="5199" fill="#009193"></path></svg></span><span class="placeholder-color"> ｜ </span>
+								<span onclick="oneCardPrint(this)" id="oneCardPrint" class="pointer uread" title="打印"><svg t="1639382675748" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1274" width="16" height="16"><path d="M873.9328 533.333333 824.1664 533.333333C805.3248 533.333333 790.033067 518.075733 790.033067 499.2 790.033067 480.324267 805.3248 465.066667 824.1664 465.066667L873.9328 465.066667C911.581867 465.066667 942.199467 434.449067 942.199467 396.8L942.199467 136.533333C942.199467 98.884267 911.581867 68.266667 873.9328 68.266667L136.516267 68.266667C98.8672 68.266667 68.2496 98.884267 68.2496 136.533333L68.2496 396.8C68.2496 434.449067 98.8672 465.066667 136.516267 465.066667L188.330667 465.066667C207.172267 465.066667 222.464 480.324267 222.464 499.2 222.464 518.075733 207.172267 533.333333 188.330667 533.333333L136.516267 533.333333C61.252267 533.333333-0.017067 472.098133-0.017067 396.8L-0.017067 136.533333C-0.017067 61.2352 61.252267 0 136.516267 0L873.9328 0C949.230933 0 1010.466133 61.2352 1010.466133 136.533333L1010.466133 396.8C1010.466133 472.098133 949.230933 533.333333 873.9328 533.333333" p-id="1275" fill="#009193"></path><path d="M783.117653 1010.199893 714.509653 1010.199893C695.668053 1010.199893 680.37632 994.942293 680.37632 976.06656 680.37632 957.190827 695.668053 941.933227 714.509653 941.933227L783.117653 941.933227C786.940587 941.933227 790.04672 938.827093 790.04672 935.00416L790.04672 288.416427 222.477653 288.416427 222.477653 935.00416C222.477653 938.827093 225.583787 941.933227 229.372587 941.933227L533.978453 941.933227C552.820053 941.933227 568.111787 957.190827 568.111787 976.06656 568.111787 994.942293 552.820053 1010.199893 533.978453 1010.199893L229.372587 1010.199893C187.93472 1010.199893 154.210987 976.47616 154.210987 935.00416L154.210987 254.283093C154.210987 235.40736 169.468587 220.14976 188.34432 220.14976L824.180053 220.14976C843.021653 220.14976 858.313387 235.40736 858.313387 254.283093L858.313387 935.00416C858.313387 976.47616 824.589653 1010.199893 783.117653 1010.199893" p-id="1276" fill="#009193"></path><path d="M866.484907 288.39936 143.98464 288.39936C125.14304 288.39936 109.851307 273.14176 109.851307 254.266027 109.851307 235.390293 125.14304 220.132693 143.98464 220.132693L866.484907 220.132693C885.326507 220.132693 900.61824 235.390293 900.61824 254.266027 900.61824 273.14176 885.326507 288.39936 866.484907 288.39936" p-id="1277" fill="#009193"></path><path d="M559.284907 463.366827 343.118507 463.366827C324.242773 463.366827 308.985173 448.109227 308.985173 429.233493 308.985173 410.35776 324.242773 395.10016 343.118507 395.10016L559.284907 395.10016C578.126507 395.10016 593.41824 410.35776 593.41824 429.233493 593.41824 448.109227 578.126507 463.366827 559.284907 463.366827" p-id="1278" fill="#009193"></path><path d="M667.368107 609.56672 343.10144 609.56672C324.25984 609.56672 308.968107 594.30912 308.968107 575.433387 308.968107 556.557653 324.25984 541.300053 343.10144 541.300053L667.368107 541.300053C686.209707 541.300053 701.50144 556.557653 701.50144 575.433387 701.50144 594.30912 686.209707 609.56672 667.368107 609.56672" p-id="1279" fill="#009193"></path><path d="M667.368107 755.766613 343.10144 755.766613C324.25984 755.766613 308.968107 740.509013 308.968107 721.63328 308.968107 702.757547 324.25984 687.499947 343.10144 687.499947L667.368107 687.499947C686.209707 687.499947 701.50144 702.757547 701.50144 721.63328 701.50144 740.509013 686.209707 755.766613 667.368107 755.766613" p-id="1280" fill="#009193"></path></svg></span><span class="placeholder-color"> ｜ </span>
+								<span onclick="oneCardExit(this)" class="pointer uread" title="编辑">Exit focus mode</span>
+							</div>
+							<span id="one-card-progress">0/0</span>
+						</div>
+						<hr>
+						<div class="card-content" id="one-card-content">
+							<div>
+								<h3 style="text-align: center;">金句卡 - <span>人生是一个不断面对问题并解决问题的过程</span></h3>
+								<p style="color: #999999; display: flex; justify-content: space-between;"><span>标签：[自律] [问题] </span> <span>日期：2021-10-12</span></p>
+								<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
+								<p><strong>复述</strong>：<span>人生就是一个不断发现问题、面对问题、解决问题的过程。问题激发我们的智慧，锤炼我们的勇气，为了解决问题，我们的心智会不断的成熟。一味的回避问题会错失解决问题、推动心灵成长的让我们患上心理疾病。我们应该拥有承担，敢于面对，这样才能使得我们心灵变得健康和成熟。</span></p>
+								<p><strong>复述</strong>：<span>人生就是一个不断发现问题、面对问题、解决问题的过程。问题激发我们的智慧，锤炼我们的勇气，为了解决问题，我们的心智会不断的成熟。一味的回避问题会错失解决问题、推动心灵成长的让我们患上心理疾病。我们应该拥有承担，敢于面对，这样才能使得我们心灵变得健康和成熟。</span></p>
+								<p><strong>复述</strong>：<span>人生就是一个不断发现问题、面对问题、解决问题的过程。问题激发我们的智慧，锤炼我们的勇气，为了解决问题，我们的心智会不断的成熟。一味的回避问题会错失解决问题、推动心灵成长的让我们患上心理疾病。我们应该拥有承担，敢于面对，这样才能使得我们心灵变得健康和成熟。</span></p>
+								<p><strong>复述</strong>：<span>人生就是一个不断发现问题、面对问题、解决问题的过程。问题激发我们的智慧，锤炼我们的勇气，为了解决问题，我们的心智会不断的成熟。一味的回避问题会错失解决问题、推动心灵成长的让我们患上心理疾病。我们应该拥有承担，敢于面对，这样才能使得我们心灵变得健康和成熟。</span></p>
+								<p><strong>复述</strong>：<span>人生就是一个不断发现问题、面对问题、解决问题的过程。问题激发我们的智慧，锤炼我们的勇气，为了解决问题，我们的心智会不断的成熟。一味的回避问题会错失解决问题、推动心灵成长的让我们患上心理疾病。我们应该拥有承担，敢于面对，这样才能使得我们心灵变得健康和成熟。</span></p>
+								<p><strong>启发</strong>：<span>&lt;无&gt;</span></p>
+								<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
+								<p style="color: #999999;">出处：[美] M.斯科特·派克《少有人走的路：心智成熟的旅程》(2017) P<span>3～4</span></p>
+							</div>
+						</div>
+					</div>
+					<p class="one-card-info"><span>Card Date：<span id="one-card-date">...</span></span><span>Create Date：<span id="one-card-dateAdded">...</span></span><span>Modify Date：<span id="one-card-dateModified">...</span></span><span>Word Number：<span id="one-card-hangzis">...</span></span></p>
+				</div>
+				<span class="pointer paging" id="one-card-next" onclick="oneCardNext(this)">▶︎</span>
+			</div>
+		</div>
+	</body>
+</html>

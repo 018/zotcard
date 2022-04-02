@@ -3,7 +3,6 @@ Services.scriptloader.loadSubScript('chrome://zoterozotcard/content/utils.js', w
 Services.scriptloader.loadSubScript('chrome://zoterozotcard/content/cardsearcher.js', window, 'utf-8')
 
 let zotcard = {
-  _bundle: Cc['@mozilla.org/intl/stringbundle;1'].getService(Components.interfaces.nsIStringBundleService).createBundle('chrome://zoterozotcard/locale/zotcard.properties')
 }
 
 let isDebug = function () {
@@ -80,7 +79,7 @@ zotcard.noteEditorOnKeyup = function (e) {
   if (!label) {
     label = document.createElement('label')
     label.setAttribute('id', 'zotero-view-note-counts')
-    label.textContent = `字数: 0  \t行数: 0 \t占空间: 0`
+    label.textContent = Zotero.ZotCard.Utils.getString('zotcard.wordnumber', 0, 0, 0)
     document.getElementById('zotero-view-note').prepend(label)
   }
 
@@ -102,7 +101,7 @@ zotcard.noteEditorOnKeyup = function (e) {
   Zotero.debug(`zotcard@note: ${note}`)
   let hangzis = Zotero.ZotCard.Utils.hangzi(note)
   let liness = Zotero.ZotCard.Utils.lines(note)
-  label.textContent = `字数: ${hangzis}  \t行数: ${liness} \t占空间: ${Zotero.Utilities.Internal.byteLength(note)}`
+  label.textContent = Zotero.ZotCard.Utils.getString('zotcard.wordnumber', hangzis, liness, Zotero.Utilities.Internal.byteLength(note))
   Zotero.debug(`zotcard@onkeyup: ${new Date().getTime()} ${hangzis} ${liness}`)
 }
 
@@ -116,13 +115,13 @@ zotcard.itemsTreeOnSelect = function () {
       if (!label) {
         label = document.createElement('label')
         label.setAttribute('id', 'zotero-view-note-counts')
-        label.textContent = `字数: 0  \t行数: 0 \t占空间: 0`
+        label.textContent = Zotero.ZotCard.Utils.getString('zotcard.wordnumber', 0, 0, 0)
         let noteEditor = document.getElementById('zotero-view-note')
         noteEditor.prepend(label)
       }
       let hangzis = Zotero.ZotCard.Utils.hangzi(item.getNote())
       let liness = Zotero.ZotCard.Utils.lines(item.getNote())
-      label.textContent = `字数: ${hangzis}     行数: ${liness}    占空间: ${Zotero.Utilities.Internal.byteLength(item.getNote())}`
+      label.textContent = Zotero.ZotCard.Utils.getString('zotcard.wordnumber', hangzis, liness, Zotero.Utilities.Internal.byteLength(item.getNote()))
       Zotero.debug(`onselect: ${hangzis} ${liness}`)
     }
   }
@@ -214,7 +213,7 @@ zotcard.refreshZoteroCardPopup = function (pane) {
     if (!document.getElementById(batchid)) {
       let menuitem = document.createElement('menuitem')
       menuitem.setAttribute('id', batchid)
-      menuitem.setAttribute('label', `批量建卡`)
+      menuitem.setAttribute('label', Zotero.ZotCard.Utils.getString('zotcard.batchaddnote'))
       menuitem.setAttribute('class', pane ? 'pane-card' : 'card')
       menuitem.onclick = function () {
         let io = {
@@ -322,14 +321,14 @@ zotcard.initStandCardMenu = function () {
         card.onclick = function (e) { this.newCard(false, e.target.getAttribute('name'), true) }.bind(this)
         document.getElementById('zotero-tb-note-add').firstChild.append(card)
       }
-      card.setAttribute('label', `${pref.card ? ('新建独立' + pref.label) : '-'}`)
+      card.setAttribute('label', `${pref.card ? (Zotero.ZotCard.Utils.getString('zotcard.newstandalone', pref.label)) : '-'}`)
     }
   }
 
   if (!document.getElementById('zotero-tb-note-add-zotcard-batch')) {
     let menuitem = document.createElement('menuitem')
     menuitem.setAttribute('id', `zotero-tb-note-add-zotcard-batch`)
-    menuitem.setAttribute('label', `批量独立建卡`)
+    menuitem.setAttribute('label', Zotero.ZotCard.Utils.getString('zotcard.batchnewstandalone'))
     menuitem.onclick = function () {
       let io = {
         dataIn: {
@@ -389,12 +388,12 @@ zotcard.initNoteLineHeight = function () {
   if (!document.getElementById('note-line-heigth-menu')) {
     let menu = document.createElement('menu')
     menu.setAttribute('id', 'note-line-heigth-menu')
-    menu.setAttribute('label', '笔记行间距')
+    menu.setAttribute('label', Zotero.ZotCard.Utils.getString('zotcard.notelinespacing'))
     let menupopup = document.createElement('menupopup')
     menu.append(menupopup)
     let menuitem1 = document.createElement('menuitem')
     menuitem1.setAttribute('type', 'checkbox')
-    menuitem1.setAttribute('label', '1(默认)')
+    menuitem1.setAttribute('label', '1')
     menuitem1.setAttribute('line-height', '1')
     menuitem1.setAttribute('oncommand', 'Zotero.ZotCard.noteLineHeight("1")')
     menupopup.append(menuitem1)
@@ -438,7 +437,7 @@ zotcard.initNoteParagraphSpacing = function () {
   if (!document.getElementById('note-paragraph-spacing-menu')) {
     let menu = document.createElement('menu')
     menu.setAttribute('id', 'note-paragraph-spacing-menu')
-    menu.setAttribute('label', '笔记段间距')
+    menu.setAttribute('label', Zotero.ZotCard.Utils.getString('zotcard.noteparagraphspacing'))
     let menupopup = document.createElement('menupopup')
     menu.append(menupopup)
     let menuitem0 = document.createElement('menuitem')
@@ -529,7 +528,7 @@ zotcard.initStandDefCardMenu = function (type) {
   if (pref.visible && !document.getElementById(`zotero-tb-note-add-zotcard-${type}`)) {
     let menuitem = document.createElement('menuitem')
     menuitem.setAttribute('id', `zotero-tb-note-add-zotcard-${type}`)
-    menuitem.setAttribute('label', `新建独立${pref.label}`)
+    menuitem.setAttribute('label', Zotero.ZotCard.Utils.getString('zotcard.newstandalone', pref.label))
     menuitem.onclick = function () {
       this.newCard(false, type, true)
     }.bind(this)
@@ -623,16 +622,18 @@ zotcard.initPrefs = function (item) {
           '<h3>## 金句卡 - <span style="color: #bbbbbb;">&lt;标题&gt;</span></h3>\\n<p>- <strong>原文</strong>：<span style="color: #bbbbbb;">&lt;摘抄&gt;</span></p><p>- <strong>复述</strong>：<span style="color: #bbbbbb;">&lt;用自己的话复述&gt;</span></p><p>- <strong>启发</strong>：<span style="color: #bbbbbb;">&lt;有什么启发&gt;</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span style="color: #bbbbbb;">&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
           '<h3>## 金句卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>原文</strong>：<span>&lt;摘抄&gt;</span></p><p>- <strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p>- <strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>',
           '<h1>## 金句卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>原文</strong>：<span>&lt;摘抄&gt;</span></p><p><strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p><strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：{today}</p>']
-        def = '<h1>## 金句卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>原文</strong>：<span>${text ? text : "&lt;摘抄&gt;"}</span></p><p><strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p><strong>出处</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;页码&gt;</span>` : ""}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
-        pref = this.initPref('金句卡', item, beforeDefs, def)
+        def = Zotero.locale.startsWith('zh') ? '<h1>## 金句卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>原文</strong>：<span>${text ? text : "&lt;摘抄&gt;"}</span></p><p><strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p><strong>出处</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;页码&gt;</span>` : ""}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
+          : '<h1>## Quotes Card - <span>&lt;Title&gt;</span></h1>\\n<p><strong>Original</strong>: <span>${text ? text : "&lt;extract&gt;"}</span></p><p><strong>Repeat</strong>: <span>&lt;Repeat it in your own words&gt;</span></p><p><strong>Implications</strong>: <span>&lt;What are the implications&gt;</span></p><p><strong>Reference</strong>: ${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;Page&gt;</span>` : ""}</p><p><strong>Tag</strong>: [none]</p><p><strong>Date</strong>: ${today}</p>'
+        pref = this.initPref(Zotero.ZotCard.Utils.getString('zotcard.quotescard'), item, beforeDefs, def)
         break
       case 'concept':
         beforeDefs = ['<h3>## 概念卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>提出者</strong>：<span>&lt;姓名&gt;</span>, <span>&lt;年份&gt;</span></p><p>- <strong>描述</strong>：<span>&lt;具体描述或摘抄&gt;</span></p><p>- <strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p>- <strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
           '<h3>## 概念卡 - <span style="color: #bbbbbb;">&lt;标题&gt;</span></h3>\\n<p>- <strong>提出者</strong>：<span style="color: #bbbbbb;">&lt;姓名&gt;</span>, <span style="color: #bbbbbb;">&lt;年份&gt;</span></p><p>- <strong>描述</strong>：<span style="color: #bbbbbb;">&lt;具体描述或摘抄&gt;</span></p><p>- <strong>复述</strong>：<span style="color: #bbbbbb;">&lt;用自己的话复述&gt;</span></p><p>- <strong>启发</strong>：<span style="color: #bbbbbb;">&lt;有什么启发&gt;</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span style="color: #bbbbbb;">&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
           '<h3>## 概念卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>提出者</strong>：<span>&lt;姓名&gt;</span>, <span>&lt;年份&gt;</span></p><p>- <strong>描述</strong>：<span>&lt;具体描述或摘抄&gt;</span></p><p>- <strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p>- <strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>',
           '<h1>## 概念卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>提出者</strong>：<span>&lt;姓名&gt;</span>, <span>&lt;年份&gt;</span></p><p><strong>描述</strong>：<span>&lt;具体描述或摘抄&gt;</span></p><p><strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p><strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：{today}</p>']
-        def = '<h1>## 概念卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>提出者</strong>：<span>&lt;姓名&gt;</span>, <span>&lt;年份&gt;</span></p><p><strong>描述</strong>：<span>&lt;具体描述或摘抄&gt;</span></p><p><strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p><strong>出处</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;页码&gt;</span>` : ""}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
-        pref = this.initPref('概念卡', item, beforeDefs, def)
+        def = Zotero.locale.startsWith('zh') ? '<h1>## 概念卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>提出者</strong>：<span>&lt;姓名&gt;</span>, <span>&lt;年份&gt;</span></p><p><strong>描述</strong>：<span>&lt;具体描述或摘抄&gt;</span></p><p><strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p><strong>出处</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;页码&gt;</span>` : ""}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
+          : '<h1>## Concept Card - <span>&lt;Title&gt;</span></h1>\\n<p><strong>Presenter</strong>: <span>&lt;:Name&gt;</span>, <span>&lt;Year&gt;</span></p><p><strong>Description</strong>: <span>&lt;Describe or extract&gt;</span></p><p><strong>Repeat</strong>: <span>&lt;Repeat it in your own words&gt;</span></p><p><strong>Implications</strong>: <span>&lt;What are the implications&gt;</span></p><p><strong>Reference</strong>: ${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;Page&gt;</span>` : ""}</p><p><strong>Tag</strong>: [none]</p><p><strong>Date</strong>: ${today}</p>'
+        pref = this.initPref(Zotero.ZotCard.Utils.getString('zotcard.conceptcard'), item, beforeDefs, def)
         break
       case 'character':
         beforeDefs = ['<h3>## 人物卡 - <span>&lt;姓名&gt;</span></h3>\\n<p>- <strong>简介</strong>：<span>&lt;出生日期，出生地，毕业院校，生平等&gt;</span></p><p>- <strong>作品</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span>...</span></p><p>- <strong>成就</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span>...</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
@@ -641,38 +642,43 @@ zotcard.initPrefs = function (item) {
           '<h3>## 人物卡 - <span>&lt;姓名&gt;</span></h3>\\n<p>- <strong>简介</strong>：<span>&lt;出生日期，出生地，毕业院校，生平等&gt;</span></p><p>- <strong>作品</strong>：</p><p>- <strong>成就</strong>：</p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>',
           '<h3>## 人物卡 - <span>&lt;姓名&gt;</span></h3>\\n<p>- <strong>简介</strong>：<span>&lt;出生日期，出生地，毕业院校，生平等&gt;</span></p><p>- <strong>作品</strong>：</p><p>- <strong>成就</strong>：</p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>',
           '<h1>## 人物卡 - <span>&lt;姓名&gt;</span></h1>\\n<p><strong>简介</strong>：<span>&lt;出生日期，出生地，毕业院校，生平等&gt;</span></p><p><strong>作品</strong>：</p><p><strong>成就</strong>：</p><p><strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：{today}</p>']
-        def = '<h1>## 人物卡 - <span>&lt;姓名&gt;</span></h1>\\n<p><strong>简介</strong>：<span>&lt;出生日期，出生地，毕业院校，生平等&gt;</span></p><p><strong>作品</strong>：</p><p><strong>成就</strong>：</p><p><strong>出处</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;页码&gt;</span>` : ""}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
-        pref = this.initPref('人物卡', item, beforeDefs, def)
+        def = Zotero.locale.startsWith('zh') ? '<h1>## 人物卡 - <span>&lt;姓名&gt;</span></h1>\\n<p><strong>简介</strong>：<span>&lt;出生日期，出生地，毕业院校，生平等&gt;</span></p><p><strong>作品</strong>：</p><p><strong>成就</strong>：</p><p><strong>出处</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;页码&gt;</span>` : ""}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
+          : '<h1>## Personage Card - <span>&lt;Name&gt;</span></h1>\\n<p><strong>Introductory</strong>: <span>&lt;Date of birth, place of birth, university, biography, etc&gt;</span></p><p><strong>Works</strong>: </p><p><strong>Achievement</strong>: </p><p><strong>Reference</strong>: ${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;Page&gt;</span>` : ""}</p><p><strong>Tag</strong>: [none]</p><p><strong>Date</strong>: ${today}</p>'
+        pref = this.initPref(Zotero.ZotCard.Utils.getString('zotcard.personagecard'), item, beforeDefs, def)
         break
       case 'not_commonsense':
         beforeDefs = ['<h3>## 反常识卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>常识</strong>：<span>&lt;认知中的常识&gt;</span></p><p>- <strong>反常识</strong>：<span>&lt;需要刷新的认知&gt;</span></p><p>- <strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
           '<h3>## 反常识卡 - <span style="color: #bbbbbb;">&lt;标题&gt;</span></h3>\\n<p>- <strong>常识</strong>：<span style="color: #bbbbbb;">&lt;认知中的常识&gt;</span></p><p>- <strong>反常识</strong>：<span style="color: #bbbbbb;">&lt;需要刷新的认知&gt;</span></p><p>- <strong>启发</strong>：<span style="color: #bbbbbb;">&lt;有什么启发&gt;</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span style="color: #bbbbbb;">&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
           '<h3>## 反常识卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>常识</strong>：<span>&lt;认知中的常识&gt;</span></p><p>- <strong>反常识</strong>：<span>&lt;需要刷新的认知&gt;</span></p><p>- <strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>',
           '<h1>## 反常识卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>常识</strong>：<span>&lt;认知中的常识&gt;</span></p><p><strong>反常识</strong>：<span>&lt;需要刷新的认知&gt;</span></p><p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p><strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：{today}</p>']
-        def = '<h1>## 反常识卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>常识</strong>：<span>&lt;认知中的常识&gt;</span></p><p><strong>反常识</strong>：<span>&lt;需要刷新的认知&gt;</span></p><p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p><strong>出处</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;页码&gt;</span>` : ""}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
-        pref = this.initPref('反常识卡', item, beforeDefs, def)
+        def = Zotero.locale.startsWith('zh') ? '<h1>## 反常识卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>常识</strong>：<span>&lt;认知中的常识&gt;</span></p><p><strong>反常识</strong>：<span>&lt;需要刷新的认知&gt;</span></p><p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p><strong>出处</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;页码&gt;</span>` : ""}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
+          : '<h1>## Uncommonsense Card - <span>&lt;Title&gt;</span></h1>\\n<p><strong>Commonsense</strong>: <span>&lt;Common sense in cognition&gt;</span></p><p><strong>Uncommonsense</strong>: <span>&lt;Perceptions that need to be refreshed&gt;</span></p><p><strong>Implications</strong>: <span>&lt;What are the implications&gt;</span></p><p><strong>Reference</strong>: ${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;Page&gt;</span>` : ""}</p><p><strong>标签</strong>: [none]</p><p><strong>Date</strong>: ${today}</p>'
+        pref = this.initPref(Zotero.ZotCard.Utils.getString('zotcard.uncommonsensecard'), item, beforeDefs, def)
         break
       case 'skill':
         beforeDefs = ['<h3>## 技巧卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p>- <strong>步骤</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
           '<h3>## 技巧卡 - <span style="color: #bbbbbb;">&lt;标题&gt;</span></h3>\\n<p>- <strong>描述</strong>：<span style="color: #bbbbbb;">&lt;描述作用&gt;</span></p><p>- <strong>步骤</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span style="color: #bbbbbb;">...</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span style="color: #bbbbbb;">&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
           '<h3>## 技巧卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p>- <strong>步骤</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>',
           '<h1>## 技巧卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p><strong>步骤</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p><strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：{today}</p>']
-        def = '<h1>## 技巧卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p><strong>步骤</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p><strong>出处</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;页码&gt;</span>` : ""}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
-        pref = this.initPref('技巧卡', item, beforeDefs, def)
+        def = Zotero.locale.startsWith('zh') ? '<h1>## 技巧卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p><strong>步骤</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p><strong>出处</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;页码&gt;</span>` : ""}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
+          : '<h1>## Skill Card - <span>&lt;Title&gt;</span></h1>\\n<p><strong>Description</strong>: <span>&lt;Describe the role&gt;</span></p><p><strong>Steps</strong>: <br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p><strong>Reference</strong>: ${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;Page&gt;</span>` : ""}</p><p><strong>Tag</strong>: [none]</p><p><strong>Date</strong>: ${today}</p>'
+        pref = this.initPref(Zotero.ZotCard.Utils.getString('zotcard.skillcard'), item, beforeDefs, def)
         break
       case 'structure':
         beforeDefs = ['<h3>## 结构卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p>- <strong>内容</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(2)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(3)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
           '<h3>## 结构卡 - <span style="color: #bbbbbb;">&lt;标题&gt;</span></h3>\\n<p>- <strong>描述</strong>：<span style="color: #bbbbbb;">&lt;描述作用&gt;</span></p><p>- <strong>内容</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1)&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b.&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c.&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(2)&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(3)&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span style="color: #bbbbbb;">...</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span style="color: #bbbbbb;">&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
           '<h3>## 结构卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p>- <strong>内容</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(2)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(3)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>',
           '<h1>## 结构卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p><strong>内容</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(2)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(3)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p><strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：{today}</p>']
-        def = '<h1>## 结构卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p><strong>内容</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(2)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(3)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p><strong>出处</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;页码&gt;</span>` : ""}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
-        pref = this.initPref('结构卡', item, beforeDefs, def)
+        def = Zotero.locale.startsWith('zh') ? '<h1>## 结构卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>描述</strong>：<span>&lt;描述作用&gt;</span></p><p><strong>内容</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(2)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(3)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p><strong>出处</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;页码&gt;</span>` : ""}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
+          : '<h1>## Structure Card - <span>&lt;Title&gt;</span></h1>\\n<p><strong>Description</strong>: <span>&lt;Describe the role&gt;</span></p><p><strong>Content</strong>: <br />&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(2)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(3)&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;<span>...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;<span>...</span></p><p><strong>Reference</strong>: ${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;Page&gt;</span>` : ""}</p><p><strong>Tag</strong>: [none]</p><p><strong>Date</strong>: ${today}</p>'
+        pref = this.initPref(Zotero.ZotCard.Utils.getString('zotcard.structurecard'), item, beforeDefs, def)
         break
       case 'abstract':
         beforeDefs = ['<h3>## 摘要卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>摘要</strong>：<span>&lt;原文句子&gt;</span></p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>',
         '<h1>## 摘要卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>摘要</strong>：<span>&lt;原文句子&gt;</span></p><p><strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：{today}</p>']
-        def = '<h1>## 摘要卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>摘要</strong>：<span>${text ? text : "&lt;原文句子&gt;"}</span></p><p><strong>出处</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;页码&gt;</span>` : ""}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
-        pref = this.initPref('摘要卡', item, beforeDefs, def)
+        def = Zotero.locale.startsWith('zh') ? '<h1>## 摘要卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>摘要</strong>：<span>${text ? text : "&lt;原文句子&gt;"}</span></p><p><strong>出处</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;页码&gt;</span>` : ""}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
+          : '<h1>## Abstract Card - <span>&lt;Title&gt;</span></h1>\\n<p><strong>Abstract</strong>：<span>${text ? text : "&lt;The original sentence&gt;"}</span></p><p><strong>Reference</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;Page&gt;</span>` : ""}</p><p><strong>Tag</strong>：[none]</p><p><strong>Date</strong>：${today}</p>'
+        pref = this.initPref(Zotero.ZotCard.Utils.getString('zotcard.abstractcard'), item, beforeDefs, def)
         break
       case 'general':
         beforeDefs = ['<h3>## 通用卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>想法</strong>：</p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>日期</strong>：{today}</p>',
@@ -680,8 +686,9 @@ zotcard.initPrefs = function (item) {
           '<h3>## 通用卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>想法</strong>：</p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>',
           '<h3>## 短文卡 - <span>&lt;标题&gt;</span></h3>\\n<p>- <strong>正文</strong>：</p><p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p>- <strong>标签</strong>：[无]</p><p>- <strong>日期</strong>：{today}</p>',
           '<h1>## 短文卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>正文</strong>：</p><p><strong>出处</strong>：${authors}《{title}》({year}) P<span>&lt;页码&gt;</span></p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：{today}</p>']
-        def = '<h1>## 短文卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>正文</strong>：</p><p><strong>出处</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;页码&gt;</span>` : ""}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
-        pref = this.initPref('短文卡', item, beforeDefs, def)
+        def = Zotero.locale.startsWith('zh') ? '<h1>## 短文卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>正文</strong>：</p><p><strong>出处</strong>：${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;页码&gt;</span>` : ""}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
+          : '<h1>## Essay Card - <span>&lt;Title&gt;</span></h1>\\n<p><strong>Body</strong>: </p><p><strong>Reference</strong>: ${authors}《${title}》${itemType === "book" ? `(${year}) P<span>&lt;Page&gt;</span>` : ""}</p><p><strong>Tag</strong>: [none]</p><p><strong>Date</strong>: ${today}</p>'
+        pref = this.initPref(Zotero.ZotCard.Utils.getString('zotcard.essaycard'), item, beforeDefs, def)
         break
       case 'card_quantity':
         var quantity = Zotero.Prefs.get('zotcard.card_quantity')
@@ -701,29 +708,37 @@ zotcard.initPrefs = function (item) {
 }
 
 zotcard.reset = function () {
-  if (Zotero.ZotCard.Utils.confirm('重置后会清空所有配置，还原到安装时的配置。确实要重置吗？')) {
+  if (Zotero.ZotCard.Utils.confirm(Zotero.ZotCard.Utils.getString('zotcard.resetconfig'))) {
     Zotero.Prefs.clear('zotcard.quotes')
     Zotero.Prefs.clear('zotcard.quotes.visible')
+    Zotero.Prefs.clear('zotcard.quotes.label')
     Zotero.Prefs.clear('zotcard.concept')
     Zotero.Prefs.clear('zotcard.concept.visible')
+    Zotero.Prefs.clear('zotcard.concept.label')
     Zotero.Prefs.clear('zotcard.character')
     Zotero.Prefs.clear('zotcard.character.visible')
+    Zotero.Prefs.clear('zotcard.character.label')
     Zotero.Prefs.clear('zotcard.not_commonsense')
     Zotero.Prefs.clear('zotcard.not_commonsense.visible')
+    Zotero.Prefs.clear('zotcard.not_commonsense.label')
     Zotero.Prefs.clear('zotcard.skill')
     Zotero.Prefs.clear('zotcard.skill.visible')
+    Zotero.Prefs.clear('zotcard.skill.label')
     Zotero.Prefs.clear('zotcard.structure')
     Zotero.Prefs.clear('zotcard.structure.visible')
+    Zotero.Prefs.clear('zotcard.structure.label')
     Zotero.Prefs.clear('zotcard.abstract')
     Zotero.Prefs.clear('zotcard.abstract.visible')
+    Zotero.Prefs.clear('zotcard.abstract.label')
     Zotero.Prefs.clear('zotcard.general')
     Zotero.Prefs.clear('zotcard.general.visible')
+    Zotero.Prefs.clear('zotcard.general.label')
     Zotero.Prefs.clear('zotcard.card_quantity')
     Zotero.Prefs.clear('zotcard.config.column_edt')
 
     this.resetCard(1)
 
-    Zotero.ZotCard.Utils.success('重置成功，即将重启Zotero。')
+    Zotero.ZotCard.Utils.success(Zotero.ZotCard.Utils.getString('zotcard.resetsuccessful'))
     Zotero.Utilities.Internal.quit(true)
   }
 }
@@ -749,18 +764,18 @@ zotcard.newCard = async function (pane, name, stand) {
     return
   }
   if (!pref.card) {
-    Zotero.ZotCard.Utils.warning(`在接下来的about:config窗口中进行配置。
-    zotcard.${name}\t\t\t卡片1模版
-    zotcard.${name}.label\t卡片1标题
-    zotcard.${name}.visible\t卡片1显示
+    Zotero.ZotCard.Utils.warning(`${Zotero.ZotCard.Utils.getString('zotcard.aboutconfig')}
+    zotcard.${name}\t\t\t${Zotero.ZotCard.Utils.getString('zotcard.cardtemplate')}
+    zotcard.${name}.label\t${Zotero.ZotCard.Utils.getString('zotcard.cardtitle')}
+    zotcard.${name}.visible\t${Zotero.ZotCard.Utils.getString('zotcard.visibletitle')}
 
-  详情请访问官网: https://github.com/018/zotcard`)
+    ${Zotero.ZotCard.Utils.getString('zotcard.visitwebsite')}: https://github.com/018/zotcard`)
     Zotero.openInViewer(`about:config?filter=zotero.zotcard.${name}`)
     return
   }
 
   if (stand && !ZoteroPane.getSelectedCollection()) {
-    Zotero.ZotCard.Utils.warning('请选择分类。')
+    Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.selectcollection'))
   }
 
   var itemType = ''
@@ -815,7 +830,7 @@ zotcard.newCard = async function (pane, name, stand) {
         return
       }
 
-      text = Zotero.getMainWindow().Zotero.ZotCard.Utils.getReaderSelectedText().replace(/ /g, '')
+      text = Zotero.getMainWindow().Zotero.ZotCard.Utils.getReaderSelectedText()
     } else {
       var zitems = Zotero.ZotCard.Utils.getSelectedItems('regular')
       if (!zitems || zitems.length <= 0) {
@@ -869,7 +884,7 @@ zotcard.newCard = async function (pane, name, stand) {
     '", dayOfYear = ' + dayOfYear +
     ', weekOfYear = ' + weekOfYear +
     ', week = "' + week +
-    '", week_en = "' + week_en +
+    '", week_en = "' + weekEn +
     '", extra = "' + extra +
     '", publisher = "' + publisher +
     '", publicationTitle = "' + publicationTitle +
@@ -960,18 +975,18 @@ zotcard.general = function (pane) {
 zotcard.readcard = function () {
   var zitems = Zotero.ZotCard.Utils.getSelectedItems(['note'])
   if (!zitems || zitems.length <= 0) {
-    Zotero.ZotCard.Utils.warning(this.getString('zotcard.only_note'))
+    Zotero.ZotCard.Utils.warning(Utils.getString('zotcard.only_note'))
     return
   }
 
-  this.showReadCard(zitems, '你选择了')
+  this.showReadCard(zitems, Zotero.ZotCard.Utils.getString('zotcard.yourchoice'))
 }
 
 zotcard.readcollectioncard = function () {
   let selectedCollection = ZoteroPane.getSelectedCollection()
   let selectedSavedSearch = ZoteroPane.getSelectedSavedSearch()
 
-  Zotero.showZoteroPaneProgressMeter('正在处理 ...')
+  Zotero.showZoteroPaneProgressMeter(Zotero.ZotCard.Utils.getString('zotcard.loding'))
   let callback = (ids, name) => {
     var items = Zotero.Items.get(ids)
     Zotero.debug(`搜索到：${items.length}`)
@@ -1006,9 +1021,11 @@ zotcard.readcollectioncard = function () {
           options: options
         }
       }
-      window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, io)
+
+      Zotero.getMainWindow().Zotero.ZotCard.read = io
+      Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer(Zotero.locale.startsWith('zh') ? 'chrome://zoterozotcard/content/read.html' : 'chrome://zoterozotcard/content/read_en.html')
     } else {
-      Zotero.ZotCard.Utils.error('无卡片。')
+      Zotero.ZotCard.Utils.error(Zotero.ZotCard.Utils.getString('zotcard.nocard'))
     }
   }
 
@@ -1037,11 +1054,13 @@ zotcard.collectionreport = function () {
     io.type = 'library'
     io.name = lib.name
   }
-  window.openDialog('chrome://zoterozotcard/content/report.html', 'report', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, io)
+
+  Zotero.getMainWindow().Zotero.ZotCard.report = io
+  Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer(Zotero.locale.startsWith('zh') ? 'chrome://zoterozotcard/content/report.html' : 'chrome://zoterozotcard/content/report_en.html')
 }
 
 zotcard.showReadCard = function (items, title) {
-  Zotero.showZoteroPaneProgressMeter('正在处理 ...')
+  Zotero.showZoteroPaneProgressMeter(Zotero.ZotCard.Utils.getString('zotcard.loding'))
   var cards = []
   var options = {}
   items.forEach((item, index) => {
@@ -1052,6 +1071,7 @@ zotcard.showReadCard = function (items, title) {
   })
 
   let io = {
+    window: 'read',
     dataIn: {
       title: title,
       cards: cards,
@@ -1059,7 +1079,9 @@ zotcard.showReadCard = function (items, title) {
     }
   }
   Zotero.hideZoteroPaneOverlays()
-  window.openDialog('chrome://zoterozotcard/content/read.html', 'read', `chrome,resizable,centerscreen,menubar=no,scrollbars,height=${screen.availHeight},width=${screen.availWidth}`, io)
+
+  Zotero.getMainWindow().Zotero.ZotCard.read = io
+  Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer(Zotero.locale.startsWith('zh') ? 'chrome://zoterozotcard/content/read.html' : 'chrome://zoterozotcard/content/read_en.html')
 }
 
 zotcard.replace = function () {
@@ -1072,7 +1094,7 @@ zotcard.doReplace = function (target) {
   var zitems = Zotero.ZotCard.Utils.getSelectedItems(['note'])
   if (!zitems || zitems.length <= 0) {
     var ps = Components.classes['@mozilla.org/embedcomp/prompt-service;1'].getService(Components.interfaces.nsIPromptService)
-    ps.alert(window, this.getString('zotcard.warning'), this.getString('zotcard.only_note'))
+    ps.alert(window, Utils.getString('zotcard.warning'), Utils.getString('zotcard.only_note'))
     return
   }
 
@@ -1093,7 +1115,7 @@ zotcard.copy = function () {
   var zitems = Zotero.ZotCard.Utils.getSelectedItems(['note'])
   if (!zitems || zitems.length <= 0) {
     var ps = Components.classes['@mozilla.org/embedcomp/prompt-service;1'].getService(Components.interfaces.nsIPromptService)
-    ps.alert(window, this.getString('zotcard.warning'), this.getString('zotcard.only_note'))
+    ps.alert(window, Utils.getString('zotcard.warning'), Utils.getString('zotcard.only_note'))
     return
   }
 
@@ -1102,9 +1124,9 @@ zotcard.copy = function () {
     notes += zitem.getNote() + '<br /><br />'
   })
   if (!Zotero.ZotCard.Utils.copyHtmlToClipboard(notes)) {
-    Zotero.ZotCard.Utils.error('复制失败。')
+    Zotero.ZotCard.Utils.error(Zotero.ZotCard.Utils.getString('zotcard.readcard.copythefailure'))
   } else {
-    Zotero.ZotCard.Utils.success('复制成功，现在可以往编辑软件粘贴了。')
+    Zotero.ZotCard.Utils.success(Zotero.ZotCard.Utils.getString('zotcard.readcard.copysucceeded'))
   }
 }
 
@@ -1112,12 +1134,12 @@ zotcard.copyandcreate = function () {
   var zitems = Zotero.ZotCard.Utils.getSelectedItems(['note'])
   if (!zitems || zitems.length <= 0) {
     var ps = Components.classes['@mozilla.org/embedcomp/prompt-service;1'].getService(Components.interfaces.nsIPromptService)
-    ps.alert(window, this.getString('zotcard.warning'), this.getString('zotcard.only_note'))
+    ps.alert(window, Utils.getString('zotcard.warning'), Utils.getString('zotcard.only_note'))
     return
   }
   if (zitems.length !== 1) {
     var ps = Components.classes['@mozilla.org/embedcomp/prompt-service;1'].getService(Components.interfaces.nsIPromptService)
-    ps.alert(window, this.getString('zotcard.warning'), this.getString('zotcard.only_one'))
+    ps.alert(window, Utils.getString('zotcard.warning'), Utils.getString('zotcard.only_one'))
     return
   }
 
@@ -1136,7 +1158,7 @@ zotcard.open = function () {
   var zitems = Zotero.ZotCard.Utils.getSelectedItems(['note'])
   if (!zitems || zitems.length <= 0) {
     var ps = Components.classes['@mozilla.org/embedcomp/prompt-service;1'].getService(Components.interfaces.nsIPromptService)
-    ps.alert(window, this.getString('zotcard.warning'), this.getString('zotcard.only_note'))
+    ps.alert(window, Utils.getString('zotcard.warning'), Utils.getString('zotcard.only_note'))
     return
   }
 
@@ -1160,7 +1182,7 @@ zotcard.close = function () {
   var zitems = Zotero.ZotCard.Utils.getSelectedItems(['note'])
   if (!zitems || zitems.length <= 0) {
     var ps = Components.classes['@mozilla.org/embedcomp/prompt-service;1'].getService(Components.interfaces.nsIPromptService)
-    ps.alert(window, this.getString('zotcard.warning'), this.getString('zotcard.only_note'))
+    ps.alert(window, Utils.getString('zotcard.warning'), Utils.getString('zotcard.only_note'))
     return
   }
 
@@ -1184,18 +1206,18 @@ zotcard.closeall = function () {
 zotcard.compressimg = async function () {
   var zitems = Zotero.ZotCard.Utils.getSelectedItems(['note'])
   if (!zitems || zitems.length <= 0) {
-    Zotero.ZotCard.Utils.error(this.getString('zotcard.only_note'))
+    Zotero.ZotCard.Utils.error(Utils.getString('zotcard.only_note'))
     return
   }
   if (zitems.length !== 1) {
-    Zotero.ZotCard.Utils.error(this.getString('zotcard.only_note'))
+    Zotero.ZotCard.Utils.error(Utils.getString('zotcard.only_note'))
     return
   }
 
   let tinifyApiKey = Zotero.Prefs.get('zotcard.config.tinify_api_key')
   if (!tinifyApiKey) {
     Zotero.Prefs.set('zotcard.config.tinify_api_key', '')
-    Zotero.ZotCard.Utils.warning(`请先配置 tinypng 的 api key，可访问 https://tinypng.com/developers/ 进行申请。`)
+    Zotero.ZotCard.Utils.warning(Utils.getString('zotcard.configuretinypng'))
     Zotero.openInViewer(`about:config?filter=zotero.zotcard.config.tinify_api_key`)
     return
   }
@@ -1206,18 +1228,18 @@ zotcard.compressimg = async function () {
   }
 
   let pw = new Zotero.ProgressWindow()
-  pw.changeHeadline('压缩')
-  pw.addDescription(this.getString('zotcard.choose', zitems.length))
+  pw.changeHeadline(Utils.getString('zotcard.compression'))
+  pw.addDescription(Utils.getString('zotcard.choose', zitems.length))
   pw.show()
   var zitem = zitems[0]
   let note = zitem.getNote()
   let matchImages = zitem.getNote().match(/<img.*?src="data:.*?;base64,.*?".*?\/>/g)
   if (matchImages) {
-    pw.addLines(`${zitem.getNoteTitle()}: 包括 ${matchImages.length} 张图片。`, `chrome://zotero/skin/tick${Zotero.hiDPISuffix}.png`)
+    pw.addLines(`${zitem.getNoteTitle()}: ${Utils.getString('zotcard.includesimages', matchImages.length)}`, `chrome://zotero/skin/tick${Zotero.hiDPISuffix}.png`)
     for (let index = 0; index < matchImages.length; index++) {
       let itemProgress = new pw.ItemProgress(
         `chrome://zotero/skin/spinner-16px${Zotero.hiDPISuffix}.png`,
-        `第 ${index + 1} 张图片压缩中 ...`
+        Utils.getString('zotcard.imagecompressed', index + 1)
       )
       itemProgress.setProgress(50)
       let matchImageSrcs = matchImages[index].match(/src="data:.*?;base64,.*?"/g)
@@ -1247,7 +1269,7 @@ zotcard.compressimg = async function () {
           let res = JSON.parse(request.responseText)
           if (res.error) {
             itemProgress.setIcon(`chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
-            itemProgress.setText(`第 ${index + 1} 张图片压缩失败，${res.error} - ${res.message}`)
+            itemProgress.setText(Utils.getString('zotcard.imagecompressionfailed', index + 1) + `${res.error} - ${res.message}`)
             itemProgress.setProgress(100)
           } else {
             let image
@@ -1277,37 +1299,37 @@ zotcard.compressimg = async function () {
                 zitem.setNote(note)
                 zitem.saveTx()
                 itemProgress.setIcon(`chrome://zotero/skin/tick${Zotero.hiDPISuffix}.png`)
-                itemProgress.setText(`第 ${index + 1} 张图片大小 ${res.input.size}${compressWithWidthAndHeight && (width || height) ? ('(' + (width || '') + ',' + (height || '') + ')') : ''}, 压缩成 ${compressWithWidthAndHeight && (width || height) ? image.response.size : res.output.size}, 压缩率: ${res.output.ratio}。`)
+                itemProgress.setText(Utils.getString('zotcard.imagesize', index + 1) + ` ${res.input.size}${compressWithWidthAndHeight && (width || height) ? ('(' + (width || '') + ',' + (height || '') + ')') : ''}, 压缩成 ${compressWithWidthAndHeight && (width || height) ? image.response.size : res.output.size}, 压缩率: ${res.output.ratio}。`)
                 itemProgress.setProgress(100)
               })
             } else if (image.status === 0) {
               itemProgress.setIcon(`chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
-              itemProgress.setText(`第 ${index + 1} 张图片获取结果失败 - 网络错误。`)
+              itemProgress.setText(Utils.getString('zotcard.imagefailed', index + 1) + ` - Net Error。`)
               itemProgress.setProgress(100)
             } else {
               itemProgress.setIcon(`chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
-              itemProgress.setText(`第 ${index + 1} 张图片获取结果失败，${image.status} - ${image.statusText}`)
+              itemProgress.setText(Utils.getString('zotcard.imagefailed', index + 1) + `，${image.status} - ${image.statusText}`)
               itemProgress.setProgress(100)
             }
           }
         } else if (request.status === 0) {
           itemProgress.setIcon(`chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
-          itemProgress.setText(`第 ${index + 1} 张图片压缩出错 - 网络错误。`)
+          itemProgress.setText(Utils.getString('zotcard.imagefailed', index + 1) + ` - Net Error。`)
           itemProgress.setProgress(100)
         } else {
           itemProgress.setIcon(`chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
-          itemProgress.setText(`第 ${index + 1} 张图片压缩出错，${request.status} - ${request.statusText}`)
+          itemProgress.setText(Utils.getString('zotcard.imagefailed', index + 1) + `，${image.status} - ${image.statusText}`)
           itemProgress.setProgress(100)
         }
       } catch (e) {
         Zotero.debug(e)
         itemProgress.setIcon(`chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
-        itemProgress.setText(`第 ${index + 1} 张图片压缩出错，${e}。`)
+        itemProgress.setText(Utils.getString('zotcard.imagecompressionfailed', index + 1) + e)
         itemProgress.setProgress(100)
       }
     }
   } else {
-    pw.addLines(`${zitem.getNoteTitle()} 不包含图片。`, `chrome://zotero/skin/warning${Zotero.hiDPISuffix}.png`)
+    pw.addLines(`${zitem.getNoteTitle()} ${Utils.getString('zotcard.noimagesincluded')}`, `chrome://zotero/skin/warning${Zotero.hiDPISuffix}.png`)
   }
   pw.addDescription(Utils.getString('uread.click_on_close'))
 }
@@ -1315,27 +1337,27 @@ zotcard.compressimg = async function () {
 zotcard.print = async function () {
   var zitems = Zotero.ZotCard.Utils.getSelectedItems(['note'])
   if (!zitems || zitems.length <= 0) {
-    Zotero.ZotCard.Utils.error(this.getString('zotcard.only_note'))
+    Zotero.ZotCard.Utils.error(Utils.getString('zotcard.only_note'))
     return
   }
   if (zitems.length !== 1) {
-    Zotero.ZotCard.Utils.error(this.getString('zotcard.only_note'))
+    Zotero.ZotCard.Utils.error(Utils.getString('zotcard.only_note'))
     return
   }
 
   var zitem = zitems[0]
-  Zotero.openInViewer('chrome://zoterozotcard/content/cardcontent.html?id=' + zitem.id)
+  Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer('chrome://zoterozotcard/content/cardcontent.html?id=' + zitem.id)
 }
 
 
 zotcard.notesourcecode = async function () {
   var zitems = Zotero.ZotCard.Utils.getSelectedItems(['note'])
   if (!zitems || zitems.length <= 0) {
-    Zotero.ZotCard.Utils.error(this.getString('zotcard.only_note'))
+    Zotero.ZotCard.Utils.error(Utils.getString('zotcard.only_note'))
     return
   }
   if (zitems.length !== 1) {
-    Zotero.ZotCard.Utils.error(this.getString('zotcard.only_note'))
+    Zotero.ZotCard.Utils.error(Utils.getString('zotcard.only_note'))
     return
   }
 
@@ -1348,27 +1370,23 @@ zotcard.notesourcecode = async function () {
 }
 
 zotcard.config = function () {
-  Zotero.ZotCard.Utils.warning(`在接下来的about:config窗口中进行配置。
-默认：
-  zotcard.abstract\t\t\t\t\t摘要卡
-  zotcard.quotes\t\t\t\t\t金句卡模版
-  zotcard.quotes.label\t\t\t\t金句卡标题
-  zotcard.quotes.visible\t\t\t\t金句卡显示
-  zotcard.concept\t\t\t\t\t概念卡
-  zotcard.character\t\t\t\t\t人物卡
-  zotcard.not_commonsense\t\t\t反常识卡
-  zotcard.skill\t\t\t\t\t\t技巧卡
-  zotcard.structure\t\t\t\t\t结构卡
-  zotcard.general\t\t\t\t\t短文卡
+  Zotero.ZotCard.Utils.warning(`${Zotero.ZotCard.Utils.getString('zotcard.aboutconfig')}
+  ${Zotero.ZotCard.Utils.getString('zotcard.default')}：
+  zotcard.abstract\t\t\t\t\t${Zotero.ZotCard.Utils.getString('zotcard.abstractcard')}
+  zotcard.quotes\t\t\t\t\t${Zotero.ZotCard.Utils.getString('zotcard.quotescard')}
+  zotcard.concept\t\t\t\t\t${Zotero.ZotCard.Utils.getString('zotcard.conceptcard')}
+  zotcard.character\t\t\t\t\t${Zotero.ZotCard.Utils.getString('zotcard.personagecard')}
+  zotcard.not_commonsense\t\t\t${Zotero.ZotCard.Utils.getString('zotcard.uncommonsensecard')}
+  zotcard.skill\t\t\t\t\t\t${Zotero.ZotCard.Utils.getString('zotcard.skillcard')}
+  zotcard.structure\t\t\t\t\t${Zotero.ZotCard.Utils.getString('zotcard.structurecard')}
+  zotcard.general\t\t\t\t\t${Zotero.ZotCard.Utils.getString('zotcard.essaycard')}
   
-自定义：
-  zotcard.card_quantity\t\t\t\t自定义卡片数
-  zotcard.card1\t\t\t\t\t\t卡片1模版
-  zotcard.card1.label\t\t\t\t\t卡片1标题
-  zotcard.card1.visible\t\t\t\t卡片1显示
+${Zotero.ZotCard.Utils.getString('zotcard.custom')}：
+  zotcard.card_quantity\t\t\t\t${Zotero.ZotCard.Utils.getString('zotcard.customizecards')}
+  zotcard.card1\t\t\t\t\t\t${Zotero.ZotCard.Utils.getString('zotcard.cardtemplate')}
   ...
   
-详情请访问官网: https://github.com/018/zotcard`)
+  ${Zotero.ZotCard.Utils.getString('zotcard.visitwebsite')}: https://github.com/018/zotcard`)
 
   Zotero.openInViewer('about:config?filter=zotero.zotcard')
 }
@@ -1384,14 +1402,14 @@ zotcard.backup = function () {
       let backup = this.initPrefs()
       backup.last_updated = `${new Date().getFullYear()}-${new Date().getMonth()}-${new Date().getDate()} ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`
       Zotero.File.putContents(Zotero.File.pathToFile(file.path + '.zotcard'), JSON.stringify(backup))
-      Zotero.ZotCard.Utils.success('备份成功。')
+      Zotero.ZotCard.Utils.success(Zotero.ZotCard.Utils.getString('zotcard.backupsucceeded'))
     }
   }.bind(this))
 }
 
 zotcard.restore = function () {
   let fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker)
-  fp.init(window, '还原', Ci.nsIFilePicker.modeOpen)
+  fp.init(window, Zotero.ZotCard.Utils.getString('zotcard.restore'), Ci.nsIFilePicker.modeOpen)
   fp.appendFilter('ZotCard Backup', '*.zotcard')
   fp.open(function (returnConstant) {
     if (returnConstant === 0) {
@@ -1413,7 +1431,7 @@ zotcard.restore = function () {
             for (let index = 0; index < json.card_quantity; index++) {
               let name = `card${index + 1}`
               if (!json[name]) {
-                Zotero.ZotCard.Utils.warning('自定义卡片的内容已经被破坏，无法还原。')
+                Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.restorefailed'))
                 return
               }
             }
@@ -1446,15 +1464,15 @@ zotcard.restore = function () {
               }
             }
             this.resetCard(index + 1)
-            Zotero.ZotCard.Utils.success(`还原成功。\n备份时间: ${json.last_updated}`)
+            Zotero.ZotCard.Utils.success(Zotero.ZotCard.Utils.getString('zotcard.restoresucceeded') + json.last_updated)
           } else {
-            Zotero.ZotCard.Utils.warning('内容已经被破坏，无法还原。')
+            Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.contentcorrupted'))
           }
         } catch (e) {
           Zotero.ZotCard.Utils.warning(e)
         }
       } else {
-        Zotero.ZotCard.Utils.warning('文件无内容。')
+        Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.filenocontent'))
       }
     }
   }.bind(this))
@@ -1462,7 +1480,7 @@ zotcard.restore = function () {
 
 zotcard.transitionstyle = function () {
   let fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker)
-  fp.init(window, '还原', Ci.nsIFilePicker.modeOpen)
+  fp.init(window, Zotero.ZotCard.Utils.getString('zotcard.restore'), Ci.nsIFilePicker.modeOpen)
   fp.appendFilter('ZotCard Default Style', '*.zotcardstyle')
   fp.open(function (returnConstant) {
     if (returnConstant === 0) {
@@ -1496,15 +1514,15 @@ zotcard.transitionstyle = function () {
             Zotero.Prefs.set(`zotcard.general`, json.general.card)
             Zotero.Prefs.set(`zotcard.general.visible`, json.general.visible === undefined ? true : json.general.visible)
 
-            Zotero.ZotCard.Utils.success(`更换默认卡片样式成功。\n样式最后更新时间: ${json.last_updated}`)
+            Zotero.ZotCard.Utils.success(Zotero.ZotCard.Utils.getString('zotcard.changingsucceeded') + json.last_updated)
           } else {
-            Zotero.ZotCard.Utils.warning('内容已经被破坏，无法更换默认卡片样式。')
+            Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.contentcorrupted'))
           }
         } catch (e) {
           Zotero.ZotCard.Utils.warning(e)
         }
       } else {
-        Zotero.ZotCard.Utils.warning('文件无内容。')
+        Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.filenocontent'))
       }
     }
   }.bind(this))
@@ -1670,7 +1688,7 @@ zotcard.noteBGColor = function (color) {
 
 zotcard.resetNoteBGColor = function () {
   this.noteBGColor()
-  Zotero.ZotCard.Utils.promptForRestart('重置笔记背景完成')
+  Zotero.ZotCard.Utils.promptForRestart(Zotero.ZotCard.Utils.getString('zotcard.resetnotebackground'))
 }
 
 zotcard.darkNoteBGColor = function () {
@@ -1708,14 +1726,6 @@ zotcard.purpleNoteBGColor = function () {
 zotcard.copyStringToClipboard = function (clipboardText) {
   const gClipboardHelper = Components.classes['@mozilla.org/widget/clipboardhelper;1'].getService(Components.interfaces.nsIClipboardHelper)
   gClipboardHelper.copyString(clipboardText, document)
-}
-
-zotcard.getString = function (name, ...params) {
-  if (params !== undefined && params.length > 0) {
-    return this._bundle.formatStringFromName(name, params, params.length)
-  } else {
-    return this._bundle.GetStringFromName(name)
-  }
 }
 
 if (typeof window !== 'undefined') {

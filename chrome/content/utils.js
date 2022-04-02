@@ -3,7 +3,7 @@ if (!Zotero.getMainWindow().Zotero.ZotCard) Zotero.getMainWindow().Zotero.ZotCar
 if (!Zotero.getMainWindow().Zotero.ZotCard.Utils) Zotero.getMainWindow().Zotero.ZotCard.Utils = {}
 
 Zotero.getMainWindow().Zotero.ZotCard.Utils = {
-  _bundle: Cc['@mozilla.org/intl/stringbundle;1'].getService(Components.interfaces.nsIStringBundleService).createBundle('chrome://zoterouread/locale/uread.properties')
+  _bundle: Cc['@mozilla.org/intl/stringbundle;1'].getService(Components.interfaces.nsIStringBundleService).createBundle('chrome://zoterozotcard/locale/zotcard.properties')
 }
 
 Zotero.getMainWindow().Zotero.ZotCard.Utils.isDebug = function () {
@@ -74,9 +74,9 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.opt = function (val) {
 
 Zotero.getMainWindow().Zotero.ZotCard.Utils.getString = function (name, ...params) {
   if (params !== undefined && params.length > 0) {
-    return this._bundle.formatStringFromName(name, params, params.length)
+    return Zotero.ZotCard.Utils._bundle.formatStringFromName(name, params, params.length)
   } else {
-    return this._bundle.GetStringFromName(name)
+    return Zotero.ZotCard.Utils._bundle.GetStringFromName(name)
   }
 }
 
@@ -91,7 +91,7 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.getSelectedItems = function (itemTyp
     if (!Array.isArray(itemType)) {
       itemType = [itemType]
     }
-    var siftedItems = this.siftItems(zitems, itemType)
+    var siftedItems = Zotero.ZotCard.Utils.siftItems(zitems, itemType)
     Zotero.debug('Zotero.getMainWindow().Zotero.ZotCard.Utils@siftedItems.matched: ' + siftedItems.matched.length)
     return siftedItems.matched
   } else {
@@ -103,7 +103,7 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.siftItems = function (itemArray, ite
   var matchedItems = []
   var unmatchedItems = []
   while (itemArray.length > 0) {
-    if (this.checkItemType(itemArray[0], itemTypeArray)) {
+    if (Zotero.ZotCard.Utils.checkItemType(itemArray[0], itemTypeArray)) {
       matchedItems.push(itemArray.shift())
     } else {
       unmatchedItems.push(itemArray.shift())
@@ -281,11 +281,11 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.toCardItem = function (note) {
   let noteTitle = note.getNoteTitle()
   let noteContent = note.getNote()
 
-  let match3 = noteTitle.match('[\u4e00-\u9fa5]+卡')
-  let cardtype = match3 ? match3[0] : '其他'
+  let match3 = noteTitle.match('[\u4e00-\u9fa5]+' + Zotero.ZotCard.Utils.getString('zotcard.card'))
+  let cardtype = match3 ? match3[0] : Zotero.ZotCard.Utils.getString('zotcard.other')
 
-  let author = Zotero.ZotCard.Utils.getCardItemValue(noteContent, '作者')
-  let tags = Zotero.ZotCard.Utils.getCardItemValue(noteContent, '标签').split(/[\[ \],，]/).filter(e => e && e !== '无')
+  let author = Zotero.ZotCard.Utils.getCardItemValue(noteContent, Zotero.ZotCard.Utils.getString('zotcard.author'))
+  let tags = Zotero.ZotCard.Utils.getCardItemValue(noteContent, Zotero.ZotCard.Utils.getString('zotcard.tag')).split(/[\[ \],，]/).filter(e => e && e !== Zotero.ZotCard.Utils.getString('zotcard.none'))
 
   note.getTags().forEach(tag => {
     tags.push(tag.tag)
@@ -561,4 +561,10 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.promptForRestart = function (message
   if (index === 0) {
     Zotero.Utilities.Internal.quitZotero(true)
   }
+}
+
+
+Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer = function (uri, features) {
+  var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"].getService(Components.interfaces.nsIWindowWatcher)
+  return ww.openWindow(null, uri, null, features ? features : 'menubar=yes,toolbar=no,location=no,scrollbars,centerscreen,resizable', null)
 }

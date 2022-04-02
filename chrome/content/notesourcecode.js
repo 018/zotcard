@@ -19,7 +19,7 @@ function onload () {
     document.getElementById('textbox').value = note.getNote()
     window.sizeToContent()
   } else {
-    Zotero.ZotCard.Utils.warning('错误的笔记id。')
+    Zotero.ZotCard.Utils.warning('Error id。')
     window.close()
   }
 }

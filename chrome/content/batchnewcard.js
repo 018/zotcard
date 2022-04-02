@@ -15,7 +15,7 @@ io = Object.assign(io, { dataOut: false })
 function onload () {
   io.dataIn.items.forEach((element, index) => {
     let label = document.createElement('label')
-    label.setAttribute('value', `${element.label}数量：`)
+    label.setAttribute('value', Zotero.ZotCard.Utils.getString('zotcard.quantity', element.label)) 
     document.getElementById('groupbox').appendChild(label)
     let textbox = document.createElement('textbox')
     textbox.setAttribute('id', element.id)
@@ -32,7 +32,7 @@ function ok () {
   document.querySelectorAll('#groupbox textbox').forEach(textbox => {
     if (textbox.value.length > 0) {
       if (textbox.value.match(/\D/g)) {
-        Zotero.ZotCard.Utils.warning('请正确输入数量。')
+        Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.correct_quantity'))
         textbox.focus()
       } else {
         let index = parseInt(textbox.getAttribute('item-index'))

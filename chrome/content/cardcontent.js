@@ -4,6 +4,21 @@ let noteContent
 let noteTitle
 
 function start () {
+  Zotero.debug(Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.wordnumbertitle'))
+  document.getElementById('wordnumbertitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.wordnumbertitle')
+  document.getElementById('fontsizetitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.fontsizetitle')
+  document.getElementById('linespacingtitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.linespacingtitle')
+  document.getElementById('paragraphspacingtitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.paragraphspacingtitle')
+  document.getElementById('titlestyletitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyletitle')
+  document.getElementById('titlestyle_nonetitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyle_nonetitle')
+  document.getElementById('titlestyle_h1title').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyle_h1title')
+  document.getElementById('titlestyle_h2title').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyle_h2title')
+  document.getElementById('titlestyle_h3title').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyle_h3title')
+  document.getElementById('titlestyle_h4title').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyle_h4title')
+  document.getElementById('titlestyle_bodytitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyle_bodytitle')
+  document.getElementById('titlestyle_bodyboldtitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyle_bodyboldtitle')
+  document.getElementById('printtitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.printtitle')
+
   let id = getQueryVariable('id')
   let note = Zotero.Items.get(id)
   if (note) {
