@@ -874,8 +874,8 @@ zotcard.newCard = async function (pane, name, stand) {
   var content = pref.card
 
   let econtent = 'function jscontent() {var itemType = "' + itemType +
-    '", authors = [' + authors.map(e => '"' + e + '"').join(',') + '], title = "' + title +
-    '", shortTitle = "' + shortTitle +
+    '", authors = [' + authors.map(e => '"' + e + '"').join(',') + '], title = "' + title.replace(/"|'/g, "\\\"") +
+    '", shortTitle = "' + shortTitle.replace(/"|'/g, "\\\"") +
     '", archive = "' + archive +
     '", archiveLocation = "' + archiveLocation +
     '", url = "' + url +
@@ -885,15 +885,15 @@ zotcard.newCard = async function (pane, name, stand) {
     ', weekOfYear = ' + weekOfYear +
     ', week = "' + week +
     '", week_en = "' + weekEn +
-    '", extra = "' + extra +
-    '", publisher = "' + publisher +
-    '", publicationTitle = "' + publicationTitle +
+    '", extra = "' + extra.replace(/"|'/g, "\\\"") +
+    '", publisher = "' + publisher.replace(/"|'/g, "\\\"") +
+    '", publicationTitle = "' + publicationTitle.replace(/"|'/g, "\\\"") +
     '", ISBN = "' + ISBN +
     '", numPages = ' + (numPages || '0') +
     ', now = "' + now +
     '", today = "' + today +
     '", month = "' + month +
-    '", text = "' + text + '"; return `' + content + '`}; jscontent()'
+    '", text = "' + text.replace(/"|'/g, "\\\"") + '"; return `' + content + '`}; jscontent()'
   Zotero.debug(econtent)
   content = Zotero.getMainWindow().eval(econtent)
   

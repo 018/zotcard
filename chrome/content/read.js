@@ -176,7 +176,7 @@ function search () {
       if (tag && tag !== Zotero.ZotCard.Utils.getString('zotcard.none') && !e.tags.includes(tag)) {
         return false
       }
-      if (tag !== Zotero.ZotCard.Utils.getString('zotcard.none') && e.tags.length > 0) {
+      if (tag === Zotero.ZotCard.Utils.getString('zotcard.none') && e.tags.length > 0) {
         return false
       }
     }
@@ -733,7 +733,7 @@ function matchNote (note) {
   let newNote = Zotero.getMainWindow().Zotero.ZotCard.Utils.clearShadowAndBorder(note)
   let filterText = document.getElementById('filter-text').value
   if (document.getElementById('highlight').checked && filterText) {
-    newNote = newNote.replace(filterText, '<span class="highlight">' + filterText + '</span>')
+    newNote = newNote.replace(eval('/' + filterText + '/g'), '<span class="highlight">' + filterText + '</span>')
   }
   return newNote
 }

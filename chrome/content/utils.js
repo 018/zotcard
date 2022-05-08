@@ -566,5 +566,5 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.promptForRestart = function (message
 
 Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer = function (uri, features) {
   var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"].getService(Components.interfaces.nsIWindowWatcher)
-  return ww.openWindow(null, uri, null, features ? features : 'menubar=yes,toolbar=no,location=no,scrollbars,centerscreen,resizable', null)
+  return ww.openWindow(null, uri, null, features ? features : `menubar=yes,toolbar=no,location=no,scrollbars,centerscreen,resizable,,height=${screen.availHeight},width=${screen.availWidth}`, null)
 }
