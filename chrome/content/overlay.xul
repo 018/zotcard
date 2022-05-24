@@ -124,6 +124,13 @@
                 <menuseparator
                     class="dynamic-menu only-note only-simple" />
                 <menuitem
+                    id="zotero-itemmenu-zotcard-copylink"
+                    class="dynamic-menu only-note only-simple"
+                    label="&zotero.zotcard.copylink.label;"
+                    oncommand="Zotero.ZotCard.copylink()"/>
+                <menuseparator
+                    class="dynamic-menu only-note only-simple" />
+                <menuitem
                     id="zotero-itemmenu-zotcard-notesourcecode"
                     class="dynamic-menu only-note only-simple"
                     label="&zotero.zotcard.notesourcecode.label;"

@@ -779,19 +779,6 @@ zotcard.newCard = async function (pane, name, stand) {
   }
 
   var itemType = ''
-  var authors = []
-  var title = ''
-  var shortTitle = ''
-  var archive = ''
-  var archiveLocation = ''
-  var url = ''
-  var date = ''
-  var year = ''
-  var extra = ''
-  var publisher = ''
-  var publicationTitle = ''
-  var ISBN = ''
-  var numPages = ''
   var nowDate = new Date()
   var now = Zotero.ZotCard.Utils.formatDate(nowDate, 'yyyy-MM-dd HH:mm:ss')
   var today = Zotero.ZotCard.Utils.formatDate(nowDate, 'yyyy-MM-dd')
@@ -844,82 +831,126 @@ zotcard.newCard = async function (pane, name, stand) {
       zitem = zitems[0]
     }
 
-    var creatorsData = zitem.getCreators()
-    var creatorTypeAuthor = Zotero.CreatorTypes.getID('author')
-    for (let i = 0; i < creatorsData.length; i++) {
-      let creatorTypeID = creatorsData[i].creatorTypeID
-      let creatorData = creatorsData[i]
-      if (creatorTypeID === creatorTypeAuthor) {
-        authors.push(creatorData.lastName || creatorData.firstName)
-        if (isDebug()) Zotero.debug('creatorData: ' + JSON.stringify(creatorData))
-      }
-    }
-
     itemType = zitem.itemType
-    title = zitem.getField('title')
-    shortTitle = zitem.getField('shortTitle')
-    archive = zitem.getField('archive')
-    archiveLocation = zitem.getField('archiveLocation')
-    url = zitem.getField('url')
-    date = zitem.getField('date')
     year = zitem.getField('year')
-    extra = zitem.getField('extra')
-    publisher = zitem.getField('publisher')
-    publicationTitle = zitem.getField('publicationTitle')
-    ISBN = zitem.getField('ISBN')
-    numPages = zitem.getField('numPages')
   }
 
   var item = new Zotero.Item('note')
   var content = pref.card
-
-  let econtent = 'function jscontent() {var itemType = "' + itemType +
-    '", authors = [' + authors.map(e => '"' + e + '"').join(',') + '], title = "' + title.replace(/"|'/g, "\\\"") +
-    '", shortTitle = "' + shortTitle.replace(/"|'/g, "\\\"") +
-    '", archive = "' + archive +
-    '", archiveLocation = "' + archiveLocation +
-    '", url = "' + url +
-    '", date = "' + date +
-    '", year = "' + year +
-    '", dayOfYear = ' + dayOfYear +
-    ', weekOfYear = ' + weekOfYear +
-    ', week = "' + week +
-    '", week_en = "' + weekEn +
-    '", extra = "' + extra.replace(/"|'/g, "\\\"") +
-    '", publisher = "' + publisher.replace(/"|'/g, "\\\"") +
-    '", publicationTitle = "' + publicationTitle.replace(/"|'/g, "\\\"") +
-    '", ISBN = "' + ISBN +
-    '", numPages = ' + (numPages || '0') +
-    ', now = "' + now +
-    '", today = "' + today +
-    '", month = "' + month +
-    '", text = "' + text.replace(/"|'/g, "\\\"") + '"; return `' + content + '`}; jscontent()'
-  Zotero.debug(econtent)
-  content = Zotero.getMainWindow().eval(econtent)
+  var json = zitem.toJSON()
+  var itemFields = Zotero.ItemFields.getAll().map(e => e.name)
+  var creatorTypes = Zotero.CreatorTypes.getTypes().map(e => e.name)
+  const spliceItemFields = (field) => {
+    var index = itemFields.indexOf(field)
+    if (index > -1) {
+      itemFields.splice(index, 1)
+    }
+  }
+  const spliceCreatorTypes = (type) => {
+    var index = creatorTypes.indexOf(type)
+    if (index > -1) {
+      creatorTypes.splice(index, 1)
+    }
+  }
   
-  content = content.replace(/\{authors\}/g, authors.toString())
-    .replace(/\{itemType\}/g, itemType)
-    .replace(/\{title\}/g, title)
-    .replace(/\{now\}/g, now)
+  let econtent = '(() => {' +
+    'var itemType = "' + itemType + '";\n' +
+    'var now = "' + now + '";\n' +
+    'var today = "' + today + '";\n' +
+    'var month = "' + month + '";\n' +
+    'var year = "' + year + '";\n'
+  for (const key in json) {
+    if (Object.hasOwnProperty.call(json, key)) {
+      const element = json[key];
+      switch (key) {
+        case 'tags':
+          econtent += 'var ' + key + ' = ' + JSON.stringify(element.map(e => e.tag)) + ';\n'
+          spliceItemFields(key)
+          break;
+        case 'creators':
+          var creators = {}
+          if (element.length > 0) {
+            element.forEach(ee => {
+              var name = ee.name ? ee.name : ee.lastName + ee.firstName
+              if (Object.hasOwnProperty.call(creators, ee.creatorType)) {
+                creators[ee.creatorType].push(name)
+              } else {
+                creators[ee.creatorType] = [name]
+              }
+            })
+            for (const key in creators) {
+              if (Object.hasOwnProperty.call(creators, key)) {
+                const e = creators[key];
+                econtent += 'var ' + key + 's = ' + JSON.stringify(e) + ';\n'
+                spliceCreatorTypes(key)
+              }
+            }
+          }
+          break;
+        case 'relations':
+        case 'collections':
+          break;
+        case 'dateAdded':
+        case 'dateModified':
+          Zotero.debug('zotcard@' + key + ': ' + element)
+          econtent += 'var ' + key + ' = "' + Zotero.ZotCard.Utils.sqlToDate(zitem.getField(key), 'yyyy-MM-dd HH:mm:ss') + '";\n'
+          spliceItemFields(key)
+          break;
+        default:
+          switch (Object.prototype.toString.call(element)) {
+            case '[object Number]':
+            case '[object Boolean]':
+              econtent += 'var ' + key + ' = ' + element + ';\n'
+              spliceItemFields(key)
+              break;
+            case '[object String]':
+              econtent += 'var ' + key + ' = "' + element.replace(/"|'/g, "\\\"").replace(/\n/g, "\\n") + '";\n'
+              spliceItemFields(key)
+              break;
+            case '[object Object]':
+            case '[object Array]':
+              econtent += 'var ' + key + ' = ' + JSON.stringify(element) + ';\n'
+              spliceItemFields(key)
+              break;
+            default:
+              break;
+          }
+          break;
+      }
+    }
+  }
+  itemFields.forEach(element => {
+    econtent += 'var ' + element + ' = "";\n'
+  });
+  creatorTypes.forEach(element => {
+    econtent += 'var ' + element + 's = "";\n'
+  });
+  econtent += 'var text = "' + text.replace(/"|'/g, "\\\"") + '";\nreturn `' + content + '`;\n})()'
+  Zotero.debug(econtent)
+  try {
+    content = Zotero.getMainWindow().eval(econtent)
+  } catch (error) {
+    Zotero.ZotCard.Utils.warning(error)
+  }
+  
+  content = content.replace(/\{now\}/g, now)
     .replace(/\{today\}/g, today)
     .replace(/\{month\}/g, month)
     .replace(/\{dayOfYear\}/g, dayOfYear)
     .replace(/\{weekOfYear\}/g, weekOfYear)
     .replace(/\{week\}/g, week)
     .replace(/\{week_en\}/g, weekEn)
-    .replace(/\{shortTitle\}/g, shortTitle)
-    .replace(/\{archive\}/g, archive)
-    .replace(/\{archiveLocation\}/g, archiveLocation)
-    .replace(/\{url\}/g, url)
-    .replace(/\{date\}/g, date)
-    .replace(/\{year\}/g, year)
-    .replace(/\{extra\}/g, extra)
-    .replace(/\{publisher\}/g, publisher)
-    .replace(/\{publicationTitle\}/g, publicationTitle)
-    .replace(/\{ISBN\}/g, ISBN)
-    .replace(/\{numPages\}/g, numPages)
     .replace(/\\n/g, '\n')
     .replace(/\{text\}/g, text)
+  
+  for (const key in json) {
+    if (Object.hasOwnProperty.call(json, key)) {
+      const element = json[key];
+      if (!['tags', 'creators', 'relations', 'collections', 'dateAdded', 'dateModified'].includes(key)) {
+        content.replace(new RegExp('\{' + key + '\}', 'g'), element)
+      }
+    }
+  }
   item.setNote(content)
   if (stand) {
     item.addToCollection(ZoteroPane.getSelectedCollection().id)
@@ -1111,7 +1142,7 @@ zotcard.doReplace = function (target) {
   }
 }
 
-zotcard.copy = function () {
+zotcard.copy = async function () {
   var zitems = Zotero.ZotCard.Utils.getSelectedItems(['note'])
   if (!zitems || zitems.length <= 0) {
     var ps = Components.classes['@mozilla.org/embedcomp/prompt-service;1'].getService(Components.interfaces.nsIPromptService)
@@ -1120,13 +1151,26 @@ zotcard.copy = function () {
   }
 
   var notes = ''
-  zitems.forEach(zitem => {
-    notes += zitem.getNote() + '<br /><br />'
-  })
+  for (let index = 0; index < zitems.length; index++) {
+    const zitem = zitems[index]
+    let noteContent = zitem.getNote()
+    if (Zotero.ZotCard.Utils.attachmentExistsImg(noteContent)) {
+      let ret = await Zotero.ZotCard.Utils.loadAttachmentImg(zitem)
+      noteContent = ret.note
+      if (!noteContent.startsWith('<div')) {
+        noteContent = `<div data-schema-version="8" cardlink="${Zotero.ZotCard.Utils.getZoteroItemUrl(zitem.key)}">${noteContent}</div>`
+      } else {
+        let doc = new DOMParser().parseFromString(noteContent, 'text/html')
+        doc.body.children[0].setAttribute('cardlink', Zotero.ZotCard.Utils.getZoteroItemUrl(zitem.key))
+        noteContent = doc.body.innerHTML
+      }
+    }
+    notes += noteContent + '<br class="card-separator" /><br class="card-separator" />'
+  }
   if (!Zotero.ZotCard.Utils.copyHtmlToClipboard(notes)) {
     Zotero.ZotCard.Utils.error(Zotero.ZotCard.Utils.getString('zotcard.readcard.copythefailure'))
   } else {
-    Zotero.ZotCard.Utils.success(Zotero.ZotCard.Utils.getString('zotcard.readcard.copysucceeded'))
+    Zotero.ZotCard.Utils.success(Zotero.ZotCard.Utils.getString('zotcard.readcard.copysucceededcount', zitems.length))
   }
 }
 
@@ -1347,6 +1391,22 @@ zotcard.print = async function () {
 
   var zitem = zitems[0]
   Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer('chrome://zoterozotcard/content/cardcontent.html?id=' + zitem.id)
+}
+
+zotcard.copylink = async function () {
+  var zitems = Zotero.ZotCard.Utils.getSelectedItems(['note'])
+  if (!zitems || zitems.length <= 0) {
+    Zotero.ZotCard.Utils.error(Utils.getString('zotcard.only_note'))
+    return
+  }
+  if (zitems.length !== 1) {
+    Zotero.ZotCard.Utils.error(Utils.getString('zotcard.only_note'))
+    return
+  }
+
+  var zitem = zitems[0]
+  var link = Zotero.ZotCard.Utils.getZoteroItemUrl(zitem.key)
+  Zotero.ZotCard.Utils.copyTextToClipboard(link)
 }
 
 
@@ -1760,6 +1820,7 @@ if (typeof window !== 'undefined') {
   window.Zotero.ZotCard.closeall = function () { zotcard.closeall() }
   window.Zotero.ZotCard.compressimg = function () { zotcard.compressimg() }
   window.Zotero.ZotCard.print = function () { zotcard.print() }
+  window.Zotero.ZotCard.copylink = function () { zotcard.copylink() }
   window.Zotero.ZotCard.notesourcecode = function () { zotcard.notesourcecode() }
   
   window.Zotero.ZotCard.config = function () { zotcard.config() }

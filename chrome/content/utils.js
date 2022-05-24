@@ -210,6 +210,23 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.copyHtmlToClipboard = function (text
   return true
 }
 
+Zotero.getMainWindow().Zotero.ZotCard.Utils.copyTextToClipboard = function (text) {
+  text = text.replace(/\r\n/g, '\n')
+  // copy to clipboard
+  let transferable = Components.classes['@mozilla.org/widget/transferable;1'].createInstance(Components.interfaces.nsITransferable)
+  let clipboardService = Components.classes['@mozilla.org/widget/clipboard;1'].getService(Components.interfaces.nsIClipboard)
+
+  // Add Text
+  let str = Components.classes['@mozilla.org/supports-string;1'].createInstance(Components.interfaces.nsISupportsString);
+  str.data = text
+  transferable.addDataFlavor('text/unicode')
+  transferable.setTransferData('text/unicode', str, text.length * 2)
+
+  clipboardService.setData(
+    transferable, null, Components.interfaces.nsIClipboard.kGlobalClipboard
+  )
+}
+
 Zotero.getMainWindow().Zotero.ZotCard.Utils.dataURItoBlob = function (dataURI) {
   var mimeString = dataURI
     .split(',')[0]
@@ -254,6 +271,10 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.formatDate = function (date, format)
   return format
 }
 
+Zotero.getMainWindow().Zotero.ZotCard.Utils.now = function () {
+  return Zotero.ZotCard.Utils.formatDate(new Date(), 'yyyy-MM-dd HH:mm:ss.S')
+}
+
 Zotero.getMainWindow().Zotero.ZotCard.Utils.hangzi = function (html) {
   var content = Zotero.ZotCard.Utils.htmlToText(html)
   Zotero.debug(`zotcard@content: ${content}`)
@@ -277,12 +298,46 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.lines = function (html) {
   }
 }
 
+Zotero.getMainWindow().Zotero.ZotCard.Utils.loadAttachmentImg = async function (note) {
+  let noteContent = note.getNote()
+  let doc = new DOMParser().parseFromString(noteContent, 'text/html')
+  let imgs = doc.querySelectorAll('img[data-attachment-key]')
+  if (imgs.length === 0) {
+    Zotero.debug('zotcard@loadAttachmentImg no has imgs.')
+    return {
+      id: note.id,
+      note: noteContent
+    }
+  }
+
+  for (let img of imgs) {
+    let attachmentKey = img.getAttribute('data-attachment-key')
+    if (attachmentKey) {
+      let attachment = Zotero.Items.getByLibraryAndKey(note.libraryID, attachmentKey)
+      if (attachment && attachment.parentID == note.id) {
+        let dataURI = await attachment.attachmentDataURI
+        img.setAttribute('src', dataURI)
+      }
+    }
+    img.removeAttribute('data-attachment-key')
+  }
+  Zotero.debug('zotcard@loadAttachmentImg: ' + doc.body.innerHTML.length)
+  return {
+    id: note.id,
+    note: doc.body.innerHTML
+  }
+}
+
+Zotero.getMainWindow().Zotero.ZotCard.Utils.attachmentExistsImg = function (noteContent) {
+  return noteContent.includes('data-attachment-key')
+}
+
 Zotero.getMainWindow().Zotero.ZotCard.Utils.toCardItem = function (note) {
   let noteTitle = note.getNoteTitle()
   let noteContent = note.getNote()
 
   let match3 = noteTitle.match('[\u4e00-\u9fa5]+' + Zotero.ZotCard.Utils.getString('zotcard.card'))
-  let cardtype = match3 ? match3[0] : Zotero.ZotCard.Utils.getString('zotcard.other')
+  let cardtype = match3 ? match3[0].trim() : Zotero.ZotCard.Utils.getString('zotcard.other')
 
   let author = Zotero.ZotCard.Utils.getCardItemValue(noteContent, Zotero.ZotCard.Utils.getString('zotcard.author'))
   let tags = Zotero.ZotCard.Utils.getCardItemValue(noteContent, Zotero.ZotCard.Utils.getString('zotcard.tag')).split(/[\[ \],，]/).filter(e => e && e !== Zotero.ZotCard.Utils.getString('zotcard.none'))
@@ -567,4 +622,40 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.promptForRestart = function (message
 Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer = function (uri, features) {
   var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"].getService(Components.interfaces.nsIWindowWatcher)
   return ww.openWindow(null, uri, null, features ? features : `menubar=yes,toolbar=no,location=no,scrollbars,centerscreen,resizable,,height=${screen.availHeight},width=${screen.availWidth}`, null)
+}
+
+Zotero.getMainWindow().Zotero.ZotCard.Utils.isUserLibraryItem = function (key) {
+  return Zotero.Items.getIDFromLibraryAndKey(Zotero.Libraries.userLibraryID, key);
+}
+
+Zotero.getMainWindow().Zotero.ZotCard.Utils.getGroupIDByKey = function (key) {
+  var groups = Zotero.Groups.getAll()
+  var groupID
+  for (let index = 0; index < groups.length; index++) {
+    const element = groups[index];
+    if (Zotero.Items.getIDFromLibraryAndKey(element.libraryID, key)) {
+      groupID = element.id
+      break
+    }
+  }
+  
+  return groupID
+}
+
+Zotero.getMainWindow().Zotero.ZotCard.Utils.getZoteroItemUrl = function (key) {
+  if (Zotero.getMainWindow().Zotero.ZotCard.Utils.isUserLibraryItem(key)) {
+    return `zotero://select/library/items/${key}`
+  } else {
+    var groupID = Zotero.getMainWindow().Zotero.ZotCard.Utils.getGroupIDByKey(key)
+    
+    return `zotero://select/groups/${groupID}/items/${key}`
+  }
+}
+
+Zotero.getMainWindow().Zotero.ZotCard.Utils.loadAnnotationImg = async function (annotation) {
+  let file = Zotero.Annotations.getCacheImagePath(annotation)
+  if (await OS.File.exists(file)) {
+    let img = await Zotero.File.generateDataURI(file, 'image/png')
+    return img
+  }
 }

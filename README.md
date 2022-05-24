@@ -113,8 +113,8 @@ Only Chinese and English are supported.
 <p>- <strong>简介</strong>：<span style="color: #bbbbbb;">&lt;出生日期，出生地，毕业院校，生平等&gt;</span></p>
 <p>- <strong>作品</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span style="color: #bbbbbb;">...</span></p>
 <p>- <strong>成就</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span style="color: #bbbbbb;">...</span></p>
-<p>- <strong>出处</strong>：{authors}《{title}》({year}) P<span style="color: #bbbbbb;">&lt;页码&gt;</span>
-</p><p>- <strong>日期</strong>：{today}</p>
+<p>- <strong>出处</strong>：${authors}《${title}》(${year}) P<span style="color: #bbbbbb;">&lt;页码&gt;</span>
+</p><p>- <strong>日期</strong>：${today}</p>
 ```
 
 `<h3>...</h3>`为三级标题，如需要一级标题可以改为`<h1>...</h1>`。
@@ -133,7 +133,12 @@ Only Chinese and English are supported.
 
 `<br />`为换行，跟`p`的区别就是行间距不一样，`br`的行间距比较小。
 
-另外还有书籍中的信息：`{text}`或`${text}`为文献中选中的文字，`{authors}`或`${authors}`为作者，`{title}`或`${title}`为书名，`{shortTitle}`或`${shortTitle}`为短标题，`{archive}`或`${archive}`为归档，`{archiveLocation}`或`${archiveLocation}`为归档位置，`{url}`或`${url}`为网址，`{date}`或`${date}`为日期，`{year}`或`${year}`为年份，`{extra}`或`${extra}`为其他，`{publisher}`或`${publisher}`为出版社，`{publicationTitle}`或`${publicationTitle}`为期刊，`{ISBN}`或`${ISBN}`为ISBN，`{numPages}`或`${numPages}`为总页数，时间信息：`{today}`或`${today}`为今天日期，`{month}`或`${month}`为月份，`{dayOfYear}`或`${dayOfYear}`为今年第几天，`{weekOfYear}`或`${weekOfYear}`为今年第几周（默认是以周日作为一周的第一天，以周一作为第一天可以配置`extensions.zotero.zotcard.startOfWeek`为1。），`{week}`或`${week}`为星期几（值为日、一、二、三、四、五、六），`{week_en}`或`${week_en}`为英文的星期几（值为Sun.、Mon.、Tues.、Wed.、Thurs.、Fri.、Sat.），`{now}`或`${now}`为现在时间。
+另外还有书籍中的信息：
+- 时间信息：`${today}`或`{today}`为今天日期，`${month}`或`{month}`为月份，`${dayOfYear}`或`{dayOfYear}`为今年第几天，`${weekOfYear}`或`{weekOfYear}`为今年第几周（默认是以周日作为一周的第一天，以周一作为第一天可以配置`extensions.zotero.zotcard.startOfWeek`为1。），`${week}`或`{week}`为星期几（值为日、一、二、三、四、五、六），`${week_en}`或`{week_en}`为英文的星期几（值为Sun.、Mon.、Tues.、Wed.、Thurs.、Fri.、Sat.），`${now}`或`{now}`为现在时间。
+- 扩展信息：`${text}`或`{text}`为文献中选中的文字。
+- 条目信息：常用的有`${title}`或`{title}`为书名，`${shortTitle}`或`{shortTitle}`为短标题，`${archive}`或`{archive}`为归档，`${archiveLocation}`或`{archiveLocation}`为归档位置，`${url}`或`{url}`为网址，`${date}`或`{date}`为日期，`${year}`或`{year}`为年份，`${extra}`或`{extra}`为其他，`${publisher}`或`{publisher}`为出版社，`${publicationTitle}`或`{publicationTitle}`为期刊，`${ISBN}`或`{ISBN}`为ISBN，`${numPages}`或`{numPages}`为总页数，`${authors}`为作者，`${translators}`为译者 ... [更多属性，参考Zotero field。](https://aurimasv.github.io/z2csl/typeMap.xml)。
+请使用`${...}`这种格式，`{...}`已经弃用，因为${...}是JS的字符串模版，你可以`${这里面可以编程}`，比如`{text ? text : '<无选择文字>'}`。
+
 
 有一个技巧，就是在Zotero的笔记中编辑好，然后右键「源代码」，复制出来也可以。
 
@@ -201,6 +206,10 @@ Only Chinese and English are supported.
 
 此功能可调整格式然后直接打印。
 
+**复制链接**
+
+此功能直接复制笔记的链接，方便在笔记或其他软件中跳转。
+
 **笔记源代码**
 
 由于Zotero6去掉了查看源代码，此功能可以编辑笔记的源代码。
@@ -220,7 +229,7 @@ Only Chinese and English are supported.
 
 <img src="https://raw.githubusercontent.com/018/zotcard/main/image/readcard.png" alt="读卡" width="600"/>
 
-对所选（包括「我的文库」、「分类」、「保存的搜索」、「群组文库」）中所有卡片进行读卡，还支持专注模式，支持自定义查询时间、作者、卡片类型、卡片标签和关键字搜索，还是支持关键字高亮显示。在读卡过程中随时可以编辑、定位，对已读的卡片可以隐藏，还可以简单进行拼卡，置顶/置底/上移/下移卡片，最后确认位置后复制卡片内容在Word等编辑工具粘贴。
+对所选（包括「我的文库」、「分类」、「保存的搜索」、「群组文库」）中所有卡片进行读卡，还支持专注模式，支持自定义查询时间、作者、卡片类型、卡片标签和关键字搜索，还是支持关键字高亮显示。在读卡过程中随时可以编辑、定位，对已读的卡片可以隐藏，还可以简单进行拼卡，置顶/置底/上移/下移卡片，最后确认位置后复制所有或选中的卡片内容在Word等编辑工具粘贴，还能支持导出所有或选中的卡片到HTML或txt文件。
 
 <img src="https://raw.githubusercontent.com/018/zotcard/main/image/card-operation.png" alt="卡片操作" width="300"/>
 

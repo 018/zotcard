@@ -55,12 +55,13 @@ var filters = Object.assign({
 var totals = cards.length
 var showHidden = false
 var extra = {}//[{id: {hidden: true, expand: true}, ...] 
+Zotero.debug(`zotcard@io.dataIn: `)
 Zotero.debug(io.dataIn)
 
 function start () {
   document.body.style.fontSize = Zotero.Prefs.get('note.fontSize') + 'px'
   document.getElementById('concentration').style.fontSize = (parseInt(Zotero.Prefs.get('note.fontSize')) + 2) + 'px'
-  Zotero.debug(`body font-size: ${document.body.style.fontSize}`)
+  Zotero.debug(`[${Zotero.ZotCard.Utils.now()}] body font-size: ${document.body.style.fontSize}`)
   document.getElementById('card-width').value = Zotero.Prefs.get('zotcard.config.read.card-width') || '350'
   document.getElementById('card-height').value = Zotero.Prefs.get('zotcard.config.read.card-height') || ''
   document.getElementById('highlight').checked = Zotero.Prefs.get('zotcard.config.read.highlight') || false
@@ -74,20 +75,14 @@ function start () {
   document.getElementById('end-date').hidden = document.getElementById('start-date').hidden
   document.getElementById('split-date').hidden = document.getElementById('start-date').hidden
   document.getElementById('dateselect').value = !filters.startDate && !filters.endDate ? 'all' : ''
+  
   if (options.cardtypes.length > 0) {
     options.cardtypes.sort((e1, e2) => {
       return e2.count - e1.count
     })
-    options.cardtypes.forEach(element => {
-      let option = document.createElement('option')
-      option.setAttribute('value', element.name)
-      option.textContent = `${element.name}(${element.count})`
-      document.getElementById('typeselect').append(option)
-    })
-    document.getElementById('typeselect').value = filters.cardtype
-  } else {
-    document.getElementById('typeselect').value = ''
   }
+  createTypesSelect()
+
   if (options.cardauthors.length > 0) {
     options.cardauthors.sort((e1, e2) => {
       return e2.count - e1.count
@@ -105,33 +100,25 @@ function start () {
       element.hidden = true
     })
   }
+
   if (options.cardtags.length > 0) {
     options.cardtags.sort((e1, e2) => {
       return e2.count - e1.count
     })
-    options.cardtags.forEach(element => {
-      let option = document.createElement('option')
-      option.setAttribute('value', element.name)
-      option.textContent = `${element.name}(${element.count})`
-      document.getElementById('tagselect').append(option)
-    })
-    document.getElementById('tagselect').value = filters.cardtag
-  } else {
-    document.getElementById('tagselect').value = 'all'
   }
+  createTagsSelect()
 
   document.getElementById('filter-text').value = filters.text
 
   let orderby = Zotero.Prefs.get('zotcard.config.read.orderby') || 'date'
   let desc = Zotero.Prefs.get('zotcard.config.read.orderbydesc') || true
-  Zotero.debug(`${orderby}, ${desc}`)
+  Zotero.debug(`zotcard@orderby: ${orderby}, desc: ${desc}`)
   document.querySelectorAll('#orderby .tag').forEach(element => {
     element.textContent = ''
   })
   document.getElementById(`orderby${orderby}`).textContent = (desc === '1' ? '▼' : '▲')
 
   document.getElementById('concentration').hidden = false
-  loadNum()
 
   if (cards.length === 0) {
     empty()
@@ -140,31 +127,150 @@ function start () {
   }
 }
 
+function createTagsSelect() {
+  let select = document.createElement('select')
+  let option = document.createElement('option')
+  option.setAttribute('value', 'all')
+  option.textContent = ''
+  select.append(option)
+  if (options.cardtags.length > 0) {
+    options.cardtags.forEach(element => {
+      let option = document.createElement('option')
+      option.setAttribute('value', element.name)
+      option.textContent = `${element.name}(${element.count})`
+      select.append(option)
+    })
+    select.value = filters.cardtag
+  } else {
+    select.value = 'all'
+  }
+  select.onchange = function(e) {
+    if (e.target.value === 'all') {
+      var selects = document.querySelectorAll('#tagselect select')
+      var found = false
+      selects.forEach(select => {
+        if (select.value === 'all') {
+          if (found) {
+            select.remove()
+          }
+          found = true
+        }
+      })
+    } else {
+      var selects = document.querySelectorAll('#tagselect select')
+      var allfound = false
+      selects.forEach(select => {
+        if (select.value === 'all') {
+          allfound = true
+        }
+      })
+      if (!allfound) {
+        createTagsSelect()
+      }
+    }
+  }
+  document.getElementById('tagselect').append(select)
+}
+
+function createTypesSelect() {
+  let select = document.createElement('select')
+  let option = document.createElement('option')
+  option.setAttribute('value', 'all')
+  option.textContent = ''
+  select.append(option)
+  if (options.cardtypes.length > 0) {
+    options.cardtypes.forEach(element => {
+      let option = document.createElement('option')
+      option.setAttribute('value', element.name)
+      option.textContent = `${element.name}(${element.count})`
+      select.append(option)
+    })
+    select.value = filters.cardtag
+  } else {
+    select.value = 'all'
+  }
+  select.onchange = function(e) {
+    if (e.target.value === 'all') {
+      var selects = document.querySelectorAll('#typeselect select')
+      var found = false
+      selects.forEach(select => {
+        if (select.value === 'all') {
+          if (found) {
+            select.remove()
+          }
+          found = true
+        }
+      })
+    } else {
+      var selects = document.querySelectorAll('#typeselect select')
+      var allfound = false
+      selects.forEach(select => {
+        if (select.value === 'all') {
+          allfound = true
+        }
+      })
+      if (!allfound) {
+        createTypesSelect()
+      }
+    }
+  }
+  document.getElementById('typeselect').append(select)
+}
+
 function loadNum () {
   document.getElementById('filters').textContent = results.length
   document.getElementById('totals').textContent = totals
   document.getElementById('copys').textContent = document.getElementById('content-list').children.length
+  document.getElementById('copyselecteds').textContent = Object.values(extra).filter(e => e.selected).length
   let hides = results.filter(e => !extra[e.id] || extra[e.id].hidden).length
   document.getElementById('hides').textContent = hides
   let expands = results.filter(e => !extra[e.id] || extra[e.id].expand).length
   document.getElementById('expands').textContent = results.length - expands
   document.getElementById('collapses').textContent = expands
+  Zotero.debug(`[${Zotero.ZotCard.Utils.now()}] zotcard@loadNum`)
 }
 
 function search () {
   let startDate = document.getElementById('start-date').value
   let endDate = document.getElementById('end-date').value
-  let type = document.getElementById('typeselect').value
   let author = document.getElementById('authorselect').value
-  let tag = document.getElementById('tagselect').value
+  let types = []
+  document.querySelectorAll('#typeselect select').forEach(select => {
+    if (select.value !== 'all') {
+      types.push(select.value)
+    }
+  })
+  Zotero.debug(`[${Zotero.ZotCard.Utils.now()}] zotcard@types`)
+
+  let tags = []
+  document.querySelectorAll('#tagselect select').forEach(select => {
+    if (select.value !== 'all') {
+      tags.push(select.value)
+    }
+  })
+  Zotero.debug(`[${Zotero.ZotCard.Utils.now()}] zotcard@tags`)
+
   let filter = document.getElementById('filter-text').value
-  Zotero.debug(`${startDate} ~ ${endDate}, ${type}, ${author}, ${tag}, ${filter}`)
+  Zotero.debug(`[${Zotero.ZotCard.Utils.now()}] zotcard@search: date: ${startDate} ~ ${endDate}, types: ${types}, author: ${author}, tags: ${tags}, filter: ${filter}`)
   results = cards.filter(e => {
     if (e.date < startDate || e.date > endDate) {
       return false
     }
-    if (type !== 'all' && e.type !== type) {
-      return false
+    if (types.length !== 0) {
+      var found = false
+      for (let index = 0; index < types.length; index++) {
+        const type = types[index]
+        if (type !== Zotero.ZotCard.Utils.getString('zotcard.none') && e.type === type) {
+          found = true
+        }
+        if (type === Zotero.ZotCard.Utils.getString('zotcard.none') && !e.type) {
+          found = true
+        }
+      }
+
+      if (!found) {
+        return false
+      }
     }
     if (author && author !== 'all' && e.author !== author) {
       return false
@@ -172,11 +278,19 @@ function search () {
     if (author === 'all' && !e.author) {
       return false
     }
-    if (tag !== 'all') {
-      if (tag && tag !== Zotero.ZotCard.Utils.getString('zotcard.none') && !e.tags.includes(tag)) {
-        return false
+    if (tags.length !== 0) {
+      var found = false
+      for (let index = 0; index < tags.length; index++) {
+        const tag = tags[index]
+        if (tag !== Zotero.ZotCard.Utils.getString('zotcard.none') && e.tags.includes(tag)) {
+          found = true
+        }
+        if (tag === Zotero.ZotCard.Utils.getString('zotcard.none') && e.tags.length === 0) {
+          found = true
+        }
       }
-      if (tag === Zotero.ZotCard.Utils.getString('zotcard.none') && e.tags.length > 0) {
+
+      if (!found) {
         return false
       }
     }
@@ -187,7 +301,7 @@ function search () {
     return true
   })
 
-  Zotero.debug(results)
+  Zotero.debug(`[${Zotero.ZotCard.Utils.now()}] zotcard@results: ${results.length}`)
   loadCards()
 
   Zotero.Prefs.set('zotcard.config.read.highlight', document.getElementById('highlight').checked)
@@ -215,12 +329,10 @@ function ok () {
 }
 
 function loadCards () {
-  Zotero.debug(extra)
-
   let orderby = Zotero.Prefs.get('zotcard.config.read.orderby') || 'date'
   let desc = Zotero.Prefs.get('zotcard.config.read.orderbydesc')
   desc = desc === undefined ? false : desc
-  Zotero.debug(`${orderby}, ${desc}`)
+  Zotero.debug(`[${Zotero.ZotCard.Utils.now()}] zotcard@orderby: ${orderby}, desc: ${desc}`)
 
   document.getElementById('content-list').innerHTML = ''
   if (results.length === 0) {
@@ -232,23 +344,29 @@ function loadCards () {
     document.getElementById('concentration').hidden = true
     document.getElementById('content-empty').hidden = true
     results.sort((a, b) => {
-      Zotero.debug(`orderby: ${orderby}, desc: ${desc}, a: ${a[orderby]}, b: ${b[orderby]}, ${a[orderby] > b[orderby] ? (desc ? -1 : 1) : (desc ? 1 : -1)}`)
       return a[orderby] > b[orderby] ? (desc ? -1 : 1) : (desc ? 1 : -1)
     })
+    Zotero.debug(`[${Zotero.ZotCard.Utils.now()}] zotcard@loadCards sort`)
     document.getElementById('loading').hidden = true
     document.getElementById('content').hidden = false
-    results.forEach((card, index) => {
+    Zotero.debug(`[${Zotero.ZotCard.Utils.now()}] zotcard@loadCards createCard ... `)
+    for (let index = 0; index < results.length; index++) {
+      Zotero.debug(`[${Zotero.ZotCard.Utils.now()}] zotcard@loadCards createCard ${index} `)
+      const card = results[index]
       if (!extra.hasOwnProperty(card.id)) {
         extra[card.id] = {
           hidden: false,
+          selected: false,
           expand: true
         }
       }
 
       if (document.getElementById('showHidden').checked || !extra[card.id].hidden) {
-        document.getElementById('content-list').append(createCard(card, index))
+        let div = createCard(card, index)
+        document.getElementById('content-list').append(div)
       }
-    })
+    }
+    Zotero.debug(`[${Zotero.ZotCard.Utils.now()}] zotcard@loadCards createCard ${results.length} ok.`)
   }
   document.getElementById('searching').hidden = true
   loadNum()
@@ -371,7 +489,19 @@ function refreshCard (id) {
 
 function copyCard (id) {
   let card = cardOfCards(id)
-  if (!Zotero.ZotCard.Utils.copyHtmlToClipboard(card.note)) {
+  let cardDiv = document.getElementById(id)
+  let cardContentAll = cardDiv.querySelector(`.card-all`)
+
+  let noteContent = cardContentAll.innerHTML
+  if (!noteContent.startsWith('<div')) {
+    noteContent = `<div data-schema-version="8" cardlink="${Zotero.ZotCard.Utils.getZoteroItemUrl(card.key)}">${noteContent}</div>`
+  } else {
+    let doc = new DOMParser().parseFromString(noteContent, 'text/html')
+    doc.body.children[0].setAttribute('cardlink', Zotero.ZotCard.Utils.getZoteroItemUrl(card.key))
+    noteContent = doc.body.innerHTML
+  }
+  
+  if (!Zotero.ZotCard.Utils.copyHtmlToClipboard(noteContent)) {
     Zotero.ZotCard.Utils.error(Zotero.ZotCard.Utils.getString('zotcard.readcard.copythefailure'))
   } else {
     Zotero.ZotCard.Utils.success(Zotero.ZotCard.Utils.getString('zotcard.readcard.copysucceeded'))
@@ -395,6 +525,12 @@ function hideOrShowCard (id) {
   loadNum()
 
   return cards.length
+}
+
+function selectedCard (id, selected) {
+  extra[id].selected = selected
+
+  loadNum()
 }
 
 function selectItem (id) {
@@ -424,6 +560,7 @@ function clearOrderby () {
 function createCard (card, index) {
   let cardDiv = document.createElement('div')
   cardDiv.setAttribute('id', card.id)
+  cardDiv.setAttribute('key', card.key)
   cardDiv.setAttribute('class', 'card')
   cardDiv.style.width = (Zotero.Prefs.get('zotcard.config.read.card-width') || '350') + 'px'
   cardDiv.style.maxWidth = cardDiv.style.width
@@ -673,7 +810,6 @@ function createCard (card, index) {
       span = span.parentElement
     }
     let id = span.getAttribute('cardid')
-    Zotero.debug(`id: ${id}`)
     showConcentration(id)
   }
   divWarp.appendChild(span4)
@@ -690,20 +826,28 @@ function createCard (card, index) {
 
   let cardContent = document.createElement('div')
   cardContent.setAttribute('class', 'card-content')
-  let note = matchNote(card.note)
   let cardContentAll = document.createElement('div')
+  cardContentAll.setAttribute('id', `${card.id}-card-all`)
   cardContentAll.setAttribute('class', 'card-all')
   if (!Zotero.Prefs.get('zotcard.config.read.fit-height')) {
     cardContentAll.style.height = (Zotero.Prefs.get('zotcard.config.read.card-height') || '400') + 'px'
     cardContentAll.style.maxHeight = cardContentAll.style.height
   }
-  cardContentAll.innerHTML = note
+  let noteContent = card.note
+  if (Zotero.ZotCard.Utils.attachmentExistsImg(noteContent)) {
+    Zotero.debug(`zotcard@${card.id}: existsImg: ${noteContent}`)
+    Zotero.ZotCard.Utils.loadAttachmentImg(Zotero.Items.get(card.id)).then(e => {
+      Zotero.debug(`zotcard@loadAttachmentImg: ${e.id} ${e.note}`)
+      document.getElementById(`${e.id}-card-all`).innerHTML = e.note
+    })
+  }
+  cardContentAll.innerHTML = matchNote(noteContent)
   cardContentAll.hidden  = !extra[card.id].expand
   cardContent.appendChild(cardContentAll)
 
   let cardTitle = document.createElement('div')
   cardTitle.setAttribute('class', 'card-title')
-  cardTitle.innerHTML = `<h1 class="linenowrap" style="text-align: center;">${card.title}</h1>`
+  cardTitle.innerHTML = `<h3 class="linenowrap" style="text-align: center;">${card.title}</h3>`
   cardTitle.hidden  = extra[card.id].expand
   cardContent.appendChild(cardTitle)
   cardDiv.appendChild(cardContent)
@@ -713,6 +857,16 @@ function createCard (card, index) {
 
   let footer = document.createElement('div')
   footer.setAttribute('class', 'footer')
+
+  let input = document.createElement('input')
+  input.setAttribute('type', 'checkbox')
+  input.setAttribute('cardid', card.id)
+  input.checked = extra[card.id].selected
+  input.onchange = function (e) {
+    let id = e.target.getAttribute('cardid')
+    selectedCard(id, e.target.checked)
+  } 
+  footer.appendChild(input)
 
   let span14 = document.createElement('span')
   span14.setAttribute('id', 'dateModified')
@@ -772,13 +926,24 @@ function indexOfCardLists (id) {
   return -1
 }
 
+function cardInnerHTML(element) {
+  var innerHTML = element.querySelector('.card-all').innerHTML
+  if (!innerHTML.startsWith('<div')) {
+    innerHTML = `<div data-schema-version="8" cardlink="${Zotero.ZotCard.Utils.getZoteroItemUrl(element.getAttribute('key'))}">${innerHTML}</div>`
+  } else {
+    element.querySelector('.card-all').children[0].setAttribute('cardlink', Zotero.ZotCard.Utils.getZoteroItemUrl(element.getAttribute('key')))
+    innerHTML = element.querySelector('.card-all').innerHTML
+  }
+  return innerHTML
+}
+
 function copyAll () {
   if (document.getElementById('content-list').children.length > 0) {
     document.getElementById('searching').hidden = false
     let htmls = ''
     for (let index = 0; index < document.getElementById('content-list').children.length; index++) {
       const element = document.getElementById('content-list').children[index]
-      htmls += element.querySelector('.card-all').innerHTML
+      htmls += cardInnerHTML(element) + '<br class="card-separator" /><br class="card-separator" />'
     }
     if (!Zotero.ZotCard.Utils.copyHtmlToClipboard(htmls)) {
       Zotero.ZotCard.Utils.error(Zotero.ZotCard.Utils.getString('zotcard.readcard.copythefailure'))
@@ -786,7 +951,113 @@ function copyAll () {
       Zotero.ZotCard.Utils.success(Zotero.ZotCard.Utils.getString('zotcard.readcard.copysucceededcount', document.getElementById('content-list').children.length))
     }
     document.getElementById('searching').hidden = true
+  } else {
+    Zotero.ZotCard.Utils.warning('无卡片。')
   }
+}
+
+function exportAll() {
+  if (document.getElementById('content-list').children.length > 0) {
+    let htmls = ''
+    for (let index = 0; index < document.getElementById('content-list').children.length; index++) {
+      const element = document.getElementById('content-list').children[index]
+      htmls += cardInnerHTML(element) + '<br class="card-separator" /><br class="card-separator" />'
+    }
+
+    exportFile(htmls)
+  } else {
+    Zotero.ZotCard.Utils.warning('无卡片。')
+  }
+}
+
+function copySelected () {
+  if (Object.values(extra).filter(e => e.selected).length > 0) {
+    document.getElementById('searching').hidden = false
+    let htmls = ''
+    let count = 0
+    for (let index = 0; index < document.getElementById('content-list').children.length; index++) {
+      const element = document.getElementById('content-list').children[index]
+      if (element.querySelector('input[type="checkbox"]').checked) {
+        htmls += cardInnerHTML(element) + '<br class="card-separator" /><br class="card-separator" />'
+        count++
+      }
+    }
+    if (!Zotero.ZotCard.Utils.copyHtmlToClipboard(htmls)) {
+      Zotero.ZotCard.Utils.error(Zotero.ZotCard.Utils.getString('zotcard.readcard.copythefailure'))
+    } else {
+      Zotero.ZotCard.Utils.success(Zotero.ZotCard.Utils.getString('zotcard.readcard.copysucceededcount', count))
+    }
+    document.getElementById('searching').hidden = true
+  } else {
+    Zotero.ZotCard.Utils.warning('未选择卡片。')
+  }
+}
+
+function exportSelected() {
+  if (Object.values(extra).filter(e => e.selected).length > 0) {
+    let htmls = ''
+    for (let index = 0; index < document.getElementById('content-list').children.length; index++) {
+      const element = document.getElementById('content-list').children[index]
+      if (element.querySelector('input[type="checkbox"]').checked) {
+        htmls += cardInnerHTML(element) + '<br class="card-separator" /><br class="card-separator" />'
+      }
+    }
+
+    exportFile(htmls)
+  } else {
+    Zotero.ZotCard.Utils.warning('未选择卡片。')
+  }
+}
+
+function exportFile(htmls) {
+  let fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker)
+  fp.init(window, '保存', 1)
+  fp.appendFilter('Html网页', '.html')
+  fp.appendFilter('Text文本', '.txt')
+  fp.open(returnConstant => {
+    if (returnConstant === 0 || returnConstant === 2) {
+      let files = fp.files
+      while (files.hasMoreElements()) {
+        let file = files.getNext()
+        file.QueryInterface(Ci.nsIFile)
+        if (fp.filterIndex === 0) {
+          if (!file.leafName.endsWith('.html')) {
+            file.leafName = file.leafName + '.html'
+          }
+          var content = `<!DOCTYPE html>
+          <html>
+            <head>
+              <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+              </head>
+          <body>
+          ${htmls}
+          </body>
+          </html>`
+          Zotero.File.putContents(file, content)
+          Zotero.ZotCard.Utils.success('导出成功。')
+        } else if (fp.filterIndex === 1) {
+          if (!file.leafName.endsWith('.txt')) {
+            file.leafName = file.leafName + '.txt'
+          }
+          Zotero.File.putContents(file, Zotero.ZotCard.Utils.htmlToText(htmls).replace(/\n\n/g, '\n'))
+          Zotero.ZotCard.Utils.success('导出成功。')
+        }
+      }
+    }
+  })
+}
+
+function cancelSelected () {
+  if (document.getElementById('content-list').children.length > 0) {
+    document.getElementById('searching').hidden = false
+    for (let index = 0; index < document.getElementById('content-list').children.length; index++) {
+      const element = document.getElementById('content-list').children[index]
+      element.querySelector('input[type="checkbox"]').checked = false
+    }
+    document.getElementById('searching').hidden = true
+  }
+  Object.values(extra).forEach(e => e.selected = false)
+  loadNum()
 }
 
 function expandAll (expand) {
@@ -804,7 +1075,6 @@ function expandAll (expand) {
     }
   }
   loadNum()
-  Zotero.debug(extra)
   document.getElementById('searching').hidden = true
 }
 

@@ -42,6 +42,16 @@
 				margin: 10px 10px;
 			}
 
+			#typeselect select {
+				margin-right: 5px;
+				margin-bottom: 10px;
+			}
+
+			#tagselect select {
+				margin-right: 5px;
+				margin-bottom: 10px;
+			}
+
 			#desc {
 				color: #909399;
 			}
@@ -238,9 +248,8 @@
 					</select>
 					<span class="placeholder-color"> ｜ </span>
 					<span>Card Type：</span>
-					<select id="typeselect">
-						<option value="all">All</option>
-					</select>
+					<div id="typeselect" style="display: inline">
+					</div>
 					<span class="placeholder-color"> ｜ </span>
 					<span class="author">Card Author：</span>
 					<select class="author" id="authorselect">
@@ -249,9 +258,8 @@
 					</select>
 					<span class="author placeholder-color"> ｜ </span>
 					<span>Card Tag：</span>
-					<select id="tagselect">
-						<option value="all">All</option>
-					</select>
+					<div id="tagselect" style="display: inline">
+					</div>
 					<span class="placeholder-color"> ｜ </span>
 					<span>Text：</span>
 					<input class="input" id="filter-text"></input>
@@ -282,7 +290,9 @@
 							<b><span id="title"></span></b><span> has <span id="totals">0</span> card, and it finds <span id="filters">0</span> cards.</span>
 						</div>
 						<div>
-							<span onclick="copyAll(this)" class="pointer uread">Copy(<span id="copys">0</span>)</span><span class="placeholder-color"> ｜ </span>
+							<span onclick="cancelSelected(this)" class="pointer uread">Cancel selected</span>
+							<span onclick="copySelected(this)" class="pointer uread">Copy selected(<span id="copyselecteds">0</span>)</span> <span onclick="exportSelected(this)" class="pointer uread">Export</span><span class="placeholder-color"> ｜ </span>
+							<span onclick="copyAll(this)" class="pointer uread">Copy all(<span id="copys">0</span>)</span> <span onclick="exportAll(this)" class="pointer uread">Export</span><span class="placeholder-color"> ｜ </span>
 							<input type="checkbox" id="showHidden" onchange="loadCards()"><span class="pointer uread"><span id="showHiddenText">Show hidden cards</span>(<span id="hides">0</span>)</span></input><span class="placeholder-color"> ｜ </span>
 							<span onclick="expandAll(true)" class="pointer uread">Expand all(<span id="expands">0</span>)</span><span class="placeholder-color"> ｜ </span>
 							<span onclick="expandAll(false)" class="pointer uread">Collapse all(<span id="collapses">0</span>)</span>

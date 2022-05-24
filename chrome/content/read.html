@@ -42,6 +42,16 @@
 				margin: 10px 10px;
 			}
 
+			#typeselect select {
+				margin-right: 5px;
+				margin-bottom: 10px;
+			}
+
+			#tagselect select {
+				margin-right: 5px;
+				margin-bottom: 10px;
+			}
+
 			#desc {
 				color: #909399;
 			}
@@ -238,9 +248,8 @@
 					</select>
 					<span class="placeholder-color"> ｜ </span>
 					<span>卡片类型：</span>
-					<select id="typeselect">
-						<option value="all">所有</option>
-					</select>
+					<div id="typeselect" style="display: inline">
+					</div>
 					<span class="placeholder-color"> ｜ </span>
 					<span class="author">卡片作者：</span>
 					<select class="author" id="authorselect">
@@ -249,9 +258,8 @@
 					</select>
 					<span class="author placeholder-color"> ｜ </span>
 					<span>卡片标签：</span>
-					<select id="tagselect">
-						<option value="all">所有</option>
-					</select>
+					<div id="tagselect" style="display: inline">
+					</div>
 					<span class="placeholder-color"> ｜ </span>
 					<span>关键字：</span>
 					<input class="input" id="filter-text"></input>
@@ -282,7 +290,9 @@
 							<b><span id="title"></span></b><span>一共 <span id="totals">0</span> 张卡片，搜索到 <span id="filters">0</span> 张卡片。</span>
 						</div>
 						<div>
-							<span onclick="copyAll(this)" class="pointer uread">复制(<span id="copys">0</span>)</span><span class="placeholder-color"> ｜ </span>
+							<span onclick="cancelSelected(this)" class="pointer uread">取消选择</span>
+							<span onclick="copySelected(this)" class="pointer uread">复制选择(<span id="copyselecteds">0</span>)</span> <span onclick="exportSelected(this)" class="pointer uread">导出</span><span class="placeholder-color"> ｜ </span>
+							<span onclick="copyAll(this)" class="pointer uread">复制所有(<span id="copys">0</span>)</span> <span onclick="exportAll(this)" class="pointer uread">导出</span><span class="placeholder-color"> ｜ </span>
 							<input type="checkbox" id="showHidden" onchange="loadCards()"><span class="pointer uread"><span id="showHiddenText">显示隐藏</span>(<span id="hides">0</span>)</span></input><span class="placeholder-color"> ｜ </span>
 							<span onclick="expandAll(true)" class="pointer uread">全部展开(<span id="expands">0</span>)</span><span class="placeholder-color"> ｜ </span>
 							<span onclick="expandAll(false)" class="pointer uread">全部收起(<span id="collapses">0</span>)</span>

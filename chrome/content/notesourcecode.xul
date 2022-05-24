@@ -19,7 +19,7 @@
     ondialogcancel="window.close();return true;"
     onload="onload()"
     flex="1"
-    title="&zotero.zotcard.batchnewcard.title;"
+    title="&zotero.zotcard.notesourcecode.title;"
     width="800"
     height="600">
     
