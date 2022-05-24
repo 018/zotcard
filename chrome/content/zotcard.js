@@ -1406,7 +1406,8 @@ zotcard.copylink = async function () {
 
   var zitem = zitems[0]
   var link = Zotero.ZotCard.Utils.getZoteroItemUrl(zitem.key)
-  Zotero.ZotCard.Utils.copyTextToClipboard(link)
+  //Zotero.ZotCard.Utils.copyTextToClipboard(link)
+  Zotero.ZotCard.Utils.copyHtmlTextToClipboard(`<a href="${link}">${zitem.getNoteTitle()}</>`, link)
 }
 
 
