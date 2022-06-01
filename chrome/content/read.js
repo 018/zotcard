@@ -82,6 +82,10 @@ function start () {
     })
   }
   createTypesSelect()
+  if (filters.cardtype && filters.cardtype !== 'all') {
+    document.getElementById('typeselect').children[0].value = filters.cardtype
+    createTypesSelect()
+  }
 
   if (options.cardauthors.length > 0) {
     options.cardauthors.sort((e1, e2) => {
@@ -107,6 +111,10 @@ function start () {
     })
   }
   createTagsSelect()
+  if (filters.cardtag && filters.cardtag !== 'all') {
+    document.getElementById('tagselect').children[0].value = filters.cardtag
+    createTagsSelect()
+  }
 
   document.getElementById('filter-text').value = filters.text
 
@@ -140,7 +148,7 @@ function createTagsSelect() {
       option.textContent = `${element.name}(${element.count})`
       select.append(option)
     })
-    select.value = filters.cardtag
+    select.value = 'all'
   } else {
     select.value = 'all'
   }
@@ -185,7 +193,7 @@ function createTypesSelect() {
       option.textContent = `${element.name}(${element.count})`
       select.append(option)
     })
-    select.value = filters.cardtag
+    select.value = 'all'
   } else {
     select.value = 'all'
   }
@@ -248,7 +256,7 @@ function search () {
       tags.push(select.value)
     }
   })
-  Zotero.debug(`[${Zotero.ZotCard.Utils.now()}] zotcard@tags`)
+  Zotero.debug(`[${Zotero.ZotCard.Utils.now()}] zotcard@tags: `)
 
   let filter = document.getElementById('filter-text').value
   Zotero.debug(`[${Zotero.ZotCard.Utils.now()}] zotcard@search: date: ${startDate} ~ ${endDate}, types: ${types}, author: ${author}, tags: ${tags}, filter: ${filter}`)
@@ -349,9 +357,7 @@ function loadCards () {
     Zotero.debug(`[${Zotero.ZotCard.Utils.now()}] zotcard@loadCards sort`)
     document.getElementById('loading').hidden = true
     document.getElementById('content').hidden = false
-    Zotero.debug(`[${Zotero.ZotCard.Utils.now()}] zotcard@loadCards createCard ... `)
     for (let index = 0; index < results.length; index++) {
-      Zotero.debug(`[${Zotero.ZotCard.Utils.now()}] zotcard@loadCards createCard ${index} `)
       const card = results[index]
       if (!extra.hasOwnProperty(card.id)) {
         extra[card.id] = {
@@ -366,7 +372,6 @@ function loadCards () {
         document.getElementById('content-list').append(div)
       }
     }
-    Zotero.debug(`[${Zotero.ZotCard.Utils.now()}] zotcard@loadCards createCard ${results.length} ok.`)
   }
   document.getElementById('searching').hidden = true
   loadNum()
@@ -469,15 +474,25 @@ function datechange (event) {
 
 function refreshCard (id) {
   let item = Zotero.Items.get(id)
-  let cardDiv = document.getElementById(id)
-  let cardContentAll = cardDiv.querySelector(`.card-all`)
-  cardContentAll.innerHTML = matchNote(item.getNote())
-  let cardTitle = cardDiv.querySelector(`.card-title`)
-  cardTitle.innerHTML = `<h1 class="linenowrap" style="text-align: center;">${item.getNoteTitle()}</h1>`
-
   let index = indexOfCards(cards, id)
   let newItem = Zotero.ZotCard.Utils.toCardItem(item)
   cards[index] = newItem
+
+  let cardDiv = document.getElementById(id)
+  let cardContentAll = cardDiv.querySelector(`.card-all`)
+  let noteContent = item.getNote()
+  cardContentAll.innerHTML = matchNote(noteContent)
+  if (Zotero.ZotCard.Utils.attachmentExistsImg(noteContent)) {
+    Zotero.debug(`zotcard@${cards[index].id}: existsImg: ${noteContent}`)
+    Zotero.ZotCard.Utils.loadAttachmentImg(item).then(e => {
+      Zotero.debug(`zotcard@loadAttachmentImg: ${e.id} ${e.note}`)
+      cards[index].note = e.note
+      document.getElementById(`${e.id}-card-all`).innerHTML = matchNote(e.note)
+    })
+  }
+  let cardTitle = cardDiv.querySelector(`.card-title`)
+  cardTitle.innerHTML = `<h1 class="linenowrap" style="text-align: center;">${item.getNoteTitle()}</h1>`
+
   cardDiv.querySelector(`#dateModified`).textContent = Zotero.ZotCard.Utils.getString('zotcard.readcard.modifydate') + newItem.dateModified
   cardDiv.querySelector(`#words`).textContent = Zotero.ZotCard.Utils.getString('zotcard.cardcontent.wordnumbertitle') + newItem.words
 
@@ -838,7 +853,8 @@ function createCard (card, index) {
     Zotero.debug(`zotcard@${card.id}: existsImg: ${noteContent}`)
     Zotero.ZotCard.Utils.loadAttachmentImg(Zotero.Items.get(card.id)).then(e => {
       Zotero.debug(`zotcard@loadAttachmentImg: ${e.id} ${e.note}`)
-      document.getElementById(`${e.id}-card-all`).innerHTML = e.note
+      card.note = e.note
+      document.getElementById(`${e.id}-card-all`).innerHTML = matchNote(card.note)
     })
   }
   cardContentAll.innerHTML = matchNote(noteContent)
@@ -1086,6 +1102,7 @@ function showConcentration (cardid) {
   document.getElementById('concentration').hidden = false
   document.getElementById('concentration').setAttribute('card-id', cardid)
   document.getElementById('one-card-progress').textContent = `${index + 1}/${document.getElementById('content-list').children.length}`
+  Zotero.debug(`zotcard@one-card-content: ${card.note}`)
   document.getElementById('one-card-content').innerHTML = matchNote(card.note)
   document.getElementById('one-card-dateAdded').textContent = card.dateAdded
   document.getElementById('one-card-dateModified').textContent = card.dateModified
@@ -1173,7 +1190,16 @@ function oneCardRefresh () {
   let id = document.getElementById('concentration').getAttribute('card-id')
   let item = Zotero.Items.get(id)
   let card = Zotero.ZotCard.Utils.toCardItem(item)
-  document.getElementById('one-card-content').innerHTML = matchNote(card.note)
+  let noteContent = card.note
+  if (Zotero.ZotCard.Utils.attachmentExistsImg(noteContent)) {
+    Zotero.debug(`zotcard@${card.id}: existsImg: ${noteContent}`)
+    Zotero.ZotCard.Utils.loadAttachmentImg(item).then(e => {
+      Zotero.debug(`zotcard@loadAttachmentImg: ${e.id} ${e.note}`)
+      card.note = e.note
+      document.getElementById(`one-card-content`).innerHTML = matchNote(e.note)
+    })
+  }
+  document.getElementById('one-card-content').innerHTML = matchNote(noteContent)
   document.getElementById('one-card-dateModified').textContent = card.dateModified
   document.getElementById('one-card-hangzis').textContent = card.words
 

@@ -109,12 +109,13 @@ Only Chinese and English are supported.
 如果你需要自定义自己的模版，在对应的配置项中进行修改配置，但之前你需要学一点点的HTML。主要都是[HTML](https://www.runoob.com/html/html-tutorial.html)代码，下面以人物卡为例，进行说明：
 
 ```html
-<h3>## 人物卡 - <span style="color: #bbbbbb;">&lt;姓名&gt;</span></h3>\n
-<p>- <strong>简介</strong>：<span style="color: #bbbbbb;">&lt;出生日期，出生地，毕业院校，生平等&gt;</span></p>
-<p>- <strong>作品</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span style="color: #bbbbbb;">...</span></p>
-<p>- <strong>成就</strong>：<br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span style="color: #bbbbbb;">...</span><br />&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;<span style="color: #bbbbbb;">...</span></p>
-<p>- <strong>出处</strong>：${authors}《${title}》(${year}) P<span style="color: #bbbbbb;">&lt;页码&gt;</span>
-</p><p>- <strong>日期</strong>：${today}</p>
+<h1>## 金句卡 - <span>&lt;标题&gt;</span></h1>\\n
+<p><strong>原文</strong>：<span>${text ? text : "&lt;摘抄&gt;"}</span></p>
+<p><strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p>
+<p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p>
+<p><strong>出处</strong>：${itemType && itemType === "book" ? `<a href="${itemLink}">${authors}《${title}》(${year}) P<span>&lt;页码&gt;</span></a>` : `<a href="${collectionLink}">${collectionName}</a>`}</p>
+<p><strong>标签</strong>：[无]</p>
+<p><strong>日期</strong>：${today}</p>
 ```
 
 `<h3>...</h3>`为三级标题，如需要一级标题可以改为`<h1>...</h1>`。
@@ -134,13 +135,13 @@ Only Chinese and English are supported.
 `<br />`为换行，跟`p`的区别就是行间距不一样，`br`的行间距比较小。
 
 另外还有书籍中的信息：
-- 时间信息：`${today}`或`{today}`为今天日期，`${month}`或`{month}`为月份，`${dayOfYear}`或`{dayOfYear}`为今年第几天，`${weekOfYear}`或`{weekOfYear}`为今年第几周（默认是以周日作为一周的第一天，以周一作为第一天可以配置`extensions.zotero.zotcard.startOfWeek`为1。），`${week}`或`{week}`为星期几（值为日、一、二、三、四、五、六），`${week_en}`或`{week_en}`为英文的星期几（值为Sun.、Mon.、Tues.、Wed.、Thurs.、Fri.、Sat.），`${now}`或`{now}`为现在时间。
-- 扩展信息：`${text}`或`{text}`为文献中选中的文字。
-- 条目信息：常用的有`${title}`或`{title}`为书名，`${shortTitle}`或`{shortTitle}`为短标题，`${archive}`或`{archive}`为归档，`${archiveLocation}`或`{archiveLocation}`为归档位置，`${url}`或`{url}`为网址，`${date}`或`{date}`为日期，`${year}`或`{year}`为年份，`${extra}`或`{extra}`为其他，`${publisher}`或`{publisher}`为出版社，`${publicationTitle}`或`{publicationTitle}`为期刊，`${ISBN}`或`{ISBN}`为ISBN，`${numPages}`或`{numPages}`为总页数，`${authors}`为作者，`${translators}`为译者 ... [更多属性，参考Zotero field。](https://aurimasv.github.io/z2csl/typeMap.xml)。
+- 时间信息：`${today}`为今天日期，`${month}`为月份，`${dayOfYear}`为今年第几天，`${weekOfYear}`为今年第几周（默认是以周日作为一周的第一天，以周一作为第一天可以配置`extensions.zotero.zotcard.startOfWeek`为1。），`${week}`为星期几（值为日、一、二、三、四、五、六），`${week_en}`为英文的星期几（值为Sun.、Mon.、Tues.、Wed.、Thurs.、Fri.、Sat.），`${now}`为现在时间。
+- 扩展信息：`${text}`为文献中选中的文字。
+- 条目信息：常用的有`${title}`为书名，`${collectionName}`为条目所属的分类，`${itemLink}`为条目连接，`${noteLink}`为卡片(笔记)本身连接，`${collectionLink}`，为分类连接，`${shortTitle}`为短标题，`${archive}`为归档，`${archiveLocation}`为归档位置，`${url}`为网址，`${date}`为日期，`${year}`为年份，`${extra}`为其他，`${publisher}`为出版社，`${publicationTitle}`为期刊，`${ISBN}`为ISBN，`${numPages}`为总页数，`${authors}`为作者，`${translators}`为译者 ... [更多属性，参考Zotero field。](https://aurimasv.github.io/z2csl/typeMap.xml)。
 请使用`${...}`这种格式，`{...}`已经弃用，因为${...}是JS的字符串模版，你可以`${这里面可以编程}`，比如`{text ? text : '<无选择文字>'}`。
 
 
-有一个技巧，就是在Zotero的笔记中编辑好，然后右键「源代码」，复制出来也可以。
+有一个技巧，就是在Zotero的笔记中编辑好，然后右键「源代码」，复制出来再编辑修改也可以。
 
 以下为复盘卡模版：
 

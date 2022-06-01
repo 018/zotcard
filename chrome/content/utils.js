@@ -681,6 +681,16 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.getZoteroItemUrl = function (key) {
   }
 }
 
+Zotero.getMainWindow().Zotero.ZotCard.Utils.getZoteroCollectionUrl = function (key) {
+  if (Zotero.getMainWindow().Zotero.Zotdraw.Utils.isUserLibraryCollection(key)) {
+    return `zotero://select/library/collections/${key}`
+  } else {
+    var groupID = Zotero.getMainWindow().Zotero.Zotdraw.Utils.getGroupIDByKey(key)
+    
+    return `zotero://select/groups/${groupID}/collections/${key}`
+  }
+}
+
 Zotero.getMainWindow().Zotero.ZotCard.Utils.loadAnnotationImg = async function (annotation) {
   let file = Zotero.Annotations.getCacheImagePath(annotation)
   if (await OS.File.exists(file)) {
