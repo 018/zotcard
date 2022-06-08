@@ -259,16 +259,6 @@
                 <menuitem 
                     label="&zotero.zotcard.option.github.label;"
                     oncommand="Zotero.launchURL('https://github.com/018/zotcard')" />
-                <menu class="menu-iconic" id="zotero-toolspopup-zotcard-support" label="&zotero.toolspopup.zotcard.support.label;">
-                    <menupopup id="zotero-toolspopup-zotcard-support-menupopup">
-                        <menuitem 
-                            label="&zotero.zotcard.support.wechatoralipay.label;"
-                            oncommand="Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer('chrome://zoterozotcard/content/support.html')" />
-                        <menuitem 
-                            label="&zotero.zotcard.support.buymeacoffee.label;"
-                            oncommand="Zotero.launchURL('https://buymeacoffee.com/0x18')" />
-                    </menupopup>
-                </menu>
             </menupopup>
         </menu>
     </popup>

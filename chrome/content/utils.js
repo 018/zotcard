@@ -365,7 +365,10 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.toCardItem = function (note) {
   let noteTitle = note.getNoteTitle()
   let noteContent = note.getNote()
 
-  let match3 = noteTitle.match('[\u4e00-\u9fa5]+' + Zotero.ZotCard.Utils.getString('zotcard.card'))
+  let match3 = noteTitle.match('[\u4e00-\u9fa5]+卡')
+  if (!match3) {
+    match3 = noteTitle.match('[a-zA-Z0-9 ]+Card')
+  }
   let cardtype = match3 ? match3[0].trim() : Zotero.ZotCard.Utils.getString('zotcard.other')
 
   let author = Zotero.ZotCard.Utils.getCardItemValue(noteContent, Zotero.ZotCard.Utils.getString('zotcard.author'))
@@ -681,11 +684,15 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.getZoteroItemUrl = function (key) {
   }
 }
 
+Zotero.getMainWindow().Zotero.ZotCard.Utils.isUserLibraryCollection = function (key) {
+  return Zotero.Collections.getIDFromLibraryAndKey(Zotero.Libraries.userLibraryID, key);
+}
+
 Zotero.getMainWindow().Zotero.ZotCard.Utils.getZoteroCollectionUrl = function (key) {
-  if (Zotero.getMainWindow().Zotero.Zotdraw.Utils.isUserLibraryCollection(key)) {
+  if (Zotero.getMainWindow().Zotero.ZotCard.Utils.isUserLibraryCollection(key)) {
     return `zotero://select/library/collections/${key}`
   } else {
-    var groupID = Zotero.getMainWindow().Zotero.Zotdraw.Utils.getGroupIDByKey(key)
+    var groupID = Zotero.getMainWindow().Zotero.ZotCard.Utils.getGroupIDByKey(key)
     
     return `zotero://select/groups/${groupID}/collections/${key}`
   }
@@ -697,4 +704,37 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.loadAnnotationImg = async function (
     let img = await Zotero.File.generateDataURI(file, 'image/png')
     return img
   }
+}
+
+// .primary-editor { background-color: #0F0 } .primary-editor p { line-height: 20; }
+Zotero.getMainWindow().Zotero.ZotCard.Utils.noteBGColor = function (color) {
+  let val = Zotero.Prefs.get('note.css')
+  if (val) {
+    if (color) {
+      if (val.match(/\.primary-editor +{ background-color: .*?; }/g)) {
+        val = val.replace(/background-color: (.*?);/, `background-color: ${color};`)
+      } else {
+        val += ` .primary-editor { background-color: ${color}; }`
+      }
+    } else {
+      val = val.replace(/\.primary-editor +{ background-color: .*?; }/g, '')
+    }
+  } else {
+    if (color) {
+      val = `.primary-editor { background-color: ${color}; }`
+    }
+  }
+  Zotero.Prefs.set('note.css', val)
+}
+
+
+Zotero.getMainWindow().Zotero.ZotCard.Utils.getNoteBGColor = function () {
+  let val = Zotero.Prefs.get('note.css')
+  if (val) {
+    let match = val.match(/\.primary-editor +{ background-color: (#[0-9A-Fa-f]{6}); }/)
+    if (match) {
+      return match[1]
+    }
+  }
+  return ''
 }

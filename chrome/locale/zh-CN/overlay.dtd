@@ -19,7 +19,7 @@
 <!ENTITY zotero.zotcard.compressimg.label "压缩图片">
 <!ENTITY zotero.zotcard.print.label "打印">
 <!ENTITY zotero.zotcard.copylink.label "复制链接">
-<!ENTITY zotero.zotcard.notesourcecode.label "笔记源代码">
+<!ENTITY zotero.zotcard.notesourcecode.label "源代码">
 
 <!ENTITY zotero.zotcard.adjust.title "调整">
 <!ENTITY zotero.zotcard.adjust.column.label "一行的个数">
@@ -48,8 +48,5 @@
 <!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.purple.label "莫兰迪色系-紫">
 <!ENTITY zotero.toolspopup.zotcard.option.notebackgroundcolor.reset.label "重置">
 <!ENTITY zotero.zotcard.option.github.label "官网">
-<!ENTITY zotero.toolspopup.zotcard.support.label "打赏">
-<!ENTITY zotero.zotcard.support.wechatoralipay.label "微信支付宝">
-<!ENTITY zotero.zotcard.support.buymeacoffee.label "Buy Me A Coffee">
 
 

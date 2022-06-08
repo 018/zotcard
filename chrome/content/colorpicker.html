@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
+        <title>Color Picker</title>
+		<script src="colorpicker.js"></script>
+    </head>
+    <body>
+        <div id="container">
+            <button onclick="a(event)">show</button>
+            <button onclick="a(event)">show</button>
+            <button onclick="a(event)">show</button>
+            <button onclick="a(event)">show</button>
+            <button onclick="a(event)">show</button>
+            <button onclick="a(event)">show</button>
+            <button onclick="a(event)">show</button>
+            <button onclick="a(event)">show</button>
+            <button onclick="a(event)">show</button>
+            <button onclick="a(event)">show</button>
+            <button onclick="a(event)">show</button>
+            <button onclick="a(event)">show</button>
+        </div>
+
+        <script>
+                function a(event) {
+                    colorpicker.popup(event.target, (clr) => {
+                        document.body.style.backgroundColor = clr
+                    })
+                }
+        </script>
+    </body>
+</html>
