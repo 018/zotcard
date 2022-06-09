@@ -1,7 +1,7 @@
 # zotcard
 ZotCard is a plug-in for Zotero, which is a card note-taking enhancement tool. It provides card templates (such as concept card, character card, golden sentence card, etc., by default, you can customize other card templates), so you can write cards quickly. In addition, it helps you sort cards and standardize card formats.
 
-[切换到中文](https://github.com/018/zotcard/blob/main/README_CH.md)
+[切换到中文](https://github.com/018/zotcard/blob/main/README_CN.md)
 
 ## Write a card
 
