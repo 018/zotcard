@@ -4,18 +4,18 @@ var changed = false
 
 function onload() {
 	document.querySelectorAll('.params').forEach(select => {
-		_addParamOption(select, 'today', '今天日期')
-		_addParamOption(select, 'month', '今天月份')
-		_addParamOption(select, 'dayOfYear', '今年第几天')
-		_addParamOption(select, 'weekOfYear', '今年第几周')
+		_addParamOption(select, 'today', Zotero.ZotCard.Utils.getString('zotcard.preferences.today'))
+		_addParamOption(select, 'month', Zotero.ZotCard.Utils.getString('zotcard.preferences.month'))
+		_addParamOption(select, 'dayOfYear', Zotero.ZotCard.Utils.getString('zotcard.preferences.dayOfYear'))
+		_addParamOption(select, 'weekOfYear', Zotero.ZotCard.Utils.getString('zotcard.preferences.weekOfYear'))
 		_addParamOption(select, 'week', '星期几')
-		_addParamOption(select, 'week_en', '星期几(英文)')
-		_addParamOption(select, 'now', '现在时间')
-		_addParamOption(select, 'text', '文献中选中的文字')
-		_addParamOption(select, 'collectionName', '条目所属的分类')
-		_addParamOption(select, 'itemLink', '条目连接')
-		_addParamOption(select, 'collectionLink', '分类连接')
-		_addParamOption(select, 'year', '年份')
+		_addParamOption(select, 'week_en', 'Week(English)')
+		_addParamOption(select, 'now', Zotero.ZotCard.Utils.getString('zotcard.preferences.now'))
+		_addParamOption(select, 'text', Zotero.ZotCard.Utils.getString('zotcard.preferences.text'))
+		_addParamOption(select, 'collectionName', Zotero.ZotCard.Utils.getString('zotcard.preferences.collectionName'))
+		_addParamOption(select, 'itemLink', Zotero.ZotCard.Utils.getString('zotcard.preferences.itemLink'))
+		_addParamOption(select, 'collectionLink', Zotero.ZotCard.Utils.getString('zotcard.preferences.collectionLink'))
+		_addParamOption(select, 'year', Zotero.ZotCard.Utils.getString('zotcard.preferences.year'))
 	})
 
 	Zotero.ItemFields.getAll().forEach(element => {

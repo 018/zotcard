@@ -1,190 +1,173 @@
 # zotcard
-zotcard是Zotero的一个插件，它是卡片法笔记的提效工具。它提供了卡片模版（如概念卡、人物卡、反常识卡等等卡片模版），可以让你快速写卡。除此之外，还帮助你卡片分类以及统一卡片的标准格式。
+ZotCard is a plug-in for Zotero, which is a card note-taking enhancement tool. It provides card templates (such as concept card, character card, golden sentence card, etc., by default, you can customize other card templates), so you can write cards quickly. In addition, it helps you sort cards and standardize card formats.
 
-## 写卡
+[切换到中文](https://github.com/018/zotcard/blob/main/README_CH.md)
 
-支持按模版新建卡片，进行写卡，还支持批量建卡。
+## Write a card
 
-<img src="https://raw.githubusercontent.com/018/zotcard/main/image/newcard1.gif" alt="卡" width="600"/>
-<img src="https://raw.githubusercontent.com/018/zotcard/main/image/newcard2.gif" alt="卡" width="600"/>
-<img src="https://raw.githubusercontent.com/018/zotcard/main/image/newcard3.gif" alt="卡" width="600"/>
-<img src="https://raw.githubusercontent.com/018/zotcard/main/image/newcard4.gif" alt="卡" width="600"/>
+It supports new cards according to the template, and then write cards, but also supports batch creation of cards.
+
+<img src="https://raw.githubusercontent.com/018/zotcard/main/image/newcard1_en.gif" alt="Card" width="600"/>
+<img src="https://raw.githubusercontent.com/018/zotcard/main/image/newcard2_en.gif" alt="Card" width="600"/>
+<img src="https://raw.githubusercontent.com/018/zotcard/main/image/newcard3_en.gif" alt="Card" width="600"/>
 
 ### 默认卡
 
-![默认卡片样式-默认](https://raw.githubusercontent.com/018/zotcard/main/image/default-style.png)
+The following card templates are provided by default:
 
-默认提供了以下卡片模版：
+- Quotes card: Golden sentence, quotation related.
+- Concept card: Related to concepts and keywords.
+- Character card: Character related.
+- Uncommon sense card: Relate to your own cognitive thoughts.
+- Skill Card: skills, operations, steps related.
+- Structure Card: related to structure and composition.
+- Essay Card: Ideas, essays, diary related.
 
-- 金句卡：金句、语录相关。
-- 概念卡：概念、关键字相关。
-- 人物卡：人物相关。
-- 反常识卡：与自己认知想法相关。
-- 技巧卡：技巧、操作、步骤相关。
-- 结构卡：机构、组成相关。
-- 短文卡：想法、短文、日记相关。
+### Custom card
 
-### 自定义卡
+By default, 6 custom cards are reserved. Custom cards give you more choices than the default cards. If you have other cards that you need to customize, you can customize them, such as replay cards, practical cards, diary cards, and so on.
 
-默认预留6个自定义卡位，自定义卡为你提供除了默认卡片的更多选择。如果你有其他卡片需要自定义，即可对这些卡片进行自定义，如复盘卡、实事卡、日记卡等等。
-
-当然，你也可以自定义卡片的模版，自定义模版的操作方法：「Zotero」-「工具」-「ZotCard 选项」-「配置」，具体请阅读「配置」。
+Of course, you can also customize the card template by going to 「Zotero - 「Tools - 「ZotCard Option」 - 「Config」. For details, see 「Configuration」.
 
 
+### Utility function
 
-### 辅助操作
+**Word count**
 
-<img src="https://raw.githubusercontent.com/018/zotcard/main/image/note.png" alt="操作" width="300"/>
+When selecting a note, count the number of words, lines, and space.
 
-**字数统计**
+**Replace**
 
-选择一个笔记时，统计字数、行数和占空间大小。
+You can select multiple notes and replace them in batches.
 
-**替换**
+- Html: Since the original content of Zotero notes is Html (which can be viewed by right-clicking on the notes - "Source code"), some Html foundation is required, so use with caution. Select this option if you need to replace styles. For example, replace italics with bold `<em> text </em>` with `<b> text </b>`.
 
-<img src="https://raw.githubusercontent.com/018/zotcard/main/image/replace.jpg" alt="替换" width="200"/>
+- Content: Just replace what you see in your notes. For example, if you say `this is just a P letter` (source code is` <p> this is just a P letter </p> `) and replace p with H1, it will say `this is just an h1 letter`, if you select the HTML option, it will say `<h1> This is just an H1 letter </h1>`, The content is a level 1 heading.
 
-可以选择多个笔记，批量替换。
+**Copy**
 
-- Html：由于Zotero笔记的原内容是Html（可以通过在笔记「右键」-「源代码」查看），需要一定的Html基础，谨慎使用。如果需要替换样式可以选择此选项。如把斜体字替换成粗体为`<em>文本</em>`替换成`<b>文本</b>`。
+You can select multiple notes to copy, and then paste into Word or notepad or Typora for spelling cards written.
 
-- 内容：仅仅只是笔记看到的内容进行替换。比如内容为`这只是个p字母`（源代码为`<p>这只是个p字母</p>`）把p替换成h1，结果会是`这只是个h1字母`（源代码为`<p>这只是个h1字母</p>`），如果选择html选项，这结果为`<h1>这只是个h1字母</h1>`，内容就是一个一级标题。
+**Copy and create**
 
-**复制**
+Note can be copied to create, sometimes write card too long synchronization can use this function for card splitting.
 
-可以选择多个笔记进行复制，然后粘贴到word或记事本或Typora进行拼卡成文。
+**Open the separate window**
 
-**复制并创建**
+You can select multiple notes and open a floating window to write cards directly.
 
-可以对一个笔记进行复制后创建，有时候写卡太长同步不了就可以用此功能进行卡片拆分。
+**Adjust the separate window**
 
-**打开浮动编辑窗口**
+In the floating edit window that is opened by 「Open the separate window」, it is stacked by default. This function allows you to set the number and height of a row displayed on the screen, tiled on the screen.
 
-可以选择多个笔记，打开浮动窗口直接进行拼卡成文。
+**Close the selected separate window**
 
-**调整浮动编辑窗口**
+You can optionally close the floating edit window in the floating edit window opened by opening the floating edit window.
 
-在通过**打开浮动编辑窗口**打开的浮动编辑窗口，默认会堆一块。通过此功能可以设置显示在屏幕上一行多少个和高度，平铺在屏幕上。
+**Close all**
 
-**关闭所选浮动编辑窗口**
+This feature closes all floating edit Windows.
 
-在通过**打开浮动编辑窗口**打开的浮动编辑窗口，可以通过此功能进行选择性的关闭浮动编辑窗口。
+**Print**
 
-**关闭所有**
+This function can adjust the format and then print directly.
 
-此功能关闭所有浮动编辑窗口。
+**Copy the link**
 
-**打印**
+This function directly copies notes links, easy to jump to in notes or other software.
 
-此功能可调整格式然后直接打印。
+**The source code**
 
-**复制链接**
-
-此功能直接复制笔记的链接，方便在笔记或其他软件中跳转。
-
-**源代码**
-
-由于Zotero6去掉了查看源代码，此功能可以编辑笔记的源代码。
+Since Zotero6 has removed view source code, this feature allows you to edit note source code.
 
 
 
-## 读卡
+## Read Card
 
-写卡之后对卡片的回顾，时不时进行读卡。
+Review the card after writing it and read it from time to time.
 
-<img src="https://raw.githubusercontent.com/018/zotcard/main/image/readcard.png" alt="读卡" width="600"/>
+<img src="https://raw.githubusercontent.com/018/zotcard/main/image/readcard_en.png" alt="Read the card" width="600"/>
 
-对所选（包括「我的文库」、「分类」、「保存的搜索」、「群组文库」）中所有卡片进行读卡，支持专注模式，还支持强大的搜索（自定义查询时间、作者、卡片类型、卡片标签和关键字搜索），还支持关键字高亮显示。
+Read cards for all selected cards (including My library, Categorization, Saved Search, group Library), focus mode support, powerful search (custom query time, author, card type, card label, and keyword search), and keyword highlighting.
 
-在读卡过程中随时可以编辑、定位，对已读的卡片可以隐藏，还可以简单进行拼卡，置顶/置底/上移/下移卡片，最后确认位置后复制所有或选中的卡片内容在Word等编辑工具粘贴，还能支持导出所有或选中的卡片到HTML或txt文件。
-
-<img src="https://raw.githubusercontent.com/018/zotcard/main/image/card-operation.png" alt="卡片操作" width="300"/>
+At any time during the process of reading card can edit, positioning, to read the card can be hidden, can also be simple to spell card, placed at the top/down/up/down card, after the final confirmation location copy all or selected card content in Word editing tools such as paste, can also support export all or selected CARDS to HTML or TXT file.
 
 
 
-## 卡片报告
+## Card Report
 
-写卡之后对卡片进行统计，让你对自己的卡片有一个全方位的认知。
+After writing the card to the card statistics, so that you have a comprehensive understanding of their own cards.
 
-<img src="https://raw.githubusercontent.com/018/zotcard/main/image/cardreport.png" alt="卡片报告" width="600"/>
+<img src="https://raw.githubusercontent.com/018/zotcard/main/image/cardreport_en.png" alt="cardreport" width="600"/>
 
-对所选（包括「我的文库」、「分类」、「保存的搜索」、「群组文库」）中统计卡片，支持按天、按周、按年、按月统计，还统计出卡片类型和卡片标签，还可以继续点击对应时间进行读卡。
+For the selected (including "my library", "classification", "saved search", "group library"), support by day, by week, by year, by month statistics, but also the statistics of card types and card labels, you can also click the corresponding time to read cards.
 
 
 
 
-## 选项
+## Options
 
-<img src="https://raw.githubusercontent.com/018/zotcard/main/image/option.png" alt="选项" width="300"/>
+**Configuration**
 
-**配置**
+Open the configuration window: 「Zotero」 - 「Tools」 - 「ZotCard Option」 - 「Config」.
 
-打开配置窗口：「Zotero」-「工具」-「ZotCard 选项」-「配置」。
+![config](https://raw.githubusercontent.com/018/zotcard/main/image/config_en.png)
 
-![配置](https://raw.githubusercontent.com/018/zotcard/main/image/config.png)
+Note Background: Sets the note editor background.
 
-笔记背景：设置笔记编辑器背景。
+Custom card quantity: you can add custom card book at will, and configure card template immediately after modification.
 
-自定义卡片数量：可随意添加自定义卡片书了，修改后立即可配置卡片模版。
+Card template: visual configuration, as a novice can also be configured as desired card template.
 
-卡片模版：可视化配置，作为新手也可随心所欲的配置卡片模版。
-
-<img src="https://raw.githubusercontent.com/018/zotcard/main/image/noteedit.png" alt="笔记编辑" width="200"/>
-
-如果你需要更多样式，还需要学一点点的[HTML](https://www.runoob.com/html/html-tutorial.html)。
+If you need more style, learn a little [HTML](https://www.runoob.com/html/html-tutorial.html)。
 
 ```html
-<h1>## 金句卡 - <span>&lt;标题&gt;</span></h1>
-<p><strong>原文</strong>：<span>${text ? text : "&lt;摘抄&gt;"}</span></p>
-<p><strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p>
-<p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p>
-<p><strong>出处</strong>：${itemType ? `<a href="${itemLink}">${authors}《${title}》(${year}) P<span>&lt;页码&gt;</span></a>` : `<a href="${collectionLink}">${collectionName}</a>`}</p>
-<p><strong>标签</strong>：[无]</p>
-<p><strong>日期</strong>：${today}</p>
+<h1>## Quotes Card - <span>&lt;Title&gt;</span></h1>
+<p><strong>Original</strong>：<span>${text ? text : "&lt;extract&gt;"}</span></p>
+<p><strong>Repeat</strong>：<span>&lt;Repeat it in your own words&gt;</span></p>
+<p><strong>Inspired</strong>：<span>&lt;What are the implications?&gt;</span></p>
+<p><strong>Provenance</strong>：${itemType ? `<a href="${itemLink}">${authors}《${title}》(${year}) P<span>&lt;页码&gt;</span></a>` : `<a href="${collectionLink}">${collectionName}</a>`}</p>
+<p><strong>Tag</strong>：[none]</p>
+<p><strong>Data</strong>：${today}</p>
 ```
 
-如需要插入 `<`，`>`，`空格`，`&`，`"`,`'`,`换行`,`分割线`可在「选择插入特殊内容」插入。
+Insert if necessary `<`, `>`, `space`, `&`, `"`, `br`, `separator` can be inserted in 'Select Insert Special content'.
 
-如需要插入Zotero的字段，可在「选择插入字段」插入。
+If you need to insert Zotero fields, you can insert them in 「Select insert special content」.
 
-  字段信息主要有：
+  Field information includes:
 
-  - 时间信息：`${today}`为今天日期，`${month}`为月份，`${dayOfYear}`为今年第几天，`${weekOfYear}`为今年第几周（默认是以周日作为一周的第一天，可通过「配置」-「常规」修改。），`${week}`为星期几（值为日、一、二、三、四、五、六），`${week_en}`为英文的星期几（值为Sun.、Mon.、Tues.、Wed.、Thurs.、Fri.、Sat.），`${now}`为现在时间。
-  - 扩展信息：`${text}`为文献中选中的文字。
-  - 条目信息：常用的有`${title}`为书名，`${collectionName}`为条目所属的分类，`${itemLink}`为条目连接，`${collectionLink}`，为分类连接，`${shortTitle}`为短标题，`${archive}`为归档，`${archiveLocation}`为归档位置，`${url}`为网址，`${date}`为日期，`${year}`为年份，`${extra}`为其他，`${publisher}`为出版社，`${publicationTitle}`为期刊，`${ISBN}`为ISBN，`${numPages}`为总页数，`${authors}`为作者，`${translators}`为译者 ... [更多属性，参考Zotero field。](https://aurimasv.github.io/z2csl/typeMap.xml)。
-    请使用`${...}`这种格式，`{...}`已经弃用，因为${...}是JS的字符串模版，你可以`${这里面可以编程}`，比如`{text ? text : '<无选择文字>'}`。
-
-  以下为复盘卡模版：
+  - Time information: `${today}` is today's date, `${month}` is today's month, `${dayOfYear}`is the day of the year, `${weekOfYear}` is for the week of the year(By default, Sunday is the first day of a week. You can change the default value from Configuration to General.), `${week}` is Chinese Week. (The values are 日、一、二、三、四、五、六），`${week_en}`is English Week. （The values are Sun.、Mon.、Tues.、Wed.、Thurs.、Fri.、Sat.), `${now}` is the present time.
+  - Additional information: '${text}' is the selected text in the literature.
+  - Item information: Commonly used with `${title}` is title, `${collectionName}` is the category to which the entry belongs,`${itemLink}` is the item link, `${collectionLink}` is the collection connection, `${shortTitle}` is Short Title, `${archive}` is Archive，`${archiveLocation}` is Archive Location, `${url}` is URL, `${date}` is Date, `${year}` is Year, `${extra}` is Extra, `${publisher}` is Publisher, `${publicationTitle}` is Publication Title, `${ISBN}` is ISBN, `${numPages}` is Num Pages, `${authors}` is Author, `${translators}` is Translator ... [More, see Zotero field](https://aurimasv.github.io/z2csl/typeMap.xml)。
+    Please use format `${...}`, `{...}` has been deprecated, because ${...} is the JS string template, you can `${You can program it}`, such as {text ? text : '<No Text>'}`。
+    
+  The following is the duplicate card template:
 
 ```html
-<h3>## 复盘卡 - <span style="color: #bbbbbb;">&lt;标题&gt;</span></h3>\n
-<p>- <strong>背景</strong>：<span style="color: #bbbbbb;">&lt;描述事情的背景，怎么引起的复盘。&gt;</span></p>
-<p>- <strong>过程</strong>：<span style="color: #bbbbbb;">&lt;描述事情发送的过程，以及处理方式及结果。&gt;</span></p>
-<p>- <strong>启发</strong>：<span style="color: #bbbbbb;">&lt;从此事情上得到什么启发，日后怎么改进。&gt;</span></p>
-<p>- <strong>日期</strong>：{today}</p>
+<h3>## Checking card - <span style="color: #bbbbbb;">&lt;Title&gt;</span></h3>\n
+<p>- <strong>Background</strong>：<span style="color: #bbbbbb;">&lt;Describe the background of the incident and how it started.&gt;</span></p>
+<p>- <strong>Process</strong>：<span style="color: #bbbbbb;">&lt;Describe how things are sent, how they are handled, and the results.&gt;</span></p>
+<p>- <strong>Inspired</strong>：<span style="color: #bbbbbb;">&lt;From this matter what inspiration, how to improve in the future.&gt;</span></p>
+<p>- <strong>Date</strong>：{today}</p>
 ```
 
-欢迎来这里寻找和分享你的卡片模版：[访问](https://github.com/018/zotcard/discussions/2)。
+Welcome to find and share your card templates here：[Click](https://github.com/018/zotcard/discussions/2)。
 
-**重置**
+**Reset**
 
-重置所有配置为默认状态，也就是默认卡的样式为默认样式，清空所有自定义卡，并默认为6个预留卡位。请谨慎使用。如需重置某一个配置项，只需要在配置项「右键」-「reset」即可。
+Reset all configurations to default, that is, the default card style to default, clear all custom cards, and default to 6 reserved card slots. Use with caution. To reset a configuration item, right-click the configuration item and press Reset.
 
-**备份配置 ...**
+**The backup configuration ...**
 
-把所有配置（包括默认卡样式、自定义卡）导出成文件保存到本地进行备份。
+Export all configurations (including default card styles and custom cards) to a local file for backup.
 
-**还原配置 ...**
+**Restore the configuration ...**
 
-把本地的备份文件（包括默认卡样式、自定义卡）还原。
-
-**官网**
-
-访问此页面。
-
+Restore local backup files (including default card styles and custom cards).
 
 
 
 ---
 
-由本人新建的网站今日优读 [http://uread.today](http://uread.today) 已经上线，欢迎小伙伴围观。
+By my new website today excellent read [http://uread.today](http://uread.today) has been online, welcome small partners to watch.
