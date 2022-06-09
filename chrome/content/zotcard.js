@@ -1241,7 +1241,7 @@ zotcard.notesourcecode = async function () {
 zotcard.config = function () {
   //Zotero.openInViewer('chrome://zoterozotcard/content/preferences.html')
   //window.openDialog('chrome://zoterouread/content/option.html', 'option', `chrome,dialog,resizable=no,centerscreen,menubar=no`)
-  Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer('chrome://zoterozotcard/content/preferences.html', `menubar=yes,toolbar=no,location=no,scrollbars,centerscreen,resizable=no,height=640,width=780`)
+  Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer(Zotero.locale.startsWith('zh') ? 'chrome://zoterozotcard/content/preferences.html' : 'chrome://zoterozotcard/content/preferences_en.html', `menubar=yes,toolbar=no,location=no,scrollbars,centerscreen,resizable=no,height=640,width=780`)
 
 //   Zotero.ZotCard.Utils.warning(`${Zotero.ZotCard.Utils.getString('zotcard.aboutconfig')}
 //   ${Zotero.ZotCard.Utils.getString('zotcard.default')}：

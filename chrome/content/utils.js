@@ -709,15 +709,16 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.loadAnnotationImg = async function (
 // .primary-editor { background-color: #0F0 } .primary-editor p { line-height: 20; }
 Zotero.getMainWindow().Zotero.ZotCard.Utils.noteBGColor = function (color) {
   let val = Zotero.Prefs.get('note.css')
+  val = val.replace(/body +{ background-color: (#[0-9A-Fa-f]{6}); }/g, '')
   if (val) {
     if (color) {
-      if (val.match(/\.primary-editor +{ background-color: .*?; }/g)) {
-        val = val.replace(/background-color: (.*?);/, `background-color: ${color};`)
+      if (val.match(/\.primary-editor +{ background-color: (#[0-9A-Fa-f]{6}); }/)) {
+        val = val.replace(/\.primary-editor +{ background-color: (#[0-9A-Fa-f]{6}); }/g, `.primary-editor { background-color: ${color}; }`)
       } else {
         val += ` .primary-editor { background-color: ${color}; }`
       }
     } else {
-      val = val.replace(/\.primary-editor +{ background-color: .*?; }/g, '')
+      val = val.replace(/\.primary-editor +{ background-color: (#[0-9A-Fa-f]{6}); }/g, '')
     }
   } else {
     if (color) {

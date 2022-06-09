@@ -6,9 +6,9 @@ zotcard是Zotero的一个插件，它是卡片法笔记的提效工具。它提�
 支持按模版新建卡片，进行写卡，还支持批量建卡。
 
 <img src="https://raw.githubusercontent.com/018/zotcard/main/image/newcard1.gif" alt="卡" width="600"/>
-<img src="https://raw.githubusercontent.com/018/zotcard/main/image/newcard2.git" alt="卡" width="600"/>
-<img src="https://raw.githubusercontent.com/018/zotcard/main/image/newcard3.git" alt="卡" width="600"/>
-<img src="https://raw.githubusercontent.com/018/zotcard/main/image/newcard4.git" alt="卡" width="600"/>
+<img src="https://raw.githubusercontent.com/018/zotcard/main/image/newcard2.gif" alt="卡" width="600"/>
+<img src="https://raw.githubusercontent.com/018/zotcard/main/image/newcard3.gif" alt="卡" width="600"/>
+<img src="https://raw.githubusercontent.com/018/zotcard/main/image/newcard4.gif" alt="卡" width="600"/>
 
 ### 默认卡
 

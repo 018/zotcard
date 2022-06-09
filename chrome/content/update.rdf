@@ -5,13 +5,13 @@
       <rdf:Seq>
         <rdf:li>
           <rdf:Description>
-            <em:version>2.5.6</em:version>
+            <em:version>2.5.7</em:version>
             <em:targetApplication>
               <rdf:Description>
                 <em:id>zotero@chnm.gmu.edu</em:id>
                 <em:minVersion>5.0</em:minVersion>
                 <em:maxVersion>*</em:maxVersion>
-                <em:updateLink>https://github.com/018/zotcard/releases/download/v2.4/zotcard-2.5.6.xpi</em:updateLink>
+                <em:updateLink>https://github.com/018/zotcard/releases/download/v2.4/zotcard-2.5.7.xpi</em:updateLink>
               </rdf:Description>
             </em:targetApplication>
           </rdf:Description>
