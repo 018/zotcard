@@ -92,26 +92,53 @@ function replaceNoTag(note, preIdx, text, replaceto) {
   return newNote;
 }
 
-function replace() {
-  var zitems = getSelectedItems(['note'])
-  if (!zitems || zitems.length <= 0) {
-    Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.only_note'))
-    return
-  }
+function padding(num, length) {
+  return (Array(length).join('0') + num).slice(-length)
+}
 
-  var mode = document.getElementById('replace_mode').value;
-  var text = document.getElementById('replace_edit_text').value;
-  var replaceto = document.getElementById('replace_edit_replaceto').value;
-  zitems.forEach(zitem => {
-    let note = zitem.getNote();
-    let newNote;
-    if (mode === 'html') {
-      newNote = note.replace(new RegExp(text, 'g'), replaceto);
-    } else if (mode === 'content') {
-      newNote = replaceNoTag(note, 0, text.replace(/</g, '&lt;').replace(/>/g, '&gt;'), replaceto.replace(/</g, '&lt;').replace(/>/g, '&gt;'));
+function replace() {
+  try {
+    var zitems = getSelectedItems(['note'])
+    if (!zitems || zitems.length <= 0) {
+      Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.only_note'))
+      return
     }
-    zitem.setNote(newNote);
-    var itemID = zitem.saveTx();
-    if (isDebug()) Zotero.debug('item.id: ' + itemID);
-  })
+
+    var mode = document.getElementById('replace_mode').value;
+    var text = document.getElementById('replace_edit_text').value;
+    var replaceto = document.getElementById('replace_edit_replaceto').value;
+    if (zitems.length > 26 && (replaceto.includes('${a}') || replaceto.includes('${A}'))) {
+      Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.replace.moreletter'))
+      return
+    }
+    zitems.forEach((zitem, index) => {
+      let note = zitem.getNote()
+      let newNote
+      let matched = note.match(text)
+      let ns = ''
+      if (matched && matched.length > 1) {
+        for (let index = 1; index < matched.length; index++) {
+          const element = matched[index];
+          ns += 'var n' + index + ' = ' + element.charCodeAt() + '; '
+        }
+      }
+      let replaceto_ = Zotero.getMainWindow().eval('var i = \'' + padding(index + 1, String(zitems.length).length) + '\'; ' + 
+        'var a = String.fromCharCode(\'a\'.charCodeAt() + ' + index + '); ' + 
+        'var A = String.fromCharCode(\'A\'.charCodeAt() + ' + index + '); ' +
+        'var N = function(n) { return String.fromCharCode(n) }; ' +
+        ns +
+        '`' + replaceto + '`')
+      if (mode === 'html') {
+        newNote = note.replace(new RegExp(text, 'g'), replaceto_)
+      } else if (mode === 'content') {
+        newNote = replaceNoTag(note, 0, text.replace(/</g, '&lt;').replace(/>/g, '&gt;'), replaceto_.replace(/</g, '&lt;').replace(/>/g, '&gt;'));
+      }
+      zitem.setNote(newNote);
+      var itemID = zitem.saveTx();
+      if (isDebug()) Zotero.debug('item.id: ' + itemID);
+    })
+    return true
+  } catch (error) {
+    Zotero.ZotCard.Utils.warning(error)
+  }
 }

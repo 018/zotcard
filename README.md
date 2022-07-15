@@ -11,7 +11,7 @@ It supports new cards according to the template, and then write cards, but also 
 <img src="https://raw.githubusercontent.com/018/zotcard/main/image/newcard2_en.gif" alt="Card" width="600"/>
 <img src="https://raw.githubusercontent.com/018/zotcard/main/image/newcard3_en.gif" alt="Card" width="600"/>
 
-### 默认卡
+### Default card
 
 The following card templates are provided by default:
 

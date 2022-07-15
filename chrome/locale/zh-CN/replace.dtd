@@ -3,4 +3,4 @@
 <!ENTITY zotero.zotcard.replace.html "Html">
 <!ENTITY zotero.zotcard.replace.content "内容">
 <!ENTITY zotero.zotcard.replace.srctextlabel "文本">
-<!ENTITY zotero.zotcard.replace.targettextlabel "替换成">
+<!ENTITY zotero.zotcard.replace.targettextlabel "替换成(${i}: 1、2、3...，${a}: a、b、c...)，${A}: A、B、C...)">

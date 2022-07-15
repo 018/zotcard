@@ -108,29 +108,29 @@ Zotero.getMainWindow().Zotero.ZotCard.Cards = {
 		var isDef = false
 		var val = Zotero.Prefs.get(`zotcard.${item}`)
 		if (val) {
-		if (beforeDefs.indexOf(val) > -1) {
+			if (beforeDefs.indexOf(val) > -1) {
+				isDef = true
+			} else {
+				card = val
+			}
+		} else {
 			isDef = true
-		} else {
-			card = val
-		}
-		} else {
-		isDef = true
 		}
 		if (isDef) {
-		card = def
-		Zotero.Prefs.set(`zotcard.${item}`, card)
+			card = def
+			Zotero.Prefs.set(`zotcard.${item}`, card)
 		}
 	
 		var label = Zotero.Prefs.get(`zotcard.${item}.label`)
 		if (label === undefined) {
-		label = name
-		Zotero.Prefs.set(`zotcard.${item}.label`, label)
+			label = name
+			Zotero.Prefs.set(`zotcard.${item}.label`, label)
 		}
 	
 		var visible = Zotero.Prefs.get(`zotcard.${item}.visible`)
 		if (visible === undefined) {
-		visible = true
-		Zotero.Prefs.set(`zotcard.${item}.visible`, visible)
+			visible = true
+			Zotero.Prefs.set(`zotcard.${item}.visible`, visible)
 		}
 		return { card: card, label: label, visible: visible }
 	},
@@ -264,7 +264,7 @@ Zotero.getMainWindow().Zotero.ZotCard.Cards = {
 			const spliceItemFields = (field) => {
 				var index = itemFields.indexOf(field)
 				if (index > -1) {
-				itemFields.splice(index, 1)
+					itemFields.splice(index, 1)
 				}
 			}
 			const spliceCreatorTypes = (type) => {
@@ -277,6 +277,7 @@ Zotero.getMainWindow().Zotero.ZotCard.Cards = {
 			var tags = []
 			var dateAdded = ''
 			var dateModified = ''
+			var accessDate = ''
 			let econtent = '(() => {\n' +
 				'var now = "' + now + '";\n' +
 				'var today = "' + today + '";\n' +
@@ -295,68 +296,73 @@ Zotero.getMainWindow().Zotero.ZotCard.Cards = {
 				const element = json[key];
 				switch (key) {
 					case 'tags':
-					tags.push(...element.map(e => e.tag))
-					spliceItemFields(key)
-					break;
+						tags.push(...element.map(e => e.tag))
+						spliceItemFields(key)
+						break;
 					case 'creators':
-					var creators = {}
-					if (element.length > 0) {
-						element.forEach(ee => {
-						var name = ee.name
-						if (!name) {
-							var isCN1 = ee.lastName.match('[\u4e00-\u9fa5]+')
-							var isCN2 = ee.firstName.match('[\u4e00-\u9fa5]+')
-							name = ee.lastName + (isCN1 || isCN2 ? '' : ' ') + ee.firstName
+						var creators = {}
+						if (element.length > 0) {
+							element.forEach(ee => {
+							var name = ee.name
+							if (!name) {
+								var isCN1 = ee.lastName.match('[\u4e00-\u9fa5]+')
+								var isCN2 = ee.firstName.match('[\u4e00-\u9fa5]+')
+								name = ee.lastName + (isCN1 || isCN2 ? '' : ' ') + ee.firstName
+							}
+							if (Object.hasOwnProperty.call(creators, ee.creatorType)) {
+								creators[ee.creatorType].push(name)
+							} else {
+								creators[ee.creatorType] = [name]
+							}
+							})
+							for (const key in creators) {
+							if (Object.hasOwnProperty.call(creators, key)) {
+								const e = creators[key];
+								econtent += 'var ' + key + 's = ' + JSON.stringify(e) + ';\n'
+								spliceCreatorTypes(key)
+							}
+							}
 						}
-						if (Object.hasOwnProperty.call(creators, ee.creatorType)) {
-							creators[ee.creatorType].push(name)
-						} else {
-							creators[ee.creatorType] = [name]
-						}
-						})
-						for (const key in creators) {
-						if (Object.hasOwnProperty.call(creators, key)) {
-							const e = creators[key];
-							econtent += 'var ' + key + 's = ' + JSON.stringify(e) + ';\n'
-							spliceCreatorTypes(key)
-						}
-						}
-					}
-					break;
+						break;
 					case 'relations':
 					case 'collections':
-					break;
+						break;
+					case 'accessDate':
+						Zotero.debug('zotcard@' + key + ': ' + element)
+						accessDate = Zotero.ZotCard.Utils.sqlToDate(item.getField(key), 'yyyy-MM-dd HH:mm:ss')
+						spliceItemFields(key)
+						break;
 					case 'dateAdded':
-					Zotero.debug('zotcard@' + key + ': ' + element)
-					dateAdded = Zotero.ZotCard.Utils.sqlToDate(item.getField(key), 'yyyy-MM-dd HH:mm:ss')
-					spliceItemFields(key)
-					break;
+						Zotero.debug('zotcard@' + key + ': ' + element)
+						dateAdded = Zotero.ZotCard.Utils.sqlToDate(item.getField(key), 'yyyy-MM-dd HH:mm:ss')
+						spliceItemFields(key)
+						break;
 					case 'dateModified':
-					Zotero.debug('zotcard@' + key + ': ' + element)
-					dateModified = Zotero.ZotCard.Utils.sqlToDate(item.getField(key), 'yyyy-MM-dd HH:mm:ss')
-					spliceItemFields(key)
-					break;
+						Zotero.debug('zotcard@' + key + ': ' + element)
+						dateModified = Zotero.ZotCard.Utils.sqlToDate(item.getField(key), 'yyyy-MM-dd HH:mm:ss')
+						spliceItemFields(key)
+						break;
 					default:
-					switch (Object.prototype.toString.call(element)) {
-						case '[object Number]':
-						case '[object Boolean]':
-						econtent += 'var ' + key + ' = ' + element + ';\n'
-						spliceItemFields(key)
-						break;
-						case '[object String]':
-						econtent += 'var ' + key + ' = "' + element.replace(/"|'/g, "\\\"").replace(/\n/g, "\\n") + '";\n'
-						spliceItemFields(key)
-						break;
-						case '[object Object]':
-						case '[object Array]':
-						econtent += 'var ' + key + ' = ' + JSON.stringify(element) + ';\n'
-						spliceItemFields(key)
-						break;
-						default:
+						switch (Object.prototype.toString.call(element)) {
+							case '[object Number]':
+							case '[object Boolean]':
+								econtent += 'var ' + key + ' = ' + element + ';\n'
+								spliceItemFields(key)
+								break;
+							case '[object String]':
+								econtent += 'var ' + key + ' = "' + element.replace(/"|'/g, "\\\"").replace(/\n/g, "\\n") + '";\n'
+								spliceItemFields(key)
+								break;
+							case '[object Object]':
+							case '[object Array]':
+								econtent += 'var ' + key + ' = ' + JSON.stringify(element) + ';\n'
+								spliceItemFields(key)
+								break;
+							default:
+								break;
+						}
 						break;
 					}
-					break;
-				}
 				}
 			}
 			itemFields.forEach(element => {
@@ -366,6 +372,7 @@ Zotero.getMainWindow().Zotero.ZotCard.Cards = {
 				econtent += 'var ' + element + 's = "";\n'
 			});
 			econtent += 'var tags = ' + JSON.stringify(tags) + ';\n'
+			econtent += 'var accessDate = "' + accessDate + '";\n'
 			econtent += 'var dateAdded = "' + dateAdded + '";\n'
 			econtent += 'var dateModified = "' + dateModified + '";\n'
 			econtent += 'var text = "' + (text ? text.replace(/"|'/g, "\\\"") : '') + '";\nreturn `' + template + '`;\n})()'

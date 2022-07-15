@@ -15,7 +15,7 @@
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     orient="vertical"
     buttons="accept,cancel"
-    ondialogaccept="replace();window.close();return true;"
+    ondialogaccept="replace();return false;"
     ondialogcancel="window.close();return true;"
     flex="1"
     title="&zotero.zotcard.replace.title;"
