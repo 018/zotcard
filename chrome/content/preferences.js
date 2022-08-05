@@ -4,6 +4,7 @@ var changed = false
 
 function onload() {
 	document.querySelectorAll('.params').forEach(select => {
+		_addParamOption(select, 'clipboardText', Zotero.ZotCard.Utils.getString('zotcard.preferences.clipboardText'))
 		_addParamOption(select, 'today', Zotero.ZotCard.Utils.getString('zotcard.preferences.today'))
 		_addParamOption(select, 'month', Zotero.ZotCard.Utils.getString('zotcard.preferences.month'))
 		_addParamOption(select, 'dayOfYear', Zotero.ZotCard.Utils.getString('zotcard.preferences.dayOfYear'))

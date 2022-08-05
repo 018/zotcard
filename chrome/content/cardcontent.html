@@ -8,6 +8,12 @@
 		<script src="chrome://zoterozotcard/content/cardcontent.js"></script>
 		
 		<style>
+
+			@page {
+				margin: 0 3px;
+				padding: 0;
+			}
+
 			body {
 				margin: 0 3px;
 				padding: 0;
@@ -38,7 +44,7 @@
 	</head>
 	<body>
 		<header id="header">
-			<span id="wordnumbertitle">字数：</span>
+			<span id="wordnumbertitle">总字数：</span>
 			<span id="words">0</span>
 			<span id="fontsizetitle" class="spaced">字体大小：</span>
 			<select id="fontsize" onchange="fontsizechange()">
@@ -101,7 +107,7 @@
 		</header>
 		<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
 		<div id="readcontent" onclick="document.getElementById('header').style.display = 'flex'">
-			<div>
+			<!-- <div class="cardcontent" style="page-break-after:always">
 				<h3 style="text-align: center;">短文卡 - <span>管理职能</span></h3>
 				<p style="color: #999999; display: flex; justify-content: space-between;"><span>标签：[管理学] [管理职能] [v1] </span> <span>日期：2021-11-26</span></p>
 				<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
@@ -109,7 +115,7 @@
 				<p><strong>1、计划。</strong>该职能是制定愿景、使命、价值观，根据这三个再确定战略以及设定短中长目标，并制定方案以整合和协调各种活动。<br /><strong>2、组织。</strong>该职能是为了实行「计划」定制的「目标」而搭建起来的组织过程，包括组织结构的设计，不断的优化，日常工作时协作，以及人力资源的管理。<br /><strong>3、领导。</strong>该职能是影响团队来实现组织目标的过程。它实际上就是组织行为学的知识，包括上下沟通、包含态度、人格、知觉等个体行为、激发员工动机。<br /><strong>4、控制。</strong>该职能是控制、比较和纠正工作绩效的过程。包括了控制组织绩效和员工绩效，使「计划」在有效「领导」的「组织」下顺利完成。</p>
 				<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
 				<p style="color: #999999;">出处：[美]斯蒂芬·P. 罗宾斯,[美]玛丽·库尔特《管理学(第13版)》(2017) 第二部分</p>
-			</div>
+			</div> -->
 		</div>
 	</body>
 </html>

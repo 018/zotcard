@@ -26,11 +26,19 @@
     <script src="chrome://zoterozotcard/content/replace.js"/>
 
     <groupbox orient="vertical">
+        <label value='&zotero.zotcard.replace.scopelabel;'/>
+        <radiogroup id="replace_scope" orient="horizontal" align="center" value="all">
+            <radio label="&zotero.zotcard.replace.scopea.all;" value="all"></radio>
+            <radio label="&zotero.zotcard.replace.scopea.title;" value="title"></radio>
+            <radio label="&zotero.zotcard.replace.scopea.content;" value="content"></radio>
+        </radiogroup>
+
         <label value='&zotero.zotcard.replace.modelabel;'/>
         <radiogroup id="replace_mode" orient="horizontal" align="center" value="content">
             <radio label="&zotero.zotcard.replace.html;" value="html"></radio>
             <radio label="&zotero.zotcard.replace.content;" value="content"></radio>
         </radiogroup>
+
         <label value='&zotero.zotcard.replace.srctextlabel;'/>
         <textbox id="replace_edit_text" flex="1"/>
         <label value='&zotero.zotcard.replace.targettextlabel;'/>

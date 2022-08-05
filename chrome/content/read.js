@@ -230,6 +230,7 @@ function loadNum () {
   document.getElementById('totals').textContent = totals
   document.getElementById('copys').textContent = document.getElementById('content-list').children.length
   document.getElementById('copyselecteds').textContent = Object.values(extra).filter(e => e.selected).length
+  document.getElementById('printselecteds').textContent = document.getElementById('copyselecteds').textContent
   let hides = results.filter(e => !extra[e.id] || extra[e.id].hidden).length
   document.getElementById('hides').textContent = hides
   let expands = results.filter(e => !extra[e.id] || extra[e.id].expand).length
@@ -805,7 +806,7 @@ function createCard (card, index) {
       span = span.parentElement
     }
     let id = span.getAttribute('cardid')
-    Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer('chrome://zoterozotcard/content/cardcontent.html?id=' + id)
+    Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer('chrome://zoterozotcard/content/cardcontent.html?ids=' + id)
   }
   divWarp.appendChild(span12)
   
@@ -1003,6 +1004,23 @@ function copySelected () {
     } else {
       Zotero.ZotCard.Utils.success(Zotero.ZotCard.Utils.getString('zotcard.readcard.copysucceededcount', count))
     }
+    document.getElementById('searching').hidden = true
+  } else {
+    Zotero.ZotCard.Utils.warning('未选择卡片。')
+  }
+}
+
+function printSelected () {
+  if (Object.values(extra).filter(e => e.selected).length > 0) {
+    document.getElementById('searching').hidden = false
+    var ids = []
+    for (let index = 0; index < document.getElementById('content-list').children.length; index++) {
+      const element = document.getElementById('content-list').children[index]
+      if (element.querySelector('input[type="checkbox"]').checked) {
+        ids.push(element.getAttribute('id'))
+      }
+    }
+    Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer('chrome://zoterozotcard/content/cardcontent.html?ids=' + ids.join(','))
     document.getElementById('searching').hidden = true
   } else {
     Zotero.ZotCard.Utils.warning('未选择卡片。')
@@ -1209,7 +1227,7 @@ function oneCardRefresh () {
 function oneCardPrint () {
   let id = document.getElementById('concentration').getAttribute('card-id')
 
-  Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer('chrome://zoterozotcard/content/cardcontent.html?id=' + id)
+  Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer('chrome://zoterozotcard/content/cardcontent.html?ids=' + id)
 }
 
 function oneCardCopy () {

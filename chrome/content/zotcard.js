@@ -1192,13 +1192,9 @@ zotcard.print = async function () {
     Zotero.ZotCard.Utils.error(Utils.getString('zotcard.only_note'))
     return
   }
-  if (zitems.length !== 1) {
-    Zotero.ZotCard.Utils.error(Utils.getString('zotcard.only_note'))
-    return
-  }
 
-  var zitem = zitems[0]
-  Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer('chrome://zoterozotcard/content/cardcontent.html?id=' + zitem.id)
+  var ids = zitems.map(e => e.id)
+  Zotero.getMainWindow().Zotero.ZotCard.Utils.openInViewer('chrome://zoterozotcard/content/cardcontent.html?ids=' + ids.join(','))
 }
 
 zotcard.copylink = async function () {

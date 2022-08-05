@@ -104,6 +104,7 @@ function replace() {
       return
     }
 
+    var scope = document.getElementById('replace_scope').value;
     var mode = document.getElementById('replace_mode').value;
     var text = document.getElementById('replace_edit_text').value;
     var replaceto = document.getElementById('replace_edit_replaceto').value;
@@ -111,6 +112,7 @@ function replace() {
       Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.replace.moreletter'))
       return
     }
+    let count = 0
     zitems.forEach((zitem, index) => {
       let note = zitem.getNote()
       let newNote
@@ -128,15 +130,42 @@ function replace() {
         'var N = function(n) { return String.fromCharCode(n) }; ' +
         ns +
         '`' + replaceto + '`')
+
+      let tarNote
+      let {content, title, displayTitle} = Zotero.getMainWindow().Zotero.ZotCard.Utils.resolveNote(zitem)
+      Zotero.debug(`zotcard@content: ${content}`)
+      Zotero.debug(`zotcard@title: ${title}`)
+      Zotero.debug(`zotcard@displayTitle: ${displayTitle}`)
+      if (scope === 'all') {
+        tarNote = note
+      } else if (scope === 'title') {
+        tarNote = title
+      } else if (scope === 'content') {
+        tarNote = content
+      } 
+      
       if (mode === 'html') {
-        newNote = note.replace(new RegExp(text, 'g'), replaceto_)
+        newNote = tarNote.replace(new RegExp(text, 'g'), replaceto_)
       } else if (mode === 'content') {
-        newNote = replaceNoTag(note, 0, text.replace(/</g, '&lt;').replace(/>/g, '&gt;'), replaceto_.replace(/</g, '&lt;').replace(/>/g, '&gt;'));
+        newNote = replaceNoTag(tarNote, 0, text.replace(/</g, '&lt;').replace(/>/g, '&gt;'), replaceto_.replace(/</g, '&lt;').replace(/>/g, '&gt;'));
       }
-      zitem.setNote(newNote);
-      var itemID = zitem.saveTx();
-      if (isDebug()) Zotero.debug('item.id: ' + itemID);
+
+      if (newNote !== tarNote) {
+        count++
+
+        if (scope === 'title') {
+          newNote = newNote + content
+        } else if (scope === 'content') {
+          newNote = title + newNote
+        } 
+  
+        zitem.setNote(newNote);
+        var itemID = zitem.saveTx();
+        if (isDebug()) Zotero.debug('item.id: ' + itemID);
+      }
     })
+    
+    Zotero.ZotCard.Utils.success(Zotero.ZotCard.Utils.getString('zotcard.replace.success', count))
     return true
   } catch (error) {
     Zotero.ZotCard.Utils.warning(error)

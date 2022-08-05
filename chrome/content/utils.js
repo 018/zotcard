@@ -256,6 +256,10 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.copyTextToClipboard = function (text
   )
 }
 
+Zotero.getMainWindow().Zotero.ZotCard.Utils.getClipboard = function () {
+  return Zotero.Utilities.Internal.getClipboard("text/unicode")
+}
+
 Zotero.getMainWindow().Zotero.ZotCard.Utils.dataURItoBlob = function (dataURI) {
   var mimeString = dataURI
     .split(',')[0]
@@ -738,4 +742,26 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.getNoteBGColor = function () {
     }
   }
   return ''
+}
+
+Zotero.getMainWindow().Zotero.ZotCard.Utils.resolveNote = function (note) {
+  let content = ''
+  let title = ''
+  let displayTitle = note.getDisplayTitle()
+  let found = false
+  note.getNote().split('\n').forEach(line => {
+    if (!found && line.replace(/\<.*?\>/g, '') === displayTitle) {
+      found = true
+      title = line
+      
+      let other = line.replace(new RegExp(`\<(h\d|p|div)+\>${displayTitle}\<\/(h\d|p|div)+\>`), '')
+      if (other.length > 0) {
+        content += other + '\n'
+      }
+    } else {
+      content += line + '\n'
+    }
+  })
+
+  return {content, title, displayTitle}
 }

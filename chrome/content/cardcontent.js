@@ -1,7 +1,6 @@
 'use strict'
 
-let noteContent
-let noteTitle
+let cards = []
 
 function start () {
   Zotero.debug(Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.wordnumbertitle'))
@@ -19,15 +18,32 @@ function start () {
   document.getElementById('titlestyle_bodyboldtitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyle_bodyboldtitle')
   document.getElementById('printtitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.printtitle')
 
-  let id = getQueryVariable('id')
-  let note = Zotero.Items.get(id)
-  if (note) {
-    document.title = note.getNoteTitle()
-    noteContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.clearShadowAndBorder(note.getNote())
-    noteTitle = note.getNoteTitle()
-    document.getElementById('words').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.hangzi(noteContent)
-    Zotero.debug(noteContent)
-    document.getElementById('readcontent').innerHTML = noteContent
+  let ids = getQueryVariable('ids')
+  let notes = Zotero.Items.get(ids.split(','))
+  if (notes && notes.length > 0) {
+    document.title = notes.length === 1 ? notes[0].getNoteTitle() : Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.prints', notes.length)
+    let words = 0
+    notes.forEach(note => {
+      let noteContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.clearShadowAndBorder(note.getNote())
+      let noteTitle = note.getNoteTitle()
+      words += Zotero.getMainWindow().Zotero.ZotCard.Utils.hangzi(noteContent)
+      Zotero.debug(noteContent)
+
+      cards.push({
+        id: note.id,
+        title: noteTitle,
+        content: noteContent
+      })
+
+      let div = document.createElement('div')
+      div.setAttribute('id', `card${note.id}`)
+      div.setAttribute('class', 'cardcontent')
+      div.style.pageBreakAfter = 'always'
+      div.innerHTML = noteContent
+
+      document.getElementById('readcontent').append(div)
+    })
+    document.getElementById('words').textContent = words
 
     let config = Zotero.Prefs.get('zotcard.config.print')
     Zotero.debug(`config: ${config}`)
@@ -50,8 +66,8 @@ function start () {
     document.querySelectorAll('#readcontent p').forEach(e => e.style.margin = document.getElementById('paragraphspacing').value + 'px 0')
     reftitlestyle()
   } else {
-    document.title = '异常'
-    document.getElementById('readcontent').innerHTML = '错误的笔记id。'
+    document.title = 'Error'
+    document.getElementById('readcontent').innerHTML = `Error ids(${ids})。`
   }
 }
 
@@ -78,30 +94,34 @@ function paragraphspacingchange () {
 
 function reftitlestyle () {
   let value = document.getElementById('titlestyle').value
-  switch (value) {
-    case 'h1':
-      titleReplace(`<h1>${noteTitle}</h1>`)
-      break
-    case 'h2':
-      titleReplace(`<h2>${noteTitle}</h2>`)
-      break
-    case 'h3':
-      titleReplace(`<h3>${noteTitle}</h3>`)
-      break
-    case 'h4':
-      titleReplace(`<h4>${noteTitle}</h4>`)
-      break
-    case 'body':
-      titleReplace(`<p>${noteTitle}</p>`)
-      break
-    case 'bodybold':
-      titleReplace(`<p style="font-weight: bold;">${noteTitle}</p>`)
-      break
-    case 'sample':
-    default:
-      document.getElementById('readcontent').innerHTML = noteContent
-      break
-  }
+
+  cards.forEach(card => {
+    
+    switch (value) {
+      case 'h1':
+        titleReplace(card, `<h1>${card.title}</h1>`)
+        break
+      case 'h2':
+        titleReplace(card, `<h2>${card.title}</h2>`)
+        break
+      case 'h3':
+        titleReplace(card, `<h3>${card.title}</h3>`)
+        break
+      case 'h4':
+        titleReplace(card, `<h4>${card.title}</h4>`)
+        break
+      case 'body':
+        titleReplace(card, `<p>${card.title}</p>`)
+        break
+      case 'bodybold':
+        titleReplace(card, `<p style="font-weight: bold;">${card.title}</p>`)
+        break
+      case 'sample':
+      default:
+        document.getElementById(`card${card.id}`).innerHTML = card.content
+        break
+    }
+  })
 }
 
 function titlestylechange () {
@@ -109,16 +129,18 @@ function titlestylechange () {
   saveConfig()
 }
 
-function titleReplace (titleHtml) {
+function titleReplace (card, newTitleHtml) {
   let newNoteContent = ''
-  noteContent.split('\n').forEach(line => {
-    if (line.replace(/\<.*?\>/g, '') === noteTitle) {
-      newNoteContent += titleHtml + '\n'
+  let found = false
+  card.content.split('\n').forEach(line => {
+    if (!found && line.replace(/\<.*?\>/g, '') === card.title) {
+      found = true
+      newNoteContent += newTitleHtml + '\n'
     } else {
       newNoteContent += line + '\n'
     }
   })
-  document.getElementById('readcontent').innerHTML = newNoteContent
+  document.getElementById(`card${card.id}`).innerHTML = newNoteContent
 }
 
 function saveConfig() {

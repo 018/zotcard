@@ -274,11 +274,13 @@ Zotero.getMainWindow().Zotero.ZotCard.Cards = {
 				}
 			}
 			
+			var clipboardText = Zotero.getMainWindow().Zotero.ZotCard.Utils.getClipboard()
 			var tags = []
 			var dateAdded = ''
 			var dateModified = ''
 			var accessDate = ''
 			let econtent = '(() => {\n' +
+				'var clipboardText = "' + (clipboardText || '').replace(/\n/g, '\\n').replace(/"/g, '\"') + '";\n' +
 				'var now = "' + now + '";\n' +
 				'var today = "' + today + '";\n' +
 				'var week = "' + week + '";\n' +

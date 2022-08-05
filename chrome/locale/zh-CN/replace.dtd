@@ -1,4 +1,8 @@
 <!ENTITY zotero.zotcard.replace.title "替换">
+<!ENTITY zotero.zotcard.replace.scopelabel "范围">
+<!ENTITY zotero.zotcard.replace.scopea.all "所有">
+<!ENTITY zotero.zotcard.replace.scopea.title "仅标题">
+<!ENTITY zotero.zotcard.replace.scopea.content "仅内容">
 <!ENTITY zotero.zotcard.replace.modelabel "模式">
 <!ENTITY zotero.zotcard.replace.html "Html">
 <!ENTITY zotero.zotcard.replace.content "内容">
