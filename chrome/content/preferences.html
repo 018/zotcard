@@ -176,15 +176,16 @@
 			</div>
 			<div class="right">
 				<div class="content" id="general-content">
-					<div class="content-item center"><label style="width: 100px;">笔记背景：</label><div class="notebackground" onclick="onNoteBackgroundChanged(event)"></div></div>
+					<div class="content-item center"><label style="width: 120px;">笔记背景：</label><div class="notebackground" onclick="onNoteBackgroundChanged(event)"></div></div>
 					<br />
-					<div class="content-item center"><label style="width: 100px;">自定义卡片数量：</label><input id="card_quantity" type="number" onchange="onValueChanged()"></input></div>
-					<div class="content-item center"><label style="width: 100px;">一周的第一天：</label>
+					<div class="content-item center"><label style="width: 120px;">自定义卡片数量：</label><input id="card_quantity" type="number" onchange="onValueChanged()"></input></div>
+					<div class="content-item center"><label style="width: 120px;">一周的第一天：</label>
 						<select class="select" id="startOfWeek" onchange="onValueChanged()">
 							<option value="0">周日</option>
 							<option value="1">周一</option>
 						</select>
 					</div>
+					<div class="content-item center"><label style="width: 120px;">最近移动分类个数：</label><input id="recently_move_collection_quantity" type="number" onchange="onValueChanged()"></input></div>
 					<div class="footer">
 						<button onclick="onGeneralReload(event)">重置</button>
 						<button onclick="onGeneralSave(event)">保存</button>

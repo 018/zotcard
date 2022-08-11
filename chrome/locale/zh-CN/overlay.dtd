@@ -8,6 +8,8 @@
 <!ENTITY zotero.zotcard.structure.label "结构卡">
 <!ENTITY zotero.zotcard.general.label "短文卡">
 <!ENTITY zotero.zotcard.readcard.label "读卡">
+<!ENTITY zotero.zotcard.movecard.label "移动到分类">
+<!ENTITY zotero.zotcard.recentlymovecard.label "最近移动">
 <!ENTITY zotero.zotcard.replace.label "替换">
 <!ENTITY zotero.zotcard.copy.label "复制">
 <!ENTITY zotero.zotcard.copyandcreate.label "复制并创建">

@@ -69,6 +69,24 @@
                     oncommand="Zotero.ZotCard.readcard()"/>
                 <menuseparator
                     class="dynamic-menu only-note" />
+                    
+                <menu
+                    id="zotero-itemmenu-zotcard-move-to-collection"
+                    class="dynamic-menu only-note"
+                    label="&zotero.zotcard.movecard.label;">
+                    <menupopup id="zotero-itemmenu-zotcard-move-to-collection-popup" onpopupshowing="Zotero.ZotCard.moveToCollectionPopup(event)">
+                        <menu
+                            id="zotero-itemmenu-zotcard-recently-move-to-collection"
+                            label="&zotero.zotcard.recentlymovecard.label;">
+                            <menupopup id="zotero-itemmenu-zotcard-recently-move-to-collection-popup">
+                            </menupopup>
+                        </menu>
+                        <menuseparator id="zotero-add-to-collection-separator"/>
+                    </menupopup>
+                </menu>
+                <menuseparator
+                    class="dynamic-menu only-note" />
+
                 <menuitem
                     id="zotero-itemmenu-zotcard-replace"
                     class="dynamic-menu only-note"
@@ -77,7 +95,7 @@
                 <menuitem
                     id="zotero-itemmenu-zotcard-copy"
                     class="dynamic-menu only-note"
-                    label="&zotero.zotcard.copy.label;"
+                    label="&zotero.zotcard.copy.label;" 
                     oncommand="Zotero.ZotCard.copy()"/>
                 <menuitem
                     id="zotero-itemmenu-zotcard-copyandcreate"

@@ -747,21 +747,29 @@ Zotero.getMainWindow().Zotero.ZotCard.Utils.getNoteBGColor = function () {
 Zotero.getMainWindow().Zotero.ZotCard.Utils.resolveNote = function (note) {
   let content = ''
   let title = ''
+  let titleindex = -1
   let displayTitle = note.getDisplayTitle()
-  let found = false
-  note.getNote().split('\n').forEach(line => {
-    if (!found && line.replace(/\<.*?\>/g, '') === displayTitle) {
-      found = true
-      title = line
-      
-      let other = line.replace(new RegExp(`\<(h\d|p|div)+\>${displayTitle}\<\/(h\d|p|div)+\>`), '')
-      if (other.length > 0) {
-        content += other + '\n'
-      }
-    } else {
-      content += line + '\n'
-    }
-  })
+  let matchs = note.getNote().match(/\<(h\d)\>((?!<\/h\d>).)*?\<\/h\d\>/)
+  if (matchs) {
+    title = matchs[0]
+    content = note.getNote().replace(matchs[0], '')
+    titleindex = matchs.index
+  } else {
+    content = note.getNote()
+    titleindex = -1
+  }
+  return {displayTitle, title, content, titleindex}
+}
 
-  return {content, title, displayTitle}
+Zotero.getMainWindow().Zotero.ZotCard.Utils.showPath = function (collectionID) {
+  let collectionNames = []
+  collectionNames.push(Zotero.Collections.get(collectionID).name)
+  let parentID = collectionID
+  let lastCollection = Zotero.Collections.get(collectionID)
+  while ((parentID = Zotero.Collections.get(parentID).parentID)) {
+    collectionNames.push(Zotero.Collections.get(parentID).name)
+    lastCollection = Zotero.Collections.get(parentID)
+  }
+  collectionNames.push(Zotero.Libraries.get(lastCollection.libraryID).name)
+  return collectionNames.reverse().join(' ▸ ')
 }

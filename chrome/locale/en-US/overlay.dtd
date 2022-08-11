@@ -8,6 +8,8 @@
 <!ENTITY zotero.zotcard.structure.label "Structure Card">
 <!ENTITY zotero.zotcard.general.label "General Card">
 <!ENTITY zotero.zotcard.readcard.label "Read Card">
+<!ENTITY zotero.zotcard.movecard.label "Move To Collection">
+<!ENTITY zotero.zotcard.recentlymovecard.label "Recently Move">
 <!ENTITY zotero.zotcard.replace.label "Replace">
 <!ENTITY zotero.zotcard.copy.label "Copy">
 <!ENTITY zotero.zotcard.copyandcreate.label "Copy and create">

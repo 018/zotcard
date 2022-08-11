@@ -270,7 +270,7 @@ Zotero.getMainWindow().Zotero.ZotCard.Cards = {
 			const spliceCreatorTypes = (type) => {
 				var index = creatorTypes.indexOf(type)
 				if (index > -1) {
-				creatorTypes.splice(index, 1)
+					creatorTypes.splice(index, 1)
 				}
 			}
 			
@@ -395,9 +395,9 @@ Zotero.getMainWindow().Zotero.ZotCard.Cards = {
 				
 				for (const key in json) {
 					if (Object.hasOwnProperty.call(json, key)) {
-						const element = json[key];
+						const element = json[key]
 						if (!['tags', 'creators', 'relations', 'collections', 'dateAdded', 'dateModified'].includes(key)) {
-						content.replace(new RegExp('\{' + key + '\}', 'g'), element)
+							content.replace(new RegExp('\{' + key + '\}', 'g'), element)
 						}
 					}
 				}
@@ -408,8 +408,8 @@ Zotero.getMainWindow().Zotero.ZotCard.Cards = {
 				Zotero.ZotCard.Utils.warning(error)
 			}
 		} catch (error) {
-		Zotero.debug(error)
-		Zotero.ZotCard.Utils.warning(error)
+			Zotero.debug(error)
+			Zotero.ZotCard.Utils.warning(error)
 		}
 	}
 }

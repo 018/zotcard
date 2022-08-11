@@ -84,6 +84,7 @@ function loadGeneral() {
 	let quantity = parseInt(Zotero.Prefs.get('zotcard.card_quantity'))
 	document.getElementById('card_quantity').value = quantity
 	document.getElementById('startOfWeek').value = parseInt(Zotero.Prefs.get('zotcard.startOfWeek'))
+	document.getElementById('recently_move_collection_quantity').value = parseInt(Zotero.Prefs.get('zotcard.config.recently_move_collection_quantity'))
 	document.querySelector('.notebackground').style.backgroundColor = Zotero.ZotCard.Utils.getNoteBGColor() || '#FFFFFF'
 	document.querySelector('.notebackground').setAttribute('notebackground', Zotero.ZotCard.Utils.getNoteBGColor() || '')
 	
@@ -138,11 +139,27 @@ function onGeneralSave() {
 		Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.correct_quantity'))
 		return
 	}
+	let recentlyMoveCollectionQuantity = parseInt(document.getElementById('recently_move_collection_quantity').value)
+	if (recentlyMoveCollectionQuantity < 0) {
+		Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.correct_recently_move_collection_quantity'))
+		return
+	}
 
 	let startOfWeek = document.getElementById('startOfWeek').value
 	let notebackground = document.querySelector('.notebackground').getAttribute('notebackground')
 	Zotero.Prefs.set('zotcard.card_quantity', quantity)
 	Zotero.Prefs.set('zotcard.startOfWeek', startOfWeek)
+
+	Zotero.Prefs.set('zotcard.config.recently_move_collection_quantity', recentlyMoveCollectionQuantity)
+	let recently_move_collections = Zotero.Prefs.get('zotcard.config.recently_move_collections')
+	if (recently_move_collections && recently_move_collections.length > 0) {
+	  let recentlyMoveCollections = recently_move_collections.split(',')
+	  if (recentlyMoveCollections.length > recentlyMoveCollectionQuantity) {
+		recentlyMoveCollections.splice(0, recentlyMoveCollections.length - recentlyMoveCollectionQuantity)
+	  }
+	  Zotero.Prefs.set('zotcard.config.recently_move_collections', recentlyMoveCollections.join(','))
+	}
+
 	Zotero.ZotCard.Utils.noteBGColor(notebackground)
 	loadCustomCard(quantity)
 

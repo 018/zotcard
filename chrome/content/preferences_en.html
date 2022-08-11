@@ -176,15 +176,16 @@
 			</div>
 			<div class="right">
 				<div class="content" id="general-content">
-					<div class="content-item center"><label style="width: 100px;">NoteBackground：</label><div class="notebackground" onclick="onNoteBackgroundChanged(event)"></div></div>
+					<div class="content-item center"><label style="width: 120px;">NoteBackground：</label><div class="notebackground" onclick="onNoteBackgroundChanged(event)"></div></div>
 					<br />
-					<div class="content-item center"><label style="width: 100px;">Card Quantity：</label><input id="card_quantity" type="number" onchange="onValueChanged()"></input></div>
-					<div class="content-item center"><label style="width: 100px;">Start Of Week：</label>
+					<div class="content-item center"><label style="width: 120px;">Card Quantity：</label><input id="card_quantity" type="number" onchange="onValueChanged()"></input></div>
+					<div class="content-item center"><label style="width: 120px;">Start Of Week：</label>
 						<select class="select" id="startOfWeek" onchange="onValueChanged()">
 							<option value="0">Sunday</option>
 							<option value="1">Monday</option>
 						</select>
 					</div>
+					<div class="content-item center"><label style="width: 120px;">Number of recently moved collections:</label><input id="recently_move_collection_quantity" type="number" onchange="onValueChanged()"></input></div>
 					<div class="footer">
 						<button onclick="onGeneralReload(event)">Reset</button>
 						<button onclick="onGeneralSave(event)">Save</button>

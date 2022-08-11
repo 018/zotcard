@@ -2,7 +2,7 @@
 
 let cards = []
 
-function start () {
+async function start () {
   Zotero.debug(Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.wordnumbertitle'))
   document.getElementById('wordnumbertitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.wordnumbertitle')
   document.getElementById('fontsizetitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.fontsizetitle')
@@ -13,7 +13,6 @@ function start () {
   document.getElementById('titlestyle_h1title').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyle_h1title')
   document.getElementById('titlestyle_h2title').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyle_h2title')
   document.getElementById('titlestyle_h3title').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyle_h3title')
-  document.getElementById('titlestyle_h4title').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyle_h4title')
   document.getElementById('titlestyle_bodytitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyle_bodytitle')
   document.getElementById('titlestyle_bodyboldtitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyle_bodyboldtitle')
   document.getElementById('printtitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.printtitle')
@@ -23,8 +22,15 @@ function start () {
   if (notes && notes.length > 0) {
     document.title = notes.length === 1 ? notes[0].getNoteTitle() : Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.prints', notes.length)
     let words = 0
-    notes.forEach(note => {
-      let noteContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.clearShadowAndBorder(note.getNote())
+    for (let index = 0; index < notes.length; index++) {
+      const note = notes[index]
+      let noteContent = note.getNote()
+      /*if (Zotero.ZotCard.Utils.attachmentExistsImg(noteContent)) {
+        let ret = await Zotero.ZotCard.Utils.loadAttachmentImg(note)
+        Zotero.debug(`zotcard@loadAttachmentImg${ret}`)
+        noteContent = ret.note
+      }*/
+      noteContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.clearShadowAndBorder(noteContent)
       let noteTitle = note.getNoteTitle()
       words += Zotero.getMainWindow().Zotero.ZotCard.Utils.hangzi(noteContent)
       Zotero.debug(noteContent)
@@ -42,7 +48,7 @@ function start () {
       div.innerHTML = noteContent
 
       document.getElementById('readcontent').append(div)
-    })
+    }
     document.getElementById('words').textContent = words
 
     let config = Zotero.Prefs.get('zotcard.config.print')
@@ -131,15 +137,13 @@ function titlestylechange () {
 
 function titleReplace (card, newTitleHtml) {
   let newNoteContent = ''
-  let found = false
-  card.content.split('\n').forEach(line => {
-    if (!found && line.replace(/\<.*?\>/g, '') === card.title) {
-      found = true
-      newNoteContent += newTitleHtml + '\n'
-    } else {
-      newNoteContent += line + '\n'
-    }
-  })
+  let matchs = card.content.match(/\<(h\d)\>((?!<\/h\d>).)*?\<\/h\d\>/)
+  if (matchs) {
+    newNoteContent = card.content.replace(matchs[0], newTitleHtml)
+  } else {
+    newNoteContent = card.content
+  }
+
   document.getElementById(`card${card.id}`).innerHTML = newNoteContent
 }
 

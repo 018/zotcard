@@ -116,7 +116,7 @@ function replace() {
     zitems.forEach((zitem, index) => {
       let note = zitem.getNote()
       let newNote
-      let matched = note.match(text)
+      let matched = note.match(text.replace(/\\/g, '\\\\').replace(/\//g, '\\/'))
       let ns = ''
       if (matched && matched.length > 1) {
         for (let index = 1; index < matched.length; index++) {
@@ -129,19 +129,18 @@ function replace() {
         'var A = String.fromCharCode(\'A\'.charCodeAt() + ' + index + '); ' +
         'var N = function(n) { return String.fromCharCode(n) }; ' +
         ns +
-        '`' + replaceto + '`')
+        '`' + replaceto.replace(/\\/g, '\\\\').replace('`', '\`') + '`')
 
+      Zotero.debug(`zotcard@replaceto_: ${replaceto_}`)
       let tarNote
-      let {content, title, displayTitle} = Zotero.getMainWindow().Zotero.ZotCard.Utils.resolveNote(zitem)
-      Zotero.debug(`zotcard@content: ${content}`)
-      Zotero.debug(`zotcard@title: ${title}`)
-      Zotero.debug(`zotcard@displayTitle: ${displayTitle}`)
+      let resolveNote = Zotero.getMainWindow().Zotero.ZotCard.Utils.resolveNote(zitem)
+      Zotero.debug(`zotcard@resolveNote: ${resolveNote}`)
       if (scope === 'all') {
         tarNote = note
       } else if (scope === 'title') {
-        tarNote = title
+        tarNote = resolveNote.title
       } else if (scope === 'content') {
-        tarNote = content
+        tarNote = resolveNote.content
       } 
       
       if (mode === 'html') {
@@ -154,9 +153,17 @@ function replace() {
         count++
 
         if (scope === 'title') {
-          newNote = newNote + content
+          if (resolveNote.titleindex > -1) {
+            newNote = resolveNote.content.substring(0, resolveNote.titleindex) + newNote + resolveNote.content.substring(resolveNote.titleindex)
+          } else {
+            newNote = resolveNote.content
+          }
         } else if (scope === 'content') {
-          newNote = title + newNote
+          if (resolveNote.titleindex > -1) {
+            newNote = resolveNote.content.substring(0, resolveNote.titleindex) + resolveNote.title + resolveNote.content.substring(resolveNote.titleindex)
+          } else {
+            newNote = newNote
+          }
         } 
   
         zitem.setNote(newNote);

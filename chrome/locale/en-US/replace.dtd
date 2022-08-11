@@ -1,7 +1,7 @@
 <!ENTITY zotero.zotcard.replace.title "Replace">
 <!ENTITY zotero.zotcard.replace.scopelabel "Scope">
 <!ENTITY zotero.zotcard.replace.scopea.all "All">
-<!ENTITY zotero.zotcard.replace.scopea.title "Title only">
+<!ENTITY zotero.zotcard.replace.scopea.title "Title(1、2、3) only">
 <!ENTITY zotero.zotcard.replace.scopea.content "Content only">
 <!ENTITY zotero.zotcard.replace.modelabel "Mode">
 <!ENTITY zotero.zotcard.replace.html "Html">
