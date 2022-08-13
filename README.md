@@ -40,9 +40,20 @@ When selecting a note, count the number of words, lines, and space.
 
 You can select multiple notes and replace them in batches.
 
-- Html: Since the original content of Zotero notes is Html (which can be viewed by right-clicking on the notes - "Source code"), some Html foundation is required, so use with caution. Select this option if you need to replace styles. For example, replace italics with bold `<em> text </em>` with `<b> text </b>`.
+Scope:
+- All: Replace everything.
+- Title(1、2、3) only: Replace the title only, recognize title 1, title 2, title 3 only.
+- Content only: Replace only the content, not the title.
 
+Mode:
+- Html: Since the original content of Zotero notes is Html (which can be viewed by right-clicking on the notes - "Source code"), some Html foundation is required, so use with caution. Select this option if you need to replace styles. For example, replace italics with bold `<em> text </em>` with `<b> text </b>`.
 - Content: Just replace what you see in your notes. For example, if you say `this is just a P letter` (source code is` <p> this is just a P letter </p> `) and replace p with H1, it will say `this is just an h1 letter`, if you select the HTML option, it will say `<h1> This is just an H1 letter </h1>`, The content is a level 1 heading.
+
+"To..." supports `${i}`、`${a}`、`${A}`, `${i}` indicates the serial number 1, 2, 3... , `${a}` indicates the serial numbers A, B, c... , `${A}` indicates the serial numbers A, B, C...
+
+**Move to collection**
+
+Either notes under an item or individual notes can be moved directly to a collection.
 
 **Copy**
 
