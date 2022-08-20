@@ -263,14 +263,16 @@ Zotero.getMainWindow().Zotero.ZotCard.Cards = {
 			var creatorTypes = Zotero.CreatorTypes.getTypes().map(e => e.name)
 			const spliceItemFields = (field) => {
 				var index = itemFields.indexOf(field)
-				if (index > -1) {
+				while (index > -1) {
 					itemFields.splice(index, 1)
+					index = itemFields.indexOf(field)
 				}
 			}
 			const spliceCreatorTypes = (type) => {
 				var index = creatorTypes.indexOf(type)
-				if (index > -1) {
+				while (index > -1) {
 					creatorTypes.splice(index, 1)
+					index = creatorTypes.indexOf(type)
 				}
 			}
 			
@@ -280,7 +282,7 @@ Zotero.getMainWindow().Zotero.ZotCard.Cards = {
 			var dateModified = ''
 			var accessDate = ''
 			let econtent = '(() => {\n' +
-				'var clipboardText = "' + (clipboardText || '').replace(/\n/g, '\\n').replace(/"/g, '\"') + '";\n' +
+				'var clipboardText = "' + (clipboardText || '').replace(/\n/g, '\\n').replace(/"/g, '\\"') + '";\n' +
 				'var now = "' + now + '";\n' +
 				'var today = "' + today + '";\n' +
 				'var week = "' + week + '";\n' +
