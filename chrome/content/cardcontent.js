@@ -15,6 +15,9 @@ async function start () {
   document.getElementById('titlestyle_h3title').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyle_h3title')
   document.getElementById('titlestyle_bodytitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyle_bodytitle')
   document.getElementById('titlestyle_bodyboldtitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyle_bodyboldtitle')
+  document.getElementById('pagecsstitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.pagecsstitle')
+  document.getElementById('pagecss_defaulttitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.pagecss_defaulttitle')
+  document.getElementById('pagecss_nonetitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.pagecss_nonetitle')
   document.getElementById('printtitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.printtitle')
 
   let ids = getQueryVariable('ids')
@@ -60,11 +63,13 @@ async function start () {
       document.getElementById('linespacing').value = configJSON.linespacing
       document.getElementById('paragraphspacing').value = configJSON.paragraphspacing
       document.getElementById('titlestyle').value = configJSON.titlestyle
+      document.getElementById('pagecss').value = configJSON.pagecss
     } else {
       document.getElementById('fontsize').value = Zotero.Prefs.get('note.fontSize')
       document.getElementById('linespacing').value = Zotero.ZotCard.getNoteLineHeight() || '1'
       document.getElementById('paragraphspacing').value = Zotero.Prefs.get('note.fontSize')
       document.getElementById('titlestyle').value = 'sample'
+      document.getElementById('pagecss').value = 'none'
     }
 
     document.getElementById('readcontent').style.fontSize = document.getElementById('fontsize').value + 'px'
@@ -130,8 +135,28 @@ function reftitlestyle () {
   })
 }
 
+function refpagestyle () {
+  let value = document.getElementById('pagecss').value
+
+  document.styleSheets[0].deleteRule(0)
+  switch (value) {
+    case 'none':
+      document.styleSheets[0].insertRule('@page { margin: 0px 3px; padding: 0px; }', 0)
+      break;
+    case 'default':
+      document.styleSheets[0].insertRule('@page { }', 0)
+      break;
+  }
+  Zotero.debug('document.styleSheets[0].cssRules.item(0).cssText: ' + value + ', ' + document.styleSheets[0].cssRules.item(0).cssText)
+}
+
 function titlestylechange () {
   reftitlestyle()
+  saveConfig()
+}
+
+function pagecsschange () {
+  refpagestyle()
   saveConfig()
 }
 
@@ -152,7 +177,8 @@ function saveConfig() {
     fontsize: document.getElementById('fontsize').value,
     linespacing: document.getElementById('linespacing').value,
     paragraphspacing: document.getElementById('paragraphspacing').value,
-    titlestyle: document.getElementById('titlestyle').value
+    titlestyle: document.getElementById('titlestyle').value,
+    pagecss: document.getElementById('pagecss').value
   }
   Zotero.Prefs.set('zotcard.config.print', JSON.stringify(config))
 }

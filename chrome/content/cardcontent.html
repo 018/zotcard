@@ -8,10 +8,7 @@
 		<script src="chrome://zoterozotcard/content/cardcontent.js"></script>
 		
 		<style>
-
 			@page {
-				margin: 0 3px;
-				padding: 0;
 			}
 
 			body {
@@ -101,6 +98,11 @@
 				<option id="titlestyle_h3title" value="h3">标题三</option>
 				<option id="titlestyle_bodytitle" value="body">正文</option>
 				<option id="titlestyle_bodyboldtitle" value="bodybold">正文(加粗)</option>
+			</select>
+			<span id="pagecsstitle" class="spaced">页面边距：</span>
+			<select id="pagecss" onchange="pagecsschange()">
+				<option id="pagecss_nonetitle" value="none">无边距</option>
+				<option id="pagecss_defaulttitle" value="default">默认边距</option>
 			</select>
 			<button  id="printtitle"class="spaced" onclick="print1()">打印</button>
 		</header>
