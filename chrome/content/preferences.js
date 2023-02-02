@@ -17,6 +17,7 @@ function onload() {
 		_addParamOption(select, 'itemLink', Zotero.ZotCard.Utils.getString('zotcard.preferences.itemLink'))
 		_addParamOption(select, 'collectionLink', Zotero.ZotCard.Utils.getString('zotcard.preferences.collectionLink'))
 		_addParamOption(select, 'year', Zotero.ZotCard.Utils.getString('zotcard.preferences.year'))
+		_addParamOption(select, 'tags', Zotero.ZotCard.Utils.getString('zotcard.preferences.tags'))
 	})
 
 	Zotero.ItemFields.getAll().forEach(element => {
