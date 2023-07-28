@@ -89,6 +89,16 @@ function loadGeneral() {
 	document.querySelector('.notebackground').style.backgroundColor = Zotero.ZotCard.Utils.getNoteBGColor() || '#FFFFFF'
 	document.querySelector('.notebackground').setAttribute('notebackground', Zotero.ZotCard.Utils.getNoteBGColor() || '')
 	
+	document.getElementById('abstract').textContent = Zotero.ZotCard.Cards.initPrefs('abstract').label;
+	document.getElementById('quotes').textContent = Zotero.ZotCard.Cards.initPrefs('quotes').label;
+	document.getElementById('concept').textContent = Zotero.ZotCard.Cards.initPrefs('concept').label;
+	document.getElementById('character').textContent = Zotero.ZotCard.Cards.initPrefs('character').label;
+	console.log('not_commonsense:' + document.getElementById('not_commonsense'));
+	document.getElementById('not_commonsense').textContent = Zotero.ZotCard.Cards.initPrefs('not_commonsense').label;
+	document.getElementById('skill').textContent = Zotero.ZotCard.Cards.initPrefs('skill').label;
+	document.getElementById('structure').textContent = Zotero.ZotCard.Cards.initPrefs('structure').label;
+	document.getElementById('general').textContent = Zotero.ZotCard.Cards.initPrefs('general').label;
+
 	loadCustomCard(quantity)
 }
 
