@@ -1,0 +1,20 @@
+{
+	"manifest_version": 2,
+	"name": "ZotCard",
+	"version": "3.0.0",
+	"description": "写卡更柔顺，读卡更顺滑。",
+	"homepage_url": "https://github.com/018/zotcard",
+	"author": "018",
+	"icons": {
+		"48": "chrome/content/images/zotcard@0.5x.png",
+		"96": "chrome/content/images/zotcard.png"
+	},
+	"applications": {
+		"zotero": {
+			"id": "zotcard@zotero.org",
+			"update_url": "https://raw.githubusercontent.com/018/zotcard/main/updates.json",
+			"strict_min_version": "6.999",
+			"strict_max_version": "7.*.*"
+		}
+	}
+}

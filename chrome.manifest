@@ -1,7 +1,0 @@
-content zoterozotcard chrome/content/
-
-skin    zoterozotcard  default chrome/skin/default/
-locale  zoterozotcard  en-US   chrome/locale/en-US/
-locale  zoterozotcard  zh-CN   chrome/locale/zh-CN/
-
-overlay chrome://zotero/content/zoteroPane.xul chrome://zoterozotcard/content/overlay.xul

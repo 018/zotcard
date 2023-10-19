@@ -1,0 +1,85 @@
+<vbox id="zotero-zotcard-prefpane" onload="Zotero.ZotCard.Preferences.init()">
+	<hbox class="header">
+		<label>
+			<html:h1 data-l10n-id="zotero-zotcard" />
+		</label>
+	</hbox>
+
+	<groupbox class="main-section">
+		<label>
+			<html:h2 data-l10n-id="zotero-zotcard-preferences-about" />
+		</label>
+
+		<html:div>
+			<html:p data-l10n-id="zotero-zotcard-preferences-about-introduce"></html:p>
+			<html:div style="display: flex;justify-content: space-between;">
+				<html:div style="display: flex;flex-direction: column;align-items: center;">
+					<html:img width="180" src="chrome://zotcard/content/images/wechat.png"></html:img>
+					<html:span data-l10n-id="zotero-zotcard-preferences-about-joingroup"></html:span>
+				</html:div>
+				<html:div style="display: flex;flex-direction: column;align-items: center;">
+					<html:img width="300" src="chrome://zotcard/content/images/wechat-alipay.png"></html:img>
+					<html:a href="javascript:void(0)" onclick="Zotero.launchURL('https://www.buymeacoffee.com/0x18')"
+						target="_blank">Buy Me a Coffee</html:a>
+					<html:span data-l10n-id="zotero-zotcard-preferences-about-thanks"></html:span>
+				</html:div>
+			</html:div>
+		</html:div>
+	</groupbox>
+
+	<button data-l10n-id="zotero-zotcard-preferences-more"
+		oncommand="Zotero.openInViewer('chrome://zotcard/content/preferences/zotcard-preferences.html', '_blank', 'chrome,modal');" />
+
+	<!-- <groupbox class="main-section">
+		<label>
+			<html:h2 data-l10n-id="zotero-zotcard-preferences-card" />
+		</label>
+
+		<html:div>
+			<html:div class="content-item center"><label style="width: 120px;"
+					data-l10n-id="zotero-zotcard-preferences-card-card_quantity"></label>
+				<html:input type="text" preference="extensions.zotero.zotcard.card_quantity" />
+				<button id="Template Settings"
+					data-l10n-id="zotero-zotcard-preferences-card-template_design"
+					oncommand="Zotero.openInViewer('chrome://zotcard/content/preferences/template_design.html', '_blank', 'chrome,modal');" />
+					<button id="Template Settings"
+						data-l10n-id="zotero-zotcard-preferences-card-template_design"
+						oncommand="Zotero.openInViewer('chrome://zotcard/content/preferences/ele.html', '_blank', 'chrome,modal');" />
+			</html:div>
+		</html:div>
+	</groupbox>
+
+	<groupbox class="main-section">
+		<label>
+			<html:h2 data-l10n-id="zotero-zotcard-preferences-report" />
+		</label>
+
+		<hbox>
+			<hbox align="center">
+				<label data-l10n-id="zotero-zotcard-preferences-report-startOfWeek"/>
+				<menulist preference="extensions.zotero.zotcard.startOfWeek" native="true">
+					<menupopup>
+						<menuitem data-l10n-id="zotero-zotcard-preferences-report-startOfWeek-Sun" value="0"/>
+						<menuitem data-l10n-id="zotero-zotcard-preferences-report-startOfWeek-Sat" value="1"/>
+					</menupopup>
+				</menulist>
+			</hbox>
+		</hbox>
+	</groupbox>
+
+	<groupbox class="main-section">
+		<label>
+			<html:h2 data-l10n-id="zotero-zotcard-preferences-other" />
+		</label>
+
+		<html:div>
+			<html:div class="content-item center"><label style="width: 120px;"
+					data-l10n-id="zotero-zotcard-preferences-other-recently_move_collection_quantity"></label>
+				<html:input type="text"
+					preference="extensions.zotero.zotcard.config.recently_move_collection_quantity" />
+			</html:div>
+		</html:div>
+	</groupbox> -->
+
+
+</vbox>
