@@ -13,8 +13,8 @@ let nowDate = new Date()
 let currentYear = nowDate.getYear() + 1900
 let currentMonth = nowDate.getMonth() + 1
 let currentWeek = weekOfYear(nowDate)
-let today = Zotero.ZotCard.Utils.formatDate(nowDate, 'yyyy-MM-dd')
-let now = Zotero.ZotCard.Utils.formatDate(nowDate, 'yyyy-MM-dd HH:mm:ss')
+let today = Zotero.ZotCard.DateTimes.formatDate(nowDate, 'yyyy-MM-dd')
+let now = Zotero.ZotCard.DateTimes.formatDate(nowDate, 'yyyy-MM-dd HH:mm:ss')
 
 function start () {
   document.getElementById('loading').hidden = false
@@ -35,7 +35,7 @@ function start () {
   Zotero.ZotCard.CardSearcher.search(io.libraryID, io.selectedCollection, io.selectedSavedSearch, (ids, name) => {
 
     var map = {
-      firstDay: Zotero.ZotCard.Utils.formatDate(new Date(), 'yyyy-MM-dd'),
+      firstDay: Zotero.ZotCard.DateTimes.formatDate(new Date(), 'yyyy-MM-dd'),
       firstDayKey: '',
       lastDay: '',
       lastDayKey: '',
@@ -80,7 +80,7 @@ function start () {
         map.others.push({
           title: noteTitle,
           content: item.key,
-          message: Zotero.ZotCard.Utils.getString('zotcard.report.dateincorrect')
+          message: Zotero.ZotCard.L10ns.getString('zotcard.report.dateincorrect')
         })
       }
 
@@ -131,7 +131,7 @@ function start () {
           map.tags[cardTag] = map.tags[cardTag] + 1
         })
       } else {
-        let cardTag = Zotero.ZotCard.Utils.getString('zotcard.none')
+        let cardTag = Zotero.ZotCard.L10ns.getString('zotcard.none')
         if (!map.tags.hasOwnProperty(cardTag)) {
           map.tags[cardTag] = 0
         }
@@ -166,7 +166,7 @@ function start () {
           map.years[year].tags[cardTag] = map.years[year].tags[cardTag] + 1
         })
       } else {
-        let cardTag = Zotero.ZotCard.Utils.getString('zotcard.none')
+        let cardTag = Zotero.ZotCard.L10ns.getString('zotcard.none')
         if (!map.years[year].tags.hasOwnProperty(cardTag)) {
           map.years[year].tags[cardTag] = 0
         }
@@ -264,7 +264,7 @@ function start () {
     document.getElementById('progress').textContent = ''
     document.getElementById('loading').hidden = map.totals > 0
     document.getElementById('content').hidden = map.totals === 0
-    document.getElementById('loading').textContent = Zotero.ZotCard.Utils.getString('zotcard.report.nocard')
+    document.getElementById('loading').textContent = Zotero.ZotCard.L10ns.getString('zotcard.report.nocard')
     
     document.getElementById('totals').textContent = map.totals
     document.getElementById('hangzis').textContent = map.hangzis
@@ -286,7 +286,7 @@ function start () {
 
     let noCardDays = (new Date(today) - new Date(map.lastDay)) / (24 * 60 * 60 * 1000)
     if (noCardDays > 0) {
-      document.getElementById('no-card').innerHTML = Zotero.ZotCard.Utils.getString('zotcard.report.nowritten', noCardDays)
+      document.getElementById('no-card').innerHTML = Zotero.ZotCard.L10ns.getString('zotcard.report.nowritten', noCardDays)
     } else {
       document.getElementById('no-card').innerHTML = '.'
     }
@@ -474,7 +474,7 @@ function start () {
       divYears.setAttribute('class', 'year-section')
       let pYearItemLabel = document.createElement('p')
       pYearItemLabel.setAttribute('class', 'item-label')
-      pYearItemLabel.innerHTML = Zotero.ZotCard.Utils.getString('zotcard.report.yearinfo', `<span class="uread-color"> ${item.value.dates.length} </span>`, `<span class="uread-color"> ${parseInt(item.value.dates.length / totalDate * 100)}% </span>`, `<span class="uread-color"> ${item.value.hangzis} </span>`, `<span class="uread-color"> ${item.value.totals} </span>`)
+      pYearItemLabel.innerHTML = Zotero.ZotCard.L10ns.getString('zotcard.report.yearinfo', `<span class="uread-color"> ${item.value.dates.length} </span>`, `<span class="uread-color"> ${parseInt(item.value.dates.length / totalDate * 100)}% </span>`, `<span class="uread-color"> ${item.value.hangzis} </span>`, `<span class="uread-color"> ${item.value.totals} </span>`)
       pYearItemLabel.append(cards(item.name, item.value.cards))
       pYearItemLabel.append('，')
       pYearItemLabel.append(tags(item.name, item.value.tags))
@@ -519,8 +519,8 @@ function start () {
               cards: contents,
               options: options,
               filters:{
-                startDate: Zotero.ZotCard.Utils.formatDate(new Date(year, parseInt(month) - 1), 'yyyy-MM-dd'),
-                endDate: Zotero.ZotCard.Utils.formatDate(tmp, 'yyyy-MM-dd'),
+                startDate: Zotero.ZotCard.DateTimes.formatDate(new Date(year, parseInt(month) - 1), 'yyyy-MM-dd'),
+                endDate: Zotero.ZotCard.DateTimes.formatDate(tmp, 'yyyy-MM-dd'),
               }
             }
           }
@@ -594,7 +594,7 @@ function dateSelectChange () {
   for (let w = days; w  >= 0; w--) {
     let now = new Date()
     now.setDate(now.getDate() - w)
-    let date = Zotero.ZotCard.Utils.formatDate(now, 'yyyy-MM-dd')
+    let date = Zotero.ZotCard.DateTimes.formatDate(now, 'yyyy-MM-dd')
     let value = 0
     if (map.dates.hasOwnProperty(date)) {
       value = map.dates[date]
@@ -688,7 +688,7 @@ function weekSelectChange() {
       let options = Zotero.ZotCard.Utils.bulidOptions(contents)
       let io = {
         dataIn: {
-          title: Zotero.ZotCard.Utils.getString('zotcard.report.weekyear', year, week),
+          title: Zotero.ZotCard.L10ns.getString('zotcard.report.weekyear', year, week),
           cards: contents,
           options: options
         }
@@ -721,7 +721,7 @@ function readWithYear (year, filters) {
   var progressWin = new Zotero.ProgressWindow({ window })
   let itemProgress = new progressWin.ItemProgress(
     `chrome://zotero-platform/content/treesource-collection${Zotero.hiDPISuffix}.png`,
-    Zotero.ZotCard.Utils.getString('zotcard.loding')
+    Zotero.ZotCard.L10ns.getString('zotcard.loding')
   )
   itemProgress.setProgress(50)
   progressWin.show()
@@ -746,7 +746,7 @@ function collects (filters) {
   let options = Zotero.ZotCard.Utils.bulidOptions(contents)
   let io = {
     dataIn: {
-      title: Zotero.ZotCard.Utils.getString('zotcard.report.collect'),
+      title: Zotero.ZotCard.L10ns.getString('zotcard.report.collect'),
       cards: contents,
       options: options,
       filters: filters
@@ -761,7 +761,7 @@ function readAll () {
   var progressWin = new Zotero.ProgressWindow({ window })
   let itemProgress = new progressWin.ItemProgress(
     `chrome://zotero-platform/content/treesource-collection${Zotero.hiDPISuffix}.png`,
-    Zotero.ZotCard.Utils.getString('zotcard.loding')
+    Zotero.ZotCard.L10ns.getString('zotcard.loding')
   )
   itemProgress.setProgress(50)
   progressWin.show()
@@ -770,7 +770,7 @@ function readAll () {
   let options = Zotero.ZotCard.Utils.bulidOptions(contents)
   let io = {
     dataIn: {
-      title: Zotero.ZotCard.Utils.getString('zotcard.all'),
+      title: Zotero.ZotCard.L10ns.getString('zotcard.all'),
       cards: contents,
       options: options
     }
@@ -826,7 +826,7 @@ function cards (year, cards) {
   const hidable = 5
   let div = document.createElement('div')
   div.setAttribute('class', 'content-line')
-  div.textContent = Zotero.ZotCard.Utils.getString('zotcard.report.cardclassification')
+  div.textContent = Zotero.ZotCard.L10ns.getString('zotcard.report.cardclassification')
   cardArrs.sort((a, b) => b.value - a.value)
   cardArrs.forEach((card, index) => {
     let cardtypemini = document.createElement('div')
@@ -897,7 +897,7 @@ function tags (year, tags) {
   const hidable = 5
   let div = document.createElement('div')
   div.setAttribute('class', 'content-line')
-  div.textContent = Zotero.ZotCard.Utils.getString('zotcard.report.cardtag')
+  div.textContent = Zotero.ZotCard.L10ns.getString('zotcard.report.cardtag')
   tagArrs.sort((a, b) => b.value - a.value)
   tagArrs.forEach((tag, index) => {
     let tagmini = document.createElement('div')
@@ -1002,7 +1002,7 @@ function weekOfYear (date) {
 
 function dateinfo (dateString) {
   let now = new Date(dateString)
-  let date = Zotero.ZotCard.Utils.formatDate(now, 'yyyy-MM-dd')
+  let date = Zotero.ZotCard.DateTimes.formatDate(now, 'yyyy-MM-dd')
   let year = now.getYear() + 1900
   let month = now.getMonth() + 1
   let week = weekOfYear(now)

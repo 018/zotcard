@@ -2,8 +2,13 @@ if (!Zotero.ZotCard) Zotero.ZotCard = {};
 if (!Zotero.ZotCard.Doms) Zotero.ZotCard.Doms = {};
 
 Zotero.ZotCard.Doms = Object.assign(Zotero.ZotCard.Doms, {
-  createXULElement(document, tag, {id, attrs, props, parent, childs, command, onclick}) {
-		let element = document.createXULElement(tag);
+  createXULElement(document, tag, { id, attrs, props, parent, childs, command, onclick }) {
+    let ele = id ? Zotero.getMainWindow().document.getElementById(id) : undefined;
+    if (ele) {
+      return ele;
+    }
+
+    let element = document.createXULElement(tag);
     if (id) {
       element.id = id;
     }
@@ -36,5 +41,29 @@ Zotero.ZotCard.Doms = Object.assign(Zotero.ZotCard.Doms, {
       parent.appendChild(element);
     }
     return element;
+  },
+
+  createMainWindowXULElement(tag, { id, attrs, props, parent, childs, command, onclick }) {
+    return this.createXULElement(Zotero.getMainWindow().document, tag, { id, attrs, props, parent, childs, command, onclick });;
+  },
+
+  createMainWindowXULMenuSeparator({ id, attrs, props, parent, childs, command, onclick }) {
+    return this.createMainWindowXULElement('menuseparator', { id, attrs, props, parent, childs, command, onclick });
+  },
+
+  getMainWindowElementById(id) {
+    return Zotero.getMainWindow().document.getElementById(id);
+  },
+
+  getMainWindowquerySelector(selector) {
+    return Zotero.getMainWindow().document.querySelector(selector);
+  },
+
+  existsMainWindowElementById(id) {
+    return !!Zotero.getMainWindow().document.getElementById(id);
+  },
+
+  existsMainWindowquerySelector(selector) {
+    return !!Zotero.getMainWindow().document.querySelector(selector);
   }
 });

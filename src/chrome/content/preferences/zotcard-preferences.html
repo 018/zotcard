@@ -14,6 +14,7 @@
 		<script src="../modules/element-plus-en.js"></script>
 		<script src="../modules/element-plus-zh-tw.js"></script>
 		<script src="../modules/element-plus-icons.js"></script>
+		<script src="../modules/zotcard-element-plus.js"></script>
 		<script src="zotcard-preferences.js"></script>
 		<style>
 			body {
@@ -184,17 +185,17 @@
 										</el-popover>
 										<el-popover
 											placement="bottom"
-											:width="500"
+											:width="550"
 											:visible="popover.emojis"
 										>
 											<template #reference>
 												<el-button size="small" @click="handleShowEmojisPopover">🤪</el-button>
 											</template>
 											<template #default>
-												<el-tabs size="small">
+												<el-tabs>
 													<el-tab-pane v-for="e in emojis" :label="e.name">
 														<div class="chars">
-															<el-button plain v-for="c in e.values" @click="handleEmojis(c)">{{ c }}</el-button>
+															<el-button plain v-for="c in e.values" @click="handleEmojis(c)" style="font-size: 20px;" size="large">{{ c }}</el-button>
 														</div>
 													</el-tab-pane>
 												</el-tabs>
@@ -223,7 +224,7 @@
 										</el-popover>
 									</div>
 								</div>
-								<el-input class="input" type="textarea" v-model="datas[position].card.card" @input="handleTemplateInput" :rows="15"></el-input>
+								<el-input class="input" type="textarea" v-model="datas[position].card.card" @focus="handleTemplateFocus" @input="handleTemplateInput" :rows="15"></el-input>
 								<div class="tool-bar">
 									<div class="tool-bar-group">
 										<el-button size="small" @click="handleResetDefault" data-l10n-id="zotcard-preferences-revert_to_default">还原到默认</el-button>

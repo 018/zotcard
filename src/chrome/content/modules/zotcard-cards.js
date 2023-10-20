@@ -1,7 +1,8 @@
 'use strict'
 if (!Zotero.ZotCard) Zotero.ZotCard = {};
+if (!Zotero.ZotCard.Cards) Zotero.ZotCard.Cards = {};
 
-Zotero.ZotCard.Cards = {
+Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 	quotes: {
 		default: Zotero.locale.startsWith('zh') ? '<h1>## 金句卡 - <span>&lt;标题&gt;</span></h1>\\n<p><strong>原文</strong>：<span>${text ? text : "&lt;摘抄&gt;"}</span></p><p><strong>复述</strong>：<span>&lt;用自己的话复述&gt;</span></p><p><strong>启发</strong>：<span>&lt;有什么启发&gt;</span></p><p><strong>出处</strong>：${itemType ? `<a href="${itemLink}">${authors}《${title}》(${year}) P<span>&lt;页码&gt;</span></a>` : `<a href="${collectionLink}">${collectionName}</a>`}</p><p><strong>标签</strong>：[无]</p><p><strong>日期</strong>：${today}</p>'
 			: '<h1>## Quotes Card - <span>&lt;Title&gt;</span></h1>\\n<p><strong>Original</strong>: <span>${text ? text : "&lt;extract&gt;"}</span></p><p><strong>Repeat</strong>: <span>&lt;Repeat it in your own words&gt;</span></p><p><strong>Implications</strong>: <span>&lt;What are the implications&gt;</span></p><p><strong>Reference</strong>: ${itemType ? `<a href="${itemLink}">${authors}《${title}》(${year}) P<span>&lt;Page&gt;</span></a>` : `<a href="${collectionLink}">${collectionName}</a>`}</p><p><strong>Tag</strong>: [none]</p><p><strong>Date</strong>: ${today}</p>',
@@ -101,84 +102,46 @@ Zotero.ZotCard.Cards = {
 	},
 
 	initPref: function (name, item, beforeDefs, def) {
-		var card
-		var isDef = false
-		var val = Zotero.Prefs.get(`zotcard.${item}`)
+		var card;
+		var isDef = false;
+		var val = Zotero.Prefs.get(`zotcard.${item}`);
 		if (val) {
 			if (beforeDefs.indexOf(val) > -1) {
-				isDef = true
+				isDef = true;
 			} else {
-				card = val
+				card = val;
 			}
 		} else {
-			isDef = true
+			isDef = true;
 		}
 		if (isDef) {
-			card = def
-			Zotero.Prefs.set(`zotcard.${item}`, card)
+			card = def;
 		}
 	
-		var label = Zotero.Prefs.get(`zotcard.${item}.label`)
-		if (label === undefined) {
-			label = name
-			Zotero.Prefs.set(`zotcard.${item}.label`, label)
-		}
-	
-		var visible = Zotero.Prefs.get(`zotcard.${item}.visible`)
-		if (visible === undefined) {
-			visible = true
-			Zotero.Prefs.set(`zotcard.${item}.visible`, visible)
-		}
-		return { card: card, label: label, visible: visible }
-	},
-	
-	initReservedPref: function (item) {
-		var card = Zotero.Prefs.get(`zotcard.${item}`)
-		if (!card) {
-			card = ''
-			Zotero.Prefs.set(`zotcard.${item}`, card)
-		}
-		var label = Zotero.Prefs.get(`zotcard.${item}.label`)
-		if (!label) {
-			Zotero.Prefs.set(`zotcard.${item}.label`, item)
-		}
-		var visible = Zotero.Prefs.get(`zotcard.${item}.visible`)
-		if (visible === undefined || visible.length === 0) {
-			visible = true
-			Zotero.Prefs.set(`zotcard.${item}.visible`, visible)
-		}
-		return { card: card, label: label, visible: visible }
+		var label = Zotero.ZotCard.Prefs.get(`zotcard.${item}.label`, name);
+		var visible = Zotero.ZotCard.Prefs.get(`zotcard.${item}.visible`, true);
+		return { card: card, label: label, visible: visible };
 	},
 	
 	initPrefs: function (item) {
-		var pref
-		var beforeDefs
-		var def
+		var pref;
+		var beforeDefs;
+		var def;
 		if (!item) {
-			let json = {}
-			pref = this.initPrefs('quotes')
-			json.quotes = pref
-			pref = this.initPrefs('concept')
-			json.concept = pref
-			pref = this.initPrefs('character')
-			json.character = pref
-			pref = this.initPrefs('not_commonsense')
-			json.not_commonsense = pref
-			pref = this.initPrefs('skill')
-			json.skill = pref
-			pref = this.initPrefs('structure')
-			json.structure = pref
-			pref = this.initPrefs('abstract')
-			json.abstract = pref
-			pref = this.initPrefs('general')
-			json.general = pref
-			let quantity = this.initPrefs('card_quantity')
-			json.card_quantity = quantity
+			let json = {};
+
+			Zotero.ZotCard.Consts.defCardTypes.forEach(type => {
+				pref = this.initPrefs(type);
+				json[type] = pref;
+			});
+
+			let quantity = this.initPrefs('card_quantity');
+			json.card_quantity = quantity;
 			for (let index = 0; index < quantity; index++) {
 				pref = this.initPrefs(`card${index + 1}`)
 				json[`card${index + 1}`] = pref
 			}
-			return json
+			return json;
 		} else {
 			switch (item) {
 				case 'quotes':
@@ -189,20 +152,15 @@ Zotero.ZotCard.Cards = {
 				case 'structure':
 				case 'abstract':
 				case 'general':
-					beforeDefs = Zotero.ZotCard.Cards[item].history
-					def = Zotero.ZotCard.Cards[item].default
-					pref = this.initPref(Zotero.ZotCard.Utils.getString(`zotcard.${item}card`), item, beforeDefs, def)
+					beforeDefs = Zotero.ZotCard.Cards[item].history;
+					def = Zotero.ZotCard.Cards[item].default;
+					pref = this.initPref(Zotero.ZotCard.L10ns.getString(`zotcard-${item}card`), item, beforeDefs, def);
 				break
 				case 'card_quantity':
-					var quantity = Zotero.Prefs.get('zotcard.card_quantity')
-					if (quantity === undefined) {
-						quantity = 6
-						Zotero.Prefs.set('zotcard.card_quantity', quantity)
-					}
-					pref = quantity
+					pref = Zotero.ZotCard.Prefs.get('zotcard.card_quantity', 3);
 					break
 				default:
-					pref = this.initReservedPref(item)
+					pref = this.initPref(`zotcard.${item}`, item, [], def);
 					break
 			}
 		}
@@ -211,74 +169,68 @@ Zotero.ZotCard.Cards = {
 	},
 
 	newCard: function (collection, item, name, text) {
-		Zotero.ZotCard.Logger.stack();
 		var pref = this.initPrefs(name)
 		if (!pref || !pref.card) {
-			Zotero.ZotCard.Logger.log({name});
-			Zotero.ZotCard.Logger.log(pref);
-			Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils._l10n.formatValueSync('zotcard-pleaseconfigure', {name}))
-			return
+			Zotero.ZotCard.Messages.warning(Zotero.ZotCard.L10ns.getString('zotcard-pleaseconfigure', {name}));
+			Zotero.openInViewer('chrome://zotcard/content/preferences/zotcard-preferences.html');
+			return;
 		}
-		return this.newCardWithTemplate(collection, item, pref.card, text)
+		return this.newCardWithTemplate(collection, item, pref.card, text);
 	},
 	
 	newCardWithTemplate: function (collection, item, template, text) {
 		try {
-			var itemType
-			let year
-			var nowDate = new Date()
-			var now = Zotero.ZotCard.Utils.formatDate(nowDate, 'yyyy-MM-dd HH:mm:ss')
-			var today = Zotero.ZotCard.Utils.formatDate(nowDate, 'yyyy-MM-dd')
-			var month = Zotero.ZotCard.Utils.formatDate(nowDate, 'yyyy-MM')
-			var firstDay = new Date()
-			firstDay.setMonth(0)
-			firstDay.setDate(1)
-			firstDay.setHours(0)
-			firstDay.setMinutes(0)
-			firstDay.setSeconds(0)
-			firstDay.setMilliseconds(0)
-			let dateGap = nowDate.getTime() - firstDay.getTime() + 1
-			let dayOfYear = Math.ceil(dateGap / (24 * 60 * 60 * 1000))
+			var itemType;
+			let year;
+			var nowDate = new Date();
+			var now = Zotero.ZotCard.DateTimes.formatDate(nowDate, 'yyyy-MM-dd HH:mm:ss');
+			var today = Zotero.ZotCard.DateTimes.formatDate(nowDate, 'yyyy-MM-dd');
+			var month = Zotero.ZotCard.DateTimes.formatDate(nowDate, 'yyyy-MM');
+			var firstDay = new Date();
+			firstDay.setMonth(0);
+			firstDay.setDate(1);
+			firstDay.setHours(0);
+			firstDay.setMinutes(0);
+			firstDay.setSeconds(0);
+			firstDay.setMilliseconds(0);
+			let dateGap = nowDate.getTime() - firstDay.getTime() + 1;
+			let dayOfYear = Math.ceil(dateGap / (24 * 60 * 60 * 1000));
 			// 0: 周日开始
 			// 1: 周一开始
-			let startOfWeek = Zotero.Prefs.get('zotcard.startOfWeek')
-			if (!startOfWeek) {
-				startOfWeek = 0
-				Zotero.Prefs.set('zotcard.startOfWeek', startOfWeek)
-			}
-			firstDay.setDate(1 + (7 - firstDay.getDay() + startOfWeek) % 7)
-			dateGap = nowDate.getTime() - firstDay.getTime()
-			let weekOfYear = Math.ceil(dateGap / (7 * 24 * 60 * 60 * 1000)) + 1
-			let week = ['日', '一', '二', '三', '四', '五', '六'][nowDate.getDay()]
-			let weekEn = ['Sun.', 'Mon.', 'Tues.', 'Wed.', 'Thurs.', 'Fri.', 'Sat.'][nowDate.getDay()]
-			itemType = item ? item.itemType : undefined
-			year = item ? item.getField('year') : undefined
+			let startOfWeek = Zotero.ZotCard.Prefs.get('zotcard.startOfWeek', 0);
+			firstDay.setDate(1 + (7 - firstDay.getDay() + startOfWeek) % 7);
+			dateGap = nowDate.getTime() - firstDay.getTime();
+			let weekOfYear = Math.ceil(dateGap / (7 * 24 * 60 * 60 * 1000)) + 1;
+			let week = ['日', '一', '二', '三', '四', '五', '六'][nowDate.getDay()];
+			let weekEn = ['Sun.', 'Mon.', 'Tues.', 'Wed.', 'Thurs.', 'Fri.', 'Sat.'][nowDate.getDay()];
+			itemType = item ? item.itemType : undefined;
+			year = item ? item.getField('year') : undefined;
 		
-			var itemLink = item ? Zotero.ZotCard.Utils.getZoteroItemUrl(item.key) : ''
-			var collectionLink = collection ? Zotero.ZotCard.Utils.getZoteroCollectionUrl(collection.key) : ''
-			var json = item ? item.toJSON() : {}
-			var itemFields = Zotero.ItemFields.getAll().map(e => e.name)
-			var creatorTypes = Zotero.CreatorTypes.getTypes().map(e => e.name)
+			var itemLink = item ? Zotero.ZotCard.Items.getZoteroItemUrl(item.key) : '';
+			var collectionLink = collection ? Zotero.ZotCard.Collections.getZoteroCollectionUrl(collection.key) : '';
+			var json = item ? item.toJSON() : {};
+			var itemFields = Zotero.ItemFields.getAll().map(e => e.name);
+			var creatorTypes = Zotero.CreatorTypes.getTypes().map(e => e.name);
 			const spliceItemFields = (field) => {
-				var index = itemFields.indexOf(field)
+				var index = itemFields.indexOf(field);
 				while (index > -1) {
-					itemFields.splice(index, 1)
-					index = itemFields.indexOf(field)
+					itemFields.splice(index, 1);
+					index = itemFields.indexOf(field);
 				}
 			}
 			const spliceCreatorTypes = (type) => {
-				var index = creatorTypes.indexOf(type)
+				var index = creatorTypes.indexOf(type);
 				while (index > -1) {
-					creatorTypes.splice(index, 1)
-					index = creatorTypes.indexOf(type)
+					creatorTypes.splice(index, 1);
+					index = creatorTypes.indexOf(type);
 				}
 			}
 			
-			var clipboardText = Zotero.getMainWindow().Zotero.ZotCard.Utils.getClipboard()
-			var tags = []
-			var dateAdded = ''
-			var dateModified = ''
-			var accessDate = ''
+			var clipboardText = Zotero.getMainWindow().Zotero.ZotCard.Utils.getClipboard();
+			var tags = [];
+			var dateAdded = '';
+			var dateModified = '';
+			var accessDate = '';
 			let econtent = '(() => {\n' +
 				'var clipboardText = "' + (clipboardText || '').replace(/\n/g, '\\n').replace(/"/g, '\\"') + '";\n' +
 				'var now = "' + now + '";\n' +
@@ -292,37 +244,37 @@ Zotero.ZotCard.Cards = {
 				'var year = "' + (year ? year : '') + '";\n' +
 				'var itemLink = "' + itemLink + '";\n' +
 				'var collectionName = "' + (collection ? collection.name : '') + '";\n' + 
-				'var collectionLink = "' + collectionLink + '";\n'
+				'var collectionLink = "' + collectionLink + '";\n';
 			for (const key in json) {
 				if (Object.hasOwnProperty.call(json, key)) {
 				const element = json[key];
 				switch (key) {
 					case 'tags':
-						tags.push(...element.map(e => e.tag))
-						spliceItemFields(key)
+						tags.push(...element.map(e => e.tag));
+						spliceItemFields(key);
 						break;
 					case 'creators':
 						var creators = {}
 						if (element.length > 0) {
 							element.forEach(ee => {
-							var name = ee.name
-							if (!name) {
-								var isCN1 = ee.lastName.match('[\u4e00-\u9fa5]+')
-								var isCN2 = ee.firstName.match('[\u4e00-\u9fa5]+')
-								name = ee.lastName + (isCN1 || isCN2 ? '' : ' ') + ee.firstName
-							}
-							if (Object.hasOwnProperty.call(creators, ee.creatorType)) {
-								creators[ee.creatorType].push(name)
-							} else {
-								creators[ee.creatorType] = [name]
-							}
+								var name = ee.name;
+								if (!name) {
+									var isCN1 = ee.lastName.match('[\u4e00-\u9fa5]+');
+									var isCN2 = ee.firstName.match('[\u4e00-\u9fa5]+');
+									name = ee.lastName + (isCN1 || isCN2 ? '' : ' ') + ee.firstName;
+								}
+								if (Object.hasOwnProperty.call(creators, ee.creatorType)) {
+									creators[ee.creatorType].push(name);
+								} else {
+									creators[ee.creatorType] = [name];
+								}
 							})
 							for (const key in creators) {
-							if (Object.hasOwnProperty.call(creators, key)) {
-								const e = creators[key];
-								econtent += 'var ' + key + 's = ' + JSON.stringify(e) + ';\n'
-								spliceCreatorTypes(key)
-							}
+								if (Object.hasOwnProperty.call(creators, key)) {
+									const e = creators[key];
+									econtent += 'var ' + key + 's = ' + JSON.stringify(e) + ';\n';
+									spliceCreatorTypes(key);
+								}
 							}
 						}
 						break;
@@ -330,32 +282,32 @@ Zotero.ZotCard.Cards = {
 					case 'collections':
 						break;
 					case 'accessDate':
-						accessDate = Zotero.ZotCard.Utils.sqlToDate(item.getField(key), 'yyyy-MM-dd HH:mm:ss')
-						spliceItemFields(key)
+						accessDate = Zotero.ZotCard.DateTimes.sqlToDate(item.getField(key), 'yyyy-MM-dd HH:mm:ss');
+						spliceItemFields(key);
 						break;
 					case 'dateAdded':
-						dateAdded = Zotero.ZotCard.Utils.sqlToDate(item.getField(key), 'yyyy-MM-dd HH:mm:ss')
-						spliceItemFields(key)
+						dateAdded = Zotero.ZotCard.DateTimes.sqlToDate(item.getField(key), 'yyyy-MM-dd HH:mm:ss');
+						spliceItemFields(key);
 						break;
 					case 'dateModified':
-						dateModified = Zotero.ZotCard.Utils.sqlToDate(item.getField(key), 'yyyy-MM-dd HH:mm:ss')
-						spliceItemFields(key)
+						dateModified = Zotero.ZotCard.DateTimes.sqlToDate(item.getField(key), 'yyyy-MM-dd HH:mm:ss');
+						spliceItemFields(key);
 						break;
 					default:
 						switch (Object.prototype.toString.call(element)) {
 							case '[object Number]':
 							case '[object Boolean]':
-								econtent += 'var ' + key + ' = ' + element + ';\n'
-								spliceItemFields(key)
+								econtent += 'var ' + key + ' = ' + element + ';\n';
+								spliceItemFields(key);
 								break;
 							case '[object String]':
-								econtent += 'var ' + key + ' = "' + element.replace(/"|'/g, "\\\"").replace(/\n/g, "\\n") + '";\n'
-								spliceItemFields(key)
+								econtent += 'var ' + key + ' = "' + element.replace(/"|'/g, "\\\"").replace(/\n/g, "\\n") + '";\n';
+								spliceItemFields(key);
 								break;
 							case '[object Object]':
 							case '[object Array]':
-								econtent += 'var ' + key + ' = ' + JSON.stringify(element) + ';\n'
-								spliceItemFields(key)
+								econtent += 'var ' + key + ' = ' + JSON.stringify(element) + ';\n';
+								spliceItemFields(key);
 								break;
 							default:
 								break;
@@ -365,19 +317,19 @@ Zotero.ZotCard.Cards = {
 				}
 			}
 			itemFields.forEach(element => {
-				econtent += 'var ' + element + ' = "";\n'
+				econtent += 'var ' + element + ' = "";\n';
 			});
 			creatorTypes.forEach(element => {
-				econtent += 'var ' + element + 's = "";\n'
+				econtent += 'var ' + element + 's = "";\n';
 			});
-			econtent += 'var tags = ' + JSON.stringify(tags) + ';\n'
-			econtent += 'var accessDate = "' + accessDate + '";\n'
-			econtent += 'var dateAdded = "' + dateAdded + '";\n'
-			econtent += 'var dateModified = "' + dateModified + '";\n'
-			econtent += 'var text = "' + (text ? text.replace(/"|'/g, "\\\"") : '') + '";\nreturn `' + template + '`;\n})()'
-			let content
+			econtent += 'var tags = ' + JSON.stringify(tags) + ';\n';
+			econtent += 'var accessDate = "' + accessDate + '";\n';
+			econtent += 'var dateAdded = "' + dateAdded + '";\n';
+			econtent += 'var dateModified = "' + dateModified + '";\n';
+			econtent += 'var text = "' + (text ? text.replace(/"|'/g, "\\\"") : '') + '";\nreturn `' + template + '`;\n})()';
+			let content;
 			try {
-				content = Zotero.getMainWindow().eval(econtent)
+				content = Zotero.getMainWindow().eval(econtent);
 			
 				content = content.replace(/\{now\}/g, now)
 					.replace(/\{today\}/g, today)
@@ -387,23 +339,35 @@ Zotero.ZotCard.Cards = {
 					.replace(/\{week\}/g, week)
 					.replace(/\{week_en\}/g, weekEn)
 					.replace(/\\n/g, '\n')
-					.replace(/\{text\}/g, text)
+					.replace(/\{text\}/g, text);
 				
 				for (const key in json) {
 					if (Object.hasOwnProperty.call(json, key)) {
 						const element = json[key]
 						if (!['tags', 'creators', 'relations', 'collections', 'dateAdded', 'dateModified'].includes(key)) {
-							content.replace(new RegExp('\{' + key + '\}', 'g'), element)
+							content.replace(new RegExp('\{' + key + '\}', 'g'), element);
 						}
 					}
 				}
 				
-				return content
+				return content;
 			} catch (error) {
-				Zotero.ZotCard.Utils.warning(error)
+				Zotero.ZotCard.Messages.warning(error);
 			}
 		} catch (error) {
-			Zotero.ZotCard.Utils.warning(error)
+			Zotero.ZotCard.Messages.warning(error);
+		}
+	},
+
+	resetCustomCard(index) {
+		let val = Zotero.Prefs.get(`zotcard.card${index}.visible`)
+		while (val) {
+			Zotero.Prefs.clear(`zotcard.card${index}`)
+			Zotero.Prefs.clear(`zotcard.card${index}.label`)
+			Zotero.Prefs.clear(`zotcard.card${index}.visible`)
+
+			index++
+			val = Zotero.Prefs.get(`zotcard.card${index}.visible`)
 		}
 	}
-}
+});

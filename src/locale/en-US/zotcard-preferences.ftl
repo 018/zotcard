@@ -1,5 +1,18 @@
 zotcard-preferences-title = ZotCard Settings
 
+zotcard-preferences-general = General
+zotcard-preferences-general-card = Card Settings
+zotcard-preferences-general-card-card_quantity = Customize the number of cards
+zotcard-preferences-general-card-card_backgroundColor = Card background color
+
+zotcard-preferences-general-report = Report Settings
+zotcard-preferences-general-report-startOfWeek = First day of the week
+zotcard-preferences-general-report-startOfWeek-Sun = Sunday
+zotcard-preferences-general-report-startOfWeek-Sat = Monday
+
+zotcard-preferences-general-other = Other Settings
+zotcard-preferences-general-other-recently_move_collection_quantity = Number of classes moved recently
+
 zotcard-preferences-label = Label
 zotcard-preferences-visible = Visible
 zotcard-preferences-template = Template

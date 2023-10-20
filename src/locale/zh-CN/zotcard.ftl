@@ -1,6 +1,6 @@
 
 
-zotero-zotcard-zotcard =
+zotero-zotcard =
     .label = ZotCard
 
 zotero-zotcard-abstract =
@@ -112,10 +112,8 @@ zotcard-loding =
     .lable = 处理中 ...
 zotcard-failure =
     .lable = 操作失败。
-zotcard-only_one =
-    .lable = 只能选择一个条目。
-zotcard-unsupported_entries =
-    .lable = 不支持的条目。
+zotcard-only_one = 只能选择一个条目。
+zotcard-unsupported_entries = 不支持的条目。
 zotcard-please_select_item =
     .lable = 请选择条目。
 zotcard-only_note =
@@ -144,36 +142,30 @@ zotcard-wordnumber =
     .lable = 字数: %S  \t行数: %S \t占空间: %S
 zotcard-batchaddnote =
     .lable = 批量建卡
-zotcard-newstandalone = 新建独立 { $name }
-zotcard-newstandalone-tooltiptext = 新建独立卡片
+zotcard-newstandalone = 新建独立 { $type }
 zotcard-batchnewstandalone =
     .lable = 批量新建独立
 zotcard-notelinespacing =
     .lable = 笔记行间距
 zotcard-noteparagraphspacing =
     .lable = 笔记段间距
-zotcard-quotescard =
-    .lable = 金句卡
-zotcard-conceptcard =
-    .lable = 概念卡
-zotcard-charactercard =
-    .lable = 人物卡
-zotcard-not_commonsensecard =
-    .lable = 反常识卡
-zotcard-skillcard =
-    .lable = 技巧卡
-zotcard-structurecard =
-    .lable = 结构卡
-zotcard-abstractcard =
-    .lable = 摘要卡
-zotcard-generalcard =
-    .lable = 短文卡
+    
+zotcard-quotescard = 金句卡
+zotcard-conceptcard = 概念卡
+zotcard-charactercard = 人物卡
+zotcard-not_commonsensecard = 反常识卡
+zotcard-skillcard = 技巧卡
+zotcard-structurecard = 结构卡
+zotcard-abstractcard = 摘要卡
+zotcard-generalcard = 短文卡
+
+zotcard-wordnumber=字数: {{ $words }}  \t行数: {{ $lines }} \t占空间: {{ $size }}
+
 zotcard-resetconfig =
     .lable = 重置后会清空所有配置，还原到安装时的配置。确实要重置吗？
 zotcard-resetsuccessful =
     .lable = 重置成功，即将重启Zotero。
-zotcard-pleaseconfigure =
-    请配置： { $name }
+zotcard-pleaseconfigure = 请配置： { $name }
 zotcard-cardtemplate =
     .lable = 模版
 zotcard-cardtitle =
@@ -182,8 +174,7 @@ zotcard-visibletitle =
     .lable = 是否显示
 zotcard-visitwebsite =
     .lable = 详情请访问官网
-zotcard-selectcollection =
-    .lable = 请选择分类。
+zotcard-selectcollection = 请选择分类。
 zotcard-yourchoice =
     .lable = 你选择了
 zotcard-nocard =

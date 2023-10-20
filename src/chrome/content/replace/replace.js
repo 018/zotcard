@@ -12,68 +12,6 @@ function isDebug () {
   return typeof Zotero !== 'undefined' && typeof Zotero.Debug !== 'undefined' && Zotero.Debug.enabled
 }
 
-function checkItemType (itemObj, itemTypeArray) {
-  var matchBool = false
-
-  for (var idx = 0; idx < itemTypeArray.length; idx++) {
-    switch (itemTypeArray[idx]) {
-      case 'attachment':
-        matchBool = itemObj.isAttachment()
-        break
-      case 'note':
-        matchBool = itemObj.isNote()
-        break
-      case 'regular':
-        matchBool = itemObj.isRegularItem()
-        break
-      default:
-        matchBool = Zotero.ItemTypes.getName(itemObj.itemTypeID) === itemTypeArray[idx]
-    }
-
-    if (matchBool) {
-      break
-    }
-  }
-
-  return matchBool
-}
-
-function siftItems (itemArray, itemTypeArray) {
-  var matchedItems = []
-  var unmatchedItems = []
-  while (itemArray.length > 0) {
-    if (checkItemType(itemArray[0], itemTypeArray)) {
-      matchedItems.push(itemArray.shift())
-    } else {
-      unmatchedItems.push(itemArray.shift())
-    }
-  }
-
-  return {
-    matched: matchedItems,
-    unmatched: unmatchedItems
-  }
-}
-
-function getSelectedItems(itemType) {
-  var zitems = Zotero.getActiveZoteroPane().getSelectedItems();
-  if (!zitems.length) {
-    if (isDebug()) Zotero.debug('zitems.length: ' + zitems.length);
-    return false;
-  }
-
-  if (itemType) {
-    if (!Array.isArray(itemType)) {
-      itemType = [itemType]
-    }
-    var siftedItems = siftItems(zitems, itemType)
-    if (isDebug()) Zotero.debug('siftedItems.matched: ' + JSON.stringify(siftedItems.matched))
-    return siftedItems.matched
-  } else {
-    return zitems
-  }
-}
-
 function replaceNoTag(note, preIdx, text, replaceto) {
   let idx = note.indexOf(text, preIdx);
   let newNote = '';
@@ -100,7 +38,7 @@ function replace() {
   try {
     var zitems = getSelectedItems(['note'])
     if (!zitems || zitems.length <= 0) {
-      Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.only_note'))
+      Zotero.ZotCard.Messages.warning(Zotero.ZotCard.L10ns.getString('zotcard.only_note'))
       return
     }
 
@@ -109,7 +47,7 @@ function replace() {
     var text = document.getElementById('replace_edit_text').value;
     var replaceto = document.getElementById('replace_edit_replaceto').value;
     if (zitems.length > 26 && (replaceto.includes('${a}') || replaceto.includes('${A}'))) {
-      Zotero.ZotCard.Utils.warning(Zotero.ZotCard.Utils.getString('zotcard.replace.moreletter'))
+      Zotero.ZotCard.Messages.warning(Zotero.ZotCard.L10ns.getString('zotcard.replace.moreletter'))
       return
     }
     let count = 0
@@ -166,15 +104,15 @@ function replace() {
           }
         } 
   
-        zitem.setNote(newNote);
+        zitem.setNote(newNote || '');
         var itemID = zitem.saveTx();
         if (isDebug()) Zotero.debug('item.id: ' + itemID);
       }
     })
     
-    Zotero.ZotCard.Utils.success(Zotero.ZotCard.Utils.getString('zotcard.replace.success', count))
+    Zotero.ZotCard.Messages.success(Zotero.ZotCard.L10ns.getString('zotcard.replace.success', count))
     return true
   } catch (error) {
-    Zotero.ZotCard.Utils.warning(error)
+    Zotero.ZotCard.Messages.warning(error)
   }
 }

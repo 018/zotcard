@@ -6,9 +6,14 @@ function install() {
 
 async function startup({ id, version, rootURI }) {
 	Services.scriptloader.loadSubScript(rootURI + 'chrome/content/modules/zotcard-logger.js');
-	Zotero.ZotCard.Logger.init({ id, version });
 	Zotero.ZotCard.Logger.log("loadSubScript zotcard-logger.js");
+	Zotero.ZotCard.Logger.init({ id, version });
 	Zotero.ZotCard.Logger.log(rootURI);
+
+	Services.scriptloader.loadSubScript(rootURI + '/chrome/content/modules/zotcard-include.js', { id, version, rootURI });
+	Zotero.ZotCard.Logger.log("loadSubScript zotcard-include.js");
+	Services.scriptloader.loadSubScript(rootURI + '/chrome/content/cardsearcher.js');
+	Zotero.ZotCard.Logger.log("loadSubScript zotcard-cardsearcher.js");
 
 	// Zotero.PreferencePanes.register({
 	// 	pluginID: 'zotcard@zotero.org',
@@ -17,7 +22,7 @@ async function startup({ id, version, rootURI }) {
 	// });
 
 	Zotero.PreferencePanes.register({
-		pluginID: 'zotcard@zotero.org',
+		pluginID: id,
 		label: 'ZotCard',
 		image: 'chrome://zotcard/content/images/zotcard.png',
 		src: rootURI + 'chrome/content/preferences/preferences.xhtml',
@@ -30,11 +35,40 @@ async function startup({ id, version, rootURI }) {
     chromeHandle = aomStartup.registerChrome(manifestURI, [
         ["content", "zotcard", rootURI + "chrome/content/"]
     ]);
-	
+
+	Zotero.ZotCard.Utils.afterRun(() => {
+		const data = {
+			"app_name": id,
+			"app_version": version,
+			"machineid": Zotero.ZotCard.Utils.getCurrentUsername(),
+			"machinename": Zotero.version,
+			"os": Zotero.platform + `${Services.appinfo.is64Bit ? '(64bits)' : ''}`,
+			"os_version": '0'
+		};
+		Zotero.ZotCard.Logger.log('submit to 018soft.com', data);
+		Zotero.HTTP.request(
+			"POST",
+			'http://api.018soft.com/authorization/anon/client/submit',
+			{
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(data),
+				timeout: 30000
+			}
+		);
+	}, 50);
+
+	Services.scriptloader.loadSubScript(rootURI + 'consts.js');
+	Zotero.ZotCard.Logger.log("loadSubScript consts.js");
+	Zotero.ZotCard.Consts.init({ id, version, rootURI });
+
 	Services.scriptloader.loadSubScript(rootURI + 'zotcard.js');
+	Zotero.ZotCard.Logger.log("loadSubScript zotcard.js");
 	Zotero.ZotCard.init({ id, version, rootURI });
 	Zotero.ZotCard.addToAllWindows();
 	await Zotero.ZotCard.main();
+	
 }
 
 function onMainWindowLoad({ window }) {

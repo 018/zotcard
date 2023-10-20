@@ -16831,7 +16831,7 @@
     useDeprecated({
       from: "type.text",
       replacement: "link",
-      version: "3.0.0",
+      version: "3.0.1",
       scope: "props",
       ref: "https://element-plus.org/en-US/component/button.html#button-attributes"
     }, vue.computed(() => props.type === "text"));
@@ -19422,7 +19422,7 @@
    * @param {?boolean} capture Check if the capture phase is supported.
    * @return {boolean} True if the event is supported.
    * @internal
-   * @license Modernizr 3.0.0pre (Custom Build) | MIT
+   * @license Modernizr 3.0.1pre (Custom Build) | MIT
    */
 
   const mousewheel = function(element, callback) {
@@ -29434,7 +29434,7 @@
         scope: "el-dialog",
         from: "the title slot",
         replacement: "the header slot",
-        version: "3.0.0",
+        version: "3.0.1",
         ref: "https://element-plus.org/en-US/component/dialog.html#slots"
       }, vue.computed(() => !!slots.title));
       useDeprecated({
@@ -29672,7 +29672,7 @@
         scope: "el-drawer",
         from: "the title slot",
         replacement: "the header slot",
-        version: "3.0.0",
+        version: "3.0.1",
         ref: "https://element-plus.org/en-US/component/drawer.html#slots"
       }, vue.computed(() => !!slots.title));
       useDeprecated({

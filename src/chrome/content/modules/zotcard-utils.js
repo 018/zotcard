@@ -2,28 +2,17 @@ if (!Zotero.ZotCard) Zotero.ZotCard = {};
 if (!Zotero.ZotCard.Utils) Zotero.ZotCard.Utils = {};
 
 Zotero.ZotCard.Utils = Object.assign(Zotero.ZotCard.Utils, {
-  _bundle: Cc['@mozilla.org/intl/stringbundle;1'].getService(Components.interfaces.nsIStringBundleService).createBundle('chrome://zoterozotcard/locale/zotcard.properties'),
-  _l10n: new Localization(["zotcard.ftl"], true),
-  
-  warning(message) {
-    Zotero.alert(null, Zotero.getString('general.warning'), message)
+
+  afterRun(invoke, duration) {
+    setTimeout(invoke, duration);
   },
-  
-  success(message) {
-    Zotero.alert(null, Zotero.getString('general.success'), message)
-  },
-  
-  error(message) {
-    Zotero.alert(null, Zotero.getString('general.error'), message)
-  },
-  
-  confirm(message) {
-    var ps = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
-    return ps.confirm(null, Zotero.getString('general.warning'), message)
-  },
-  
+
   version() {
     return parseInt(Zotero.version.substr(0, 1))
+  },
+
+  getCurrentUsername () {
+    return Zotero.ZotCard.Prefs.get('sync.server.username', Zotero.Users.getCurrentUsername());
   },
   
   getParam(url, name) {
@@ -65,76 +54,6 @@ Zotero.ZotCard.Utils = Object.assign(Zotero.ZotCard.Utils, {
     }
   },
   
-  getString(name, params) {
-    if (params) {
-      return this._l10n.formatValueSync(name, params);
-    }
-
-    return this._l10n.formatValueSync(name);
-  },
-  
-  getSelectedItems(itemType) {
-    var zitems = Zotero.getMainWindow().ZoteroPane.getSelectedItems()
-    if (!zitems.length) {
-      Zotero.debug('Zotero.getMainWindow().Zotero.ZotCard.Utils@zitems.length: ' + zitems.length)
-      return false
-    }
-  
-    if (itemType) {
-      if (!Array.isArray(itemType)) {
-        itemType = [itemType]
-      }
-      var siftedItems = Zotero.ZotCard.Utils.siftItems(zitems, itemType)
-      Zotero.debug('Zotero.getMainWindow().Zotero.ZotCard.Utils@siftedItems.matched: ' + siftedItems.matched.length)
-      return siftedItems.matched
-    } else {
-      return zitems
-    }
-  },
-  
-  siftItems(itemArray, itemTypeArray) {
-    var matchedItems = []
-    var unmatchedItems = []
-    while (itemArray.length > 0) {
-      if (Zotero.ZotCard.Utils.checkItemType(itemArray[0], itemTypeArray)) {
-        matchedItems.push(itemArray.shift())
-      } else {
-        unmatchedItems.push(itemArray.shift())
-      }
-    }
-  
-    return {
-      matched: matchedItems,
-      unmatched: unmatchedItems
-    }
-  },
-  
-  checkItemType(itemObj, itemTypeArray) {
-    var matchBool = false
-  
-    for (var idx = 0; idx < itemTypeArray.length; idx++) {
-      switch (itemTypeArray[idx]) {
-        case 'attachment':
-          matchBool = itemObj.isAttachment()
-          break
-        case 'note':
-          matchBool = itemObj.isNote()
-          break
-        case 'regular':
-          matchBool = itemObj.isRegularItem()
-          break
-        default:
-          matchBool = Zotero.ItemTypes.getName(itemObj.itemTypeID) === itemTypeArray[idx]
-      }
-  
-      if (matchBool) {
-        break
-      }
-    }
-  
-    return matchBool
-  },
-  
   async loadDocumentAsync(url, onDone, onError, dontDelete, cookieSandbox) {
     let doc = await new Zotero.Promise(function (resolve, reject) {
       var browser = Zotero.HTTP.loadDocuments(url,
@@ -162,17 +81,16 @@ Zotero.ZotCard.Utils = Object.assign(Zotero.ZotCard.Utils, {
   },
   
   htmlToText(html) {
-    var	nsIFC = Components.classes['@mozilla.org/widget/htmlformatconverter;1'].createInstance(Components.interfaces.nsIFormatConverter)
-    var from = Components.classes['@mozilla.org/supports-string;1'].createInstance(Components.interfaces.nsISupportsString)
-    from.data = html
-    var to = { value: null }
+    var	nsIFC = Components.classes['@mozilla.org/widget/htmlformatconverter;1'].createInstance(Components.interfaces.nsIFormatConverter);
+    var from = Components.classes['@mozilla.org/supports-string;1'].createInstance(Components.interfaces.nsISupportsString);
+    from.data = html;
+    var to = { value: null };
     try {
-      nsIFC.convert('text/html', from, from.toString().length, 'text/unicode', to, {})
-      to = to.value.QueryInterface(Components.interfaces.nsISupportsString)
-      return to.toString()
+      nsIFC.convert('text/html', from, from.toString().length, 'text/unicode', to, {});
+      to = to.value.QueryInterface(Components.interfaces.nsISupportsString);
+      return to.toString();
     } catch (e) {
-      Zotero.debug(e, 1)
-      return html
+      return html;
     }
   },
   
@@ -275,32 +193,6 @@ Zotero.ZotCard.Utils = Object.assign(Zotero.ZotCard.Utils, {
     reader.readAsDataURL(blob)
   },
   
-  formatDate(date, format) {
-    var o = {
-      'M+' : date.getMonth() + 1,
-      'd+' : date.getDate(),
-      'h+' : date.getHours() % 12 === 0 ? 12 : date.getHours() % 12,
-      'H+' : date.getHours(),
-      'm+' : date.getMinutes(),
-      's+' : date.getSeconds(),
-      'q+' : Math.floor((date.getMonth() + 3) / 3),
-      'S' : date.getMilliseconds()
-    }
-    if (/(y+)/.test(format)) {
-      format = format.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length))
-    }
-    for (var k in o) {
-      if (new RegExp('(' + k + ')').test(format)) {
-        format = format.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (('00' + o[k]).substr(('' + o[k]).length)))
-      }
-    }
-    return format
-  },
-  
-  now() {
-    return Zotero.ZotCard.Utils.formatDate(new Date(), 'yyyy-MM-dd HH:mm:ss.S')
-  },
-  
   hangzi(html) {
     var content = Zotero.ZotCard.Utils.htmlToText(html)
     Zotero.debug(`zotcard@content: ${content}`)
@@ -366,10 +258,10 @@ Zotero.ZotCard.Utils = Object.assign(Zotero.ZotCard.Utils, {
     if (!match3) {
       match3 = noteTitle.match('[a-zA-Z0-9 ]+Card')
     }
-    let cardtype = match3 ? match3[0].trim() : Zotero.ZotCard.Utils.getString('zotcard.other')
+    let cardtype = match3 ? match3[0].trim() : Zotero.ZotCard.L10ns.getString('zotcard.other')
   
-    let author = Zotero.ZotCard.Utils.getCardItemValue(noteContent, Zotero.ZotCard.Utils.getString('zotcard.author'))
-    let tags = Zotero.ZotCard.Utils.getCardItemValue(noteContent, Zotero.ZotCard.Utils.getString('zotcard.tag')).split(/[\[ \],，]/).filter(e => e && e !== Zotero.ZotCard.Utils.getString('zotcard.none'))
+    let author = Zotero.ZotCard.Utils.getCardItemValue(noteContent, Zotero.ZotCard.L10ns.getString('zotcard.author'))
+    let tags = Zotero.ZotCard.Utils.getCardItemValue(noteContent, Zotero.ZotCard.L10ns.getString('zotcard.tag')).split(/[\[ \],，]/).filter(e => e && e !== Zotero.ZotCard.L10ns.getString('zotcard.none'))
   
     note.getTags().forEach(tag => {
       tags.push(tag.tag)
@@ -385,8 +277,8 @@ Zotero.ZotCard.Utils = Object.assign(Zotero.ZotCard.Utils, {
       note: noteContent,
       words: hangzi(noteContent),
       author: author,
-      dateAdded: Zotero.ZotCard.Utils.sqlToDate(note.dateAdded, 'yyyy-MM-dd HH:mm:ss'),
-      dateModified: Zotero.ZotCard.Utils.sqlToDate(note.dateModified, 'yyyy-MM-dd HH:mm:ss')
+      dateAdded: Zotero.ZotCard.DateTimes.sqlToDate(note.dateAdded, 'yyyy-MM-dd HH:mm:ss'),
+      dateModified: Zotero.ZotCard.DateTimes.sqlToDate(note.dateModified, 'yyyy-MM-dd HH:mm:ss')
     }
   },
   
@@ -461,23 +353,6 @@ Zotero.ZotCard.Utils = Object.assign(Zotero.ZotCard.Utils, {
     }
   },
   
-  getReaderSelectedText() {
-    let currentReader = Zotero.Reader.getByTabID(Zotero.getMainWindow().Zotero_Tabs.selectedID)
-    if (!currentReader) {
-      return '';
-    }
-    let textareas = currentReader._iframeWindow.document.getElementsByTagName('textarea');
-  
-    for (let i = 0; i < textareas.length; i++) {
-      // Choose the selection textare
-      if (textareas[i].style["z-index"] == -1 && textareas[i].style['width'] == '0px') {
-        // Trim
-        return textareas[i].value.replace(/(^\s*)|(\s*$)/g, '');
-      }
-    }
-    return ''
-  },
-  
   bulidOptions(cards) {
     let options = {}
     cards.forEach(element => {
@@ -497,7 +372,7 @@ Zotero.ZotCard.Utils = Object.assign(Zotero.ZotCard.Utils, {
         dateString = `${match3[0].substr(0, 4)}-${match3[0].substr(4, 2)}-${match3[0].substr(6, 2)}`
       } else {
         Zotero.debug(`不包含有效日期，取创建日期。${match3}`)
-        dateString = Zotero.ZotCard.Utils.sqlToDate(item.dateAdded, 'yyyy-MM-dd')
+        dateString = Zotero.ZotCard.DateTimes.sqlToDate(item.dateAdded, 'yyyy-MM-dd')
       }
     } else {
       let match2 = match1[0].match(/\d{4}[-/\u5e74.]\d{1,2}[-/\u6708.]\d{1,2}\u65e5{0,1}/g)
@@ -505,33 +380,13 @@ Zotero.ZotCard.Utils = Object.assign(Zotero.ZotCard.Utils, {
       dateString = match2[0].replace(/\u5e74|\u6708|\./g, '-').replace(/\u65e5/g, '')
     }
     let now = new Date(dateString)
-    return Zotero.ZotCard.Utils.formatDate(now, 'yyyy-MM-dd')
+    return Zotero.ZotCard.DateTimes.formatDate(now, 'yyyy-MM-dd')
   },
   
   swap(array, index1, index2) {
     let e = array[index1]
     array[index1] = array[index2]
     array[index2] = e
-  },
-  
-  sqlToDate(date, format) {
-    let d = Zotero.Date.sqlToDate(date, true)
-    let dt = new Date(d - new Date().getTimezoneOffset())
-    return format ? Zotero.ZotCard.Utils.formatDate(dt, format) : dt
-  },
-  
-  sqlToLocale(valueText) {
-    var date = Zotero.Date.sqlToDate(valueText, true)
-    if (date) {
-      if (Zotero.Date.isSQLDate(valueText)) {
-        date = Zotero.Date.sqlToDate(valueText + ' 12:00:00')
-        valueText = date.toLocaleDateString()
-      } else {
-        valueText = date.toLocaleString()
-      }
-    } else {
-      valueText = ''
-    }
   },
   
   clearShadowAndBorder(note) {
@@ -542,90 +397,6 @@ Zotero.ZotCard.Utils = Object.assign(Zotero.ZotCard.Utils, {
       newNote = note.replace(match1[0], match1[0].replace(/style=".*?"/g, ''))
     }
     return newNote
-  },
-  
-  getSelectedItems(itemType) {
-    var zitems = Zotero.getMainWindow().ZoteroPane.getSelectedItems()
-    if (!zitems.length) {
-      Zotero.ZotCard.Logger.log('zitems.length: ' + zitems.length)
-      return false
-    }
-  
-    if (itemType) {
-      if (!Array.isArray(itemType)) {
-        itemType = [itemType]
-      }
-      var siftedItems = Zotero.ZotCard.Utils.siftItems(zitems, itemType)
-      Zotero.ZotCard.Logger.log('siftedItems.matched: ' + JSON.stringify(siftedItems.matched))
-      return siftedItems.matched
-    } else {
-      return zitems
-    }
-  },
-  
-  getSelectedItemTypes() {
-    var zitems = Zotero.getMainWindow().ZoteroPane.getSelectedItems()
-    if (!zitems.length) {
-      Zotero.ZotCard.Logger.log('zitems.length: ' + zitems.length)
-      return false
-    }
-  
-    itemTypes = []
-    zitems.forEach(zitem => {
-      let itemType
-      if (zitem.isRegularItem()) {
-        itemType = 'regular'
-      } else {
-        itemType = Zotero.ItemTypes.getName(zitem.itemTypeID)
-      }
-      if (!itemTypes.includes(itemType)) {
-        itemTypes.push(itemType)
-      }
-    })
-    return itemTypes
-  },
-  
-  siftItems(itemArray, itemTypeArray) {
-    var matchedItems = []
-    var unmatchedItems = []
-    while (itemArray.length > 0) {
-      if (this.checkItemType(itemArray[0], itemTypeArray)) {
-        matchedItems.push(itemArray.shift())
-      } else {
-        unmatchedItems.push(itemArray.shift())
-      }
-    }
-  
-    return {
-      matched: matchedItems,
-      unmatched: unmatchedItems
-    }
-  },
-  
-  checkItemType(itemObj, itemTypeArray) {
-    var matchBool = false
-  
-    for (var idx = 0; idx < itemTypeArray.length; idx++) {
-      switch (itemTypeArray[idx]) {
-        case 'attachment':
-          matchBool = itemObj.isAttachment()
-          break
-        case 'note':
-          matchBool = itemObj.isNote()
-          break
-        case 'regular':
-          matchBool = itemObj.isRegularItem()
-          break
-        default:
-          matchBool = Zotero.ItemTypes.getName(itemObj.itemTypeID) === itemTypeArray[idx]
-      }
-  
-      if (matchBool) {
-        break
-      }
-    }
-  
-    return matchBool
   },
   
   promptForRestart(message) {
@@ -652,10 +423,6 @@ Zotero.ZotCard.Utils = Object.assign(Zotero.ZotCard.Utils, {
     return ww.openWindow(null, uri, null, features ? features : `menubar=yes,toolbar=no,location=no,scrollbars,centerscreen,resizable,,height=${screen.availHeight},width=${screen.availWidth}`, null)
   },
   
-  isUserLibraryItem(key) {
-    return Zotero.Items.getIDFromLibraryAndKey(Zotero.Libraries.userLibraryID, key);
-  },
-  
   getGroupIDByKey(key) {
     var groups = Zotero.Groups.getAll()
     var groupID
@@ -668,30 +435,6 @@ Zotero.ZotCard.Utils = Object.assign(Zotero.ZotCard.Utils, {
     }
     
     return groupID
-  },
-  
-  getZoteroItemUrl(key) {
-    if (this.isUserLibraryItem(key)) {
-      return `zotero:,//select/library/items/${key}`
-    } else {
-      var groupID = this.getGroupIDByKey(key)
-      
-      return `zotero://select/groups/${groupID}/items/${key}`
-    }
-  },
-  
-  isUserLibraryCollection(key) {
-    return Zotero.Collections.getIDFromLibraryAndKey(Zotero.Libraries.userLibraryID, key);
-  },
-  
-  getZoteroCollectionUrl(key) {
-    if (this.isUserLibraryCollection(key)) {
-      return `zotero:,//select/library/collections/${key}`
-    } else {
-      var groupID = this.getGroupIDByKey(key)
-      
-      return `zotero://select/groups/${groupID}/collections/${key}`
-    }
   },
   
   async loadAnnotationImg(annotation) {
@@ -717,18 +460,5 @@ Zotero.ZotCard.Utils = Object.assign(Zotero.ZotCard.Utils, {
       titleindex = -1
     }
     return {displayTitle, title, content, titleindex}
-  },
-  
-  showPath(collectionID) {
-    let collectionNames = []
-    collectionNames.push(Zotero.Collections.get(collectionID).name)
-    let parentID = collectionID
-    let lastCollection = Zotero.Collections.get(collectionID)
-    while ((parentID = Zotero.Collections.get(parentID).parentID)) {
-      collectionNames.push(Zotero.Collections.get(parentID).name)
-      lastCollection = Zotero.Collections.get(parentID)
-    }
-    collectionNames.push(Zotero.Libraries.get(lastCollection.libraryID).name)
-    return collectionNames.reverse().join(' ▸ ')
   }
 });

@@ -3,27 +3,27 @@
 let cards = []
 
 async function start () {
-  Zotero.debug(Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.wordnumbertitle'))
-  document.getElementById('wordnumbertitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.wordnumbertitle')
-  document.getElementById('fontsizetitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.fontsizetitle')
-  document.getElementById('linespacingtitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.linespacingtitle')
-  document.getElementById('paragraphspacingtitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.paragraphspacingtitle')
-  document.getElementById('titlestyletitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyletitle')
-  document.getElementById('titlestyle_nonetitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyle_nonetitle')
-  document.getElementById('titlestyle_h1title').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyle_h1title')
-  document.getElementById('titlestyle_h2title').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyle_h2title')
-  document.getElementById('titlestyle_h3title').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyle_h3title')
-  document.getElementById('titlestyle_bodytitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyle_bodytitle')
-  document.getElementById('titlestyle_bodyboldtitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.titlestyle_bodyboldtitle')
-  document.getElementById('pagecsstitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.pagecsstitle')
-  document.getElementById('pagecss_defaulttitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.pagecss_defaulttitle')
-  document.getElementById('pagecss_nonetitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.pagecss_nonetitle')
-  document.getElementById('printtitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.printtitle')
+  Zotero.debug(Zotero.getMainWindow().Zotero.ZotCard.L10ns.getString('zotcard.cardcontent.wordnumbertitle'))
+  document.getElementById('wordnumbertitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.L10ns.getString('zotcard.cardcontent.wordnumbertitle')
+  document.getElementById('fontsizetitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.L10ns.getString('zotcard.cardcontent.fontsizetitle')
+  document.getElementById('linespacingtitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.L10ns.getString('zotcard.cardcontent.linespacingtitle')
+  document.getElementById('paragraphspacingtitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.L10ns.getString('zotcard.cardcontent.paragraphspacingtitle')
+  document.getElementById('titlestyletitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.L10ns.getString('zotcard.cardcontent.titlestyletitle')
+  document.getElementById('titlestyle_nonetitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.L10ns.getString('zotcard.cardcontent.titlestyle_nonetitle')
+  document.getElementById('titlestyle_h1title').textContent = Zotero.getMainWindow().Zotero.ZotCard.L10ns.getString('zotcard.cardcontent.titlestyle_h1title')
+  document.getElementById('titlestyle_h2title').textContent = Zotero.getMainWindow().Zotero.ZotCard.L10ns.getString('zotcard.cardcontent.titlestyle_h2title')
+  document.getElementById('titlestyle_h3title').textContent = Zotero.getMainWindow().Zotero.ZotCard.L10ns.getString('zotcard.cardcontent.titlestyle_h3title')
+  document.getElementById('titlestyle_bodytitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.L10ns.getString('zotcard.cardcontent.titlestyle_bodytitle')
+  document.getElementById('titlestyle_bodyboldtitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.L10ns.getString('zotcard.cardcontent.titlestyle_bodyboldtitle')
+  document.getElementById('pagecsstitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.L10ns.getString('zotcard.cardcontent.pagecsstitle')
+  document.getElementById('pagecss_defaulttitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.L10ns.getString('zotcard.cardcontent.pagecss_defaulttitle')
+  document.getElementById('pagecss_nonetitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.L10ns.getString('zotcard.cardcontent.pagecss_nonetitle')
+  document.getElementById('printtitle').textContent = Zotero.getMainWindow().Zotero.ZotCard.L10ns.getString('zotcard.cardcontent.printtitle')
 
   let ids = getQueryVariable('ids')
   let notes = Zotero.Items.get(ids.split(','))
   if (notes && notes.length > 0) {
-    document.title = notes.length === 1 ? notes[0].getNoteTitle() : Zotero.getMainWindow().Zotero.ZotCard.Utils.getString('zotcard.cardcontent.prints', notes.length)
+    document.title = notes.length === 1 ? notes[0].getNoteTitle() : Zotero.getMainWindow().Zotero.ZotCard.L10ns.getString('zotcard.cardcontent.prints', notes.length)
     let words = 0
     for (let index = 0; index < notes.length; index++) {
       const note = notes[index]

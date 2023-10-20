@@ -11,7 +11,7 @@ Zotero.ZotCard.Logger = {
     this.log('Zotero.ZotCard.Logger inited.');
   },
 
-  // zotcard@zotero.org(3.0.0) zotcard.js:23: 
+  // zotcard@zotero.org(3.0.1) zotcard.js:23: 
 
   isDebug() {
     return typeof Zotero !== 'undefined' && typeof Zotero.Debug !== 'undefined' && Zotero.Debug.enabled;
@@ -65,12 +65,12 @@ Zotero.ZotCard.Logger = {
 
   debug(message) {
     var {method, filename, line} = this.getStack();
-    Zotero.debug(`🤪${this.id}(${this.version}) ${filename}:${line}@${method}: ${message}`);
+    Zotero.debug(`${Zotero.isMac ? '🤪' : '^-^'}${this.id}(${this.version}) ${filename}:${line}@${method}: ${message}`);
   },
 
   ding() {
     var {method, filename, line} = this.getStack();
-    Zotero.debug(`🤪${this.id}(${this.version}) ${filename}:${line}@${method} 📌`);
+    Zotero.debug(`${Zotero.isMac ? '🤪' : '^-^'}${this.id}(${this.version}) ${filename}:${line}@${method} ${Zotero.isMac ? '📌' : '!'}`);
   },
 
   stack() {
@@ -93,7 +93,7 @@ Zotero.ZotCard.Logger = {
       lines += '  ' + element + '\n';
     }
 
-    Zotero.debug(`🤪${this.id}(${this.version}) ${filename}:${line}@${method}: \n${lines}`);
+    Zotero.debug(`${Zotero.isMac ? '🤪' : '^-^'}${this.id}(${this.version}) ${filename}:${line}@${method}: \n${lines}`);
   },
 
   _stringifyJSON(value) {
@@ -128,7 +128,7 @@ Zotero.ZotCard.Logger = {
     if (ret && str.length > 1) {
       return ret[1];
     } else {
-      Zotero.debug(`🤪${this.id}(${this.version}): ${reg}, ${str}, ${ret}`);
+      Zotero.debug(`${Zotero.isMac ? '🤪' : '^-^'}${this.id}(${this.version}): ${reg}, ${str}, ${ret}`);
     }
   }
 }

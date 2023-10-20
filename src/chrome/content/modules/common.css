@@ -1,3 +1,7 @@
+:root {
+    --el-menu-item-height: 50px;
+}
+
 .vcenter {
     display: flex;
     align-items: center;
