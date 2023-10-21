@@ -117,6 +117,8 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 		if (isDef) {
 			card = def;
 		}
+
+		card = card.replaceAll('\\n', '\n');
 	
 		var label = Zotero.ZotCard.Prefs.get(`zotcard.${item}.label`, name);
 		var visible = Zotero.ZotCard.Prefs.get(`zotcard.${item}.visible`, true);

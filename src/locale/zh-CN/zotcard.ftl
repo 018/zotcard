@@ -3,22 +3,14 @@
 zotero-zotcard =
     .label = ZotCard
 
-zotero-zotcard-abstract =
-    .label = 摘要卡
-zotero-zotcard-quotes =
-    .label = 金句卡
-zotero-zotcard-concept =
-    .label = 概念卡
-zotero-zotcard-character =
-    .label = 人物卡
-zotero-zotcard-not_commonsense =
-    .label = 反常识卡
-zotero-zotcard-skill =
-    .label = 技巧卡
-zotero-zotcard-structure =
-    .label = 结构卡
-zotero-zotcard-general =
-    .label = 短文卡
+
+zotcard-words = 字数：
+zotcard-words-title = 中文{ $cn_words }(占{ $cn_scale })  英文{ $en_words }(占{ $en_scale })  数字{ $num_words }(占{ $num_scale })  其他{ $other_words }(占{ $other_scale })
+zotcard-lines = 行数：
+zotcard-sizes = 占空间：
+zotcard-sizes-contentscale = 内容比
+
+
 zotero-zotcard-readcard =
     .label = 读卡
 zotero-zotcard-movecard =
@@ -138,8 +130,6 @@ zotcard-correct_quantity =
     .lable = 请正确输入数量。
 zotcard-correct_recently_move_collection_quantity =
     .lable = 请正确输入个数。
-zotcard-wordnumber =
-    .lable = 字数: %S  \t行数: %S \t占空间: %S
 zotcard-batchaddnote =
     .lable = 批量建卡
 zotcard-newstandalone = 新建独立 { $type }
@@ -150,16 +140,6 @@ zotcard-notelinespacing =
 zotcard-noteparagraphspacing =
     .lable = 笔记段间距
     
-zotcard-quotescard = 金句卡
-zotcard-conceptcard = 概念卡
-zotcard-charactercard = 人物卡
-zotcard-not_commonsensecard = 反常识卡
-zotcard-skillcard = 技巧卡
-zotcard-structurecard = 结构卡
-zotcard-abstractcard = 摘要卡
-zotcard-generalcard = 短文卡
-
-zotcard-wordnumber=字数: {{ $words }}  \t行数: {{ $lines }} \t占空间: {{ $size }}
 
 zotcard-resetconfig =
     .lable = 重置后会清空所有配置，还原到安装时的配置。确实要重置吗？

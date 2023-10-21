@@ -9,7 +9,7 @@ Zotero.ZotCard.Collections = Object.assign(Zotero.ZotCard.Collections, {
   
   getZoteroCollectionUrl(key) {
     if (this.isUserLibraryCollection(key)) {
-      return `zotero:,//select/library/collections/${key}`
+      return `zotero://select/library/collections/${key}`
     } else {
       var groupID = this.getGroupIDByKey(key)
       

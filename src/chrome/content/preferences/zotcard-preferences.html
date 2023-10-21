@@ -64,6 +64,11 @@
 				margin: 0 10px 10px 0;
 			}
 		</style>
+		<style id="primary-editor">
+			:root {
+				
+			}
+		</style>
 	</head>
 	<body>
 		<div id="app">
@@ -171,11 +176,11 @@
 									<div class="tool-bar-group">
 										<el-popover
 											placement="bottom"
-											:width="200"
+											:width="400"
 											:visible="popover.chars"
 										>
 											<template #reference>
-												<el-button size="small" @click="handleShowCharsPopover">#</el-button>
+												<el-button size="small" @click="handleShowCharsPopover">⦿</el-button>
 											</template>
 											<template #default>
 												<div class="chars">

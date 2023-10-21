@@ -32,14 +32,13 @@ Zotero.ZotCard.Events = Object.assign(Zotero.ZotCard.Events, {
 		this.refreshStandaloneMenuPopup = refreshStandaloneMenuPopup;
 		this.refreshPaneItemMenuPopup = refreshPaneItemMenuPopup;
 		
-		var interval1 = setInterval(() => {
-			if (Zotero.getMainWindow().ZoteroPane.itemsView) {
-				Zotero.getMainWindow().ZoteroPane.itemsView.onSelect.addListener(this.itemsViewOnSelect);
-				Zotero.ZotCard.Logger.log('itemsViewOnSelect registered.');
-				clearInterval(interval1);
-			}
-		}, 1000);
+		Zotero.getMainWindow().ZoteroPane.itemsView.waitForLoad().then(function () {
+			Zotero.getMainWindow().Zotero.getMainWindow().ZoteroPane.itemsView.onSelect.addListener(this.itemsViewOnSelect);
+			Zotero.ZotCard.Logger.log('itemsViewOnSelect registered.');
+		}.bind(this));
 
+		Zotero.getMainWindow().document.getElementById('zotero-items-tree').addEventListener('select', this.itemsViewOnSelect.bind(this), false);
+		Zotero.ZotCard.Logger.log('itemsViewOnSelect registered.');
 		Zotero.getMainWindow().document.getElementById('zotero-note-editor').addEventListener('keyup', this.noteEditorKeyup, false);
 		Zotero.ZotCard.Logger.log('noteEditorKeyup registered.');
 		Zotero.getMainWindow().document.getElementById('zotero-itemmenu').addEventListener('popupshowing', this.refreshItemMenuPopup, false);

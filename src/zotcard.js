@@ -11,7 +11,7 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 	notifierCallback: {
 		notify: function (event, type, ids, extraData) {
 			// 新增
-			Zotero.ZotCard.Logger.trace('notifierCallback', {event, type, ids, extraData});
+			// Zotero.ZotCard.Logger.trace('notifierCallback', {event, type, ids, extraData});
 			if (event === 'add') {
 			} else if (event === 'edit') {
 			}
@@ -39,15 +39,8 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		// Use Fluent for localization
 		Zotero.getMainWindow().MozXULElement.insertFTLIfNeeded("zotcard.ftl");
 
-		// this.createItemMenu();
-
-		// this.createPaneMenu();
-
 		Zotero.ZotCard.Cards.initPrefs();
-
-		// 独立笔记
 		this.createStandaloneMenu();
-
 		this.registerEvent();
 
 		Zotero.ZotCard.Logger.log('Zotero.ZotCard inited.');
@@ -291,6 +284,136 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		// }
 	},
 
+	createNoteStatistics(noteHtml) {
+		let {en_words, cn_words, num_words, length, lines, sizes} = Zotero.ZotCard.Notes.statistics(noteHtml);
+
+		Zotero.ZotCard.Logger.log({en_words, cn_words, num_words, length, lines, sizes});
+
+		let links_box = Zotero.getMainWindow().document.querySelector('#links-box>div');
+		if (links_box) {
+			links_box.style.flex = 1;
+		}
+		
+		let links_box_grid = Zotero.getMainWindow().document.querySelector('#links-box div.grid');
+		let div1 = Zotero.ZotCard.Doms.createMainWindowXULElement('div', {
+			id: 'zotero-note-links-box-separator1',
+			attrs: {
+				'style': 'height: 8px; border-bottom: 1px Solid #D9D9D9;',
+				'class': 'label',
+			},
+			parent: links_box_grid
+		});
+		this.storeAddedElement(div1);
+		let div2 = Zotero.ZotCard.Doms.createMainWindowXULElement('div', {
+			id: 'zotero-note-links-box-separator2',
+			attrs: {
+				'style': 'height: 8px; border-bottom: 1px Solid #D9D9D9;',
+				'class': 'value'
+			},
+			parent: links_box_grid
+		});
+		this.storeAddedElement(div2);
+
+		let lablel = Zotero.ZotCard.Doms.createMainWindowXULElement('div', {
+			id: 'words-label',
+			attrs: {
+				'class': 'label',
+				'data-l10n-id': 'zotcard-words',
+			},
+			parent: links_box_grid
+		});
+		this.storeAddedElement(lablel);
+		let value = Zotero.ZotCard.Doms.createMainWindowXULElement('div', {
+			id: 'words-value',
+			attrs: {
+				'class': 'value'
+			},
+			parent: links_box_grid
+		});
+		let word = '';
+		let word_params = {
+			cn_words: cn_words.toString(),
+			cn_scale: Zotero.ZotCard.Utils.scale(cn_words/length, 1) + '%',
+			en_words: en_words.toString(),
+			en_scale: Zotero.ZotCard.Utils.scale(en_words/length, 1) + '%',
+			num_words: num_words.toString(),
+			num_scale: Zotero.ZotCard.Utils.scale(num_words/length, 1) + '%',
+			other_words: length - cn_words - en_words - num_words,
+			other_scale: Zotero.ZotCard.Utils.scale((length - cn_words - en_words - num_words)/length, 1) + '%',
+		};
+		if (word_params.cn_words > 0) {
+			if (word.length > 0) {
+				word += '  ';
+			}
+			word += `中:${word_params.cn_words}(${word_params.cn_scale})`
+		}
+		if (word_params.en_words > 0) {
+			if (word.length > 0) {
+				word += '  ';
+			}
+			word += `🅰:${word_params.en_words}(${word_params.en_scale})`
+		}
+		if (word_params.num_words > 0) {
+			if (word.length > 0) {
+				word += '  ';
+			}
+			word += `➊:${word_params.num_words}(${word_params.num_scale})`
+		}
+		if (word_params.other_words > 0) {
+			if (word.length > 0) {
+				word += '  ';
+			}
+			word += `⊜:${word_params.other_words}(${word_params.other_scale})`
+		}
+		value.textContent = word;
+		value.setAttribute('title', Zotero.ZotCard.L10ns.getString('zotcard-words-title', word_params));
+		value.setAttribute('text', word);
+		value.onclick = (e) => {
+			let text = e.target.getAttribute('text');
+			let title = e.target.getAttribute('title');
+			e.target.textContent = e.target.textContent === text ? title : text;
+		}
+		this.storeAddedElement(value);
+
+		lablel = Zotero.ZotCard.Doms.createMainWindowXULElement('div', {
+			id: 'lines-label',
+			attrs: {
+				'class': 'label',
+				'data-l10n-id': 'zotcard-lines',
+			},
+			parent: links_box_grid
+		});
+		this.storeAddedElement(lablel);
+		value = Zotero.ZotCard.Doms.createMainWindowXULElement('div', {
+			id: 'lines-value',
+			attrs: {
+				'class': 'value'
+			},
+			parent: links_box_grid
+		});
+		value.textContent = lines;
+		this.storeAddedElement(value);
+
+		lablel = Zotero.ZotCard.Doms.createMainWindowXULElement('div', {
+			id: 'sizes-label',
+			attrs: {
+				'class': 'label',
+				'data-l10n-id': 'zotcard-sizes',
+			},
+			parent: links_box_grid
+		});
+		this.storeAddedElement(lablel);
+		value = Zotero.ZotCard.Doms.createMainWindowXULElement('div', {
+			id: 'sizes-value',
+			attrs: {
+				'class': 'value'
+			},
+			parent: links_box_grid
+		});
+		value.textContent = Zotero.ZotCard.Utils.displayStore(sizes) + ` (${Zotero.ZotCard.L10ns.getString('zotcard-sizes-contentscale', word_params)}${Zotero.ZotCard.Utils.scale(length/sizes, 1)}%)`;
+		this.storeAddedElement(value);
+	},
+
 	registerEvent() {
 		this._notifierID = Zotero.Notifier.registerObserver(this.notifierCallback, ['item']);
 
@@ -414,59 +537,31 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 	// ####### Zotero事件 #######
 
 	itemsViewOnSelect() {
-		return;
-		var selectedItems = Zotero.getMainWindow().ZoteroPane.getSelectedItems()
-		Zotero.ZotCard.Logger.log('ItemsTreeOnSelect length', selectedItems.length);
+		Zotero.ZotCard.Logger.ding();
+		var selectedItems = Zotero.getMainWindow().ZoteroPane.getSelectedItems();
 		if (selectedItems.length === 1) {
-			let item = selectedItems[0]
+			let item = selectedItems[0];
 			if (item.isNote()) {
-				let label = Zotero.getMainWindow().document.getElementById('zotero-view-note-counts')
-				if (!label) {
-					label = Zotero.getMainWindow().document.createElement('label')
-					label.setAttribute('id', 'zotero-view-note-counts')
-					label.textContent = Zotero.ZotCard.L10ns.getString('zotcard-wordnumber', 0, 0, 0)
-					let noteEditor = Zotero.getMainWindow().document.getElementById('zotero-view-note')
-					noteEditor.prepend(label)
-				}
-				let hangzis = Zotero.ZotCard.Utils.hangzi(item.getNote())
-				let liness = Zotero.ZotCard.Utils.lines(item.getNote())
-				label.textContent = Zotero.ZotCard.L10ns.getString('zotcard-wordnumber', hangzis, liness, Zotero.Utilities.Internal.byteLength(item.getNote()))
-				
-				Zotero.ZotCard.Logger.log({hangzis, liness});
+				this.createNoteStatistics(item.getNote());
 			}
 		}
 	},
 
 	noteEditorKeyup(e) {
-		return;
-		let label = Zotero.getMainWindow().document.getElementById('zotero-view-note-counts')
-		if (!label) {
-			label = Zotero.getMainWindow().document.createElement('label')
-			label.setAttribute('id', 'zotero-view-note-counts')
-			label.textContent = Zotero.ZotCard.L10ns.getString('zotcard-wordnumber', 0, 0, 0)
-			Zotero.getMainWindow().document.getElementById('zotero-view-note').prepend(label)
-		}
+		// Zotero.ZotCard.Logger.ding();
+		// let noteEditor = e.currentTarget;
+		// let noteHtml;
+		// let parser = new DOMParser();
+		// let doc = parser.parseFromString(Zotero.getMainWindow().document.getElementById('zotero-note-editor').getCurrentInstance()._iframeWindow.document.body.innerHTML, "text/html");
+		// let proseMirror = doc.querySelector('.ProseMirror');
+		// if (proseMirror) {
+		// 	noteHtml = proseMirror.innerHTML;
+		// } else {
+		// 	noteHtml = noteEditor.getCurrentInstance()._iframeWindow.document.body.innerHTML;
+		// }
 
-		let noteEditor = e.currentTarget
-		let note
-		if (Zotero.ZotCard.Utils.version() >= 6) {
-			let parser = Components.classes['@mozilla.org/xmlextras/domparser;1'].createInstance(Components.interfaces.nsIDOMParser)
-			let doc = parser.parseFromString(Zotero.getMainWindow().document.getElementById('zotero-note-editor').editorInstance._iframeWindow.document.body.innerHTML, 'text/html')
-			let proseMirror = doc.querySelector('.ProseMirror')
-			if (proseMirror) {
-				note = proseMirror.innerHTML
-			} else {
-				note = noteEditor.editorInstance._iframeWindow.document.body.innerHTML
-			}
-
-		} else {
-			note = noteEditor.value
-		}
-		Zotero.debug(`zotcard@note: ${note}`)
-		let hangzis = Zotero.ZotCard.Utils.hangzi(note)
-		let liness = Zotero.ZotCard.Utils.lines(note)
-		label.textContent = Zotero.ZotCard.L10ns.getString('zotcard-wordnumber', hangzis, liness, Zotero.Utilities.Internal.byteLength(note))
-		Zotero.debug(`zotcard@onkeyup: ${new Date().getTime()} ${hangzis} ${liness}`)
+		// Zotero.ZotCard.Logger.log(noteHtml);
+		// this.createNoteStatistics(noteHtml);
 	},
 
 	refreshItemMenuPopup() {
@@ -1216,7 +1311,11 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		if (!elem.id) {
 			throw new Error("Element must have an id");
 		}
-		this.addedElementIDs.push(elem.id);
+		if (!this.addedElementIDs.includes(elem.id)) {
+			this.addedElementIDs.push(elem.id);
+		} else {
+			Zotero.ZotCard.Logger.log('Element id pushed.');
+		}
 	},
 
 	removeFromWindow(window) {

@@ -1073,7 +1073,7 @@ function exportFile(htmls) {
           if (!file.leafName.endsWith('.txt')) {
             file.leafName = file.leafName + '.txt'
           }
-          Zotero.File.putContents(file, Zotero.ZotCard.Utils.htmlToText(htmls).replace(/\n\n/g, '\n'))
+          Zotero.File.putContents(file, Zotero.ZotCard.Notes.htmlToText(htmls).replace(/\n\n/g, '\n'))
           Zotero.ZotCard.Messages.success('导出成功。')
         }
       }
