@@ -64,11 +64,6 @@
 				margin: 0 10px 10px 0;
 			}
 		</style>
-		<style id="primary-editor">
-			:root {
-				
-			}
-		</style>
 	</head>
 	<body>
 		<div id="app">
@@ -116,6 +111,12 @@
 								</el-select>
 							</el-form-item>
 							<h1 data-l10n-id="zotcard-preferences-general-other">其他</h1>
+							<el-form-item>
+								<template #label>
+									<label data-l10n-id="zotcard-preferences-general-other-enable_word_count">开启卡片字数统计</label>
+								</template>
+								<el-switch size="small" v-model="prefs.enable_word_count" @change="handlePrefsInput('enable_word_count', prefs.enable_word_count)" />
+							</el-form-item>
 							<el-form-item>
 								<template #label>
 									<label data-l10n-id="zotcard-preferences-general-other-recently_move_collection_quantity">最近移动分类个数</label>

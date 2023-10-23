@@ -138,9 +138,8 @@ zotcard-wordnumber = Word Number: %S  \tLine Number: %S \tSize: %S
 zotcard-batchaddnote =
     .lable = Batch Add Note
 zotcard-newstandalone = New Standalone { $type }
+zotcard-newstandalone-batch = Batch New Standalone
 
-zotcard-batchnewstandalone =
-    .lable = Batch New Standalone
 zotcard-notelinespacing =
     .lable = Note Line Spacing
 zotcard-noteparagraphspacing =

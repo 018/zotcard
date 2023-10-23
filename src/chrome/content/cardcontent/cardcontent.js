@@ -54,7 +54,7 @@ async function start () {
     }
     document.getElementById('words').textContent = words
 
-    let config = Zotero.Prefs.get('zotcard.config.print')
+    let config = Zotero.ZotCard.Prefs.get('config.print')
     Zotero.debug(`config: ${config}`)
     if (config && config.length > 0) {
       let configJSON = JSON.parse(config)

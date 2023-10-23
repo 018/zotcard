@@ -12,6 +12,7 @@ zotcard-preferences-general-report-startOfWeek-Sat = Monday
 
 zotcard-preferences-general-other = Other Settings
 zotcard-preferences-general-other-recently_move_collection_quantity = Number of classes moved recently
+zotcard-preferences-general-other-enable_word_count= Enable card word count
 
 zotcard-preferences-label = Label
 zotcard-preferences-visible = Visible

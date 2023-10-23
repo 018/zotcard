@@ -9,10 +9,10 @@
 Components.utils.import('resource://gre/modules/Services.jsm');
 
 function onload () {
-  let column = Zotero.Prefs.get('zotcard.config.column_edt')
-  document.getElementById('column_edt').value = column || '4'
-  let height = Zotero.Prefs.get('zotcard.config.height_edt')
-  document.getElementById('height_edt').value = height || '300'
+  let column =  Zotero.ZotCard.Prefs.get('config.column_edt', 4);
+  document.getElementById('column_edt').value = column
+  let height =  Zotero.ZotCard.Prefs.get('config.height_edt', 300);
+  document.getElementById('height_edt').value = height
 }
 
 function ok () {

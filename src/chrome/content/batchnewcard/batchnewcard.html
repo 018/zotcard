@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<title data-l10n-id="zotcard-preferences-title"></title>
+		<script src="chrome://zotero/content/include.js"></script>
+		<link rel="localization" href="zotcard.ftl"/>
+		<link rel="localization" href="batchnewcard.ftl"/>
+		<link rel="stylesheet" href="../modules/common.css" />
+		<link rel="stylesheet" href="../modules/element-plus.css" />
+		<script src="../modules/vue.global.js"></script>
+		<script src="../modules/element-plus.full.js"></script>
+		<script src="../modules/element-plus-zh-cn.js"></script>
+		<script src="../modules/element-plus-en.js"></script>
+		<script src="../modules/element-plus-zh-tw.js"></script>
+		<script src="../modules/element-plus-icons.js"></script>
+		<script src="../modules/zotcard-element-plus.js"></script>
+		<script src="batchnewcard.js"></script>
+		<style>
+			body {
+				font-size: 10px;
+				padding: 10px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app">
+			<el-form size="small" label-width="120px">
+				<el-form-item>
+					<template #label>
+						<label data-l10n-id="zotcard-batchnewcard-all_for">全部</label>
+					</template>
+					<el-input-number size="small" v-model="all" :min="0" :max="100" @change="handleAllChange" />
+				</el-form-item>
+				<el-divider></el-divider>
+				<el-form-item v-for="c in cards" :key="c.type">
+					<template #label>
+						<label>{{ c.label }}</label>
+					</template>
+					<el-input-number size="small" v-model="c.value" :min="0" :max="100" @change="handleValueChange" />
+				</el-form-item>
+				<el-divider></el-divider>
+				<div class="hcenter">
+					<el-button @click="cancel" style="width: 120px;" data-l10n-id="zotcard-cancel">Cancel</el-button>
+					<el-button @click="submit" style="width: 120px;" type="primary" plain data-l10n-id="zotcard-ok">OK</el-button>
+				</div>
+			</el-form>
+		</div>
+	</body>
+</html>

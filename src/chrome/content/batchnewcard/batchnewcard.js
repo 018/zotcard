@@ -1,48 +1,87 @@
-/* Copyright 2021 018.
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+const { createApp, ref, reactive, toRaw } = Vue
+const { ElMessageBox } = ElementPlus
 
-'use strict';
-/* global window, document, Components */
-/* global Zotero, ZoteroPane, ZOTERO_CONFIG */
-Components.utils.import('resource://gre/modules/Services.jsm');
+const isZoteroDev = !window.Zotero;
+var io = window.arguments && window.arguments.length > 0 ? window.arguments[0] : (isZoteroDev ? {} : undefined);
 
-var io = window.arguments && window.arguments.length > 0 ? window.arguments[0] : { dataIn: [] }
+if (!io) {
+  window.close();
+  Zotero.ZotCard.Messages.error('The parameter is incorrect.');
+} else {
 
-io = Object.assign(io, { dataOut: false })
+  io = Object.assign(io, { dataOut: [] })
 
-function onload () {
-  io.dataIn.items.forEach((element, index) => {
-    let label = document.createElement('label')
-    label.setAttribute('value', Zotero.ZotCard.L10ns.getString('zotcard.quantity', element.label)) 
-    document.getElementById('groupbox').appendChild(label)
-    let textbox = document.createElement('textbox')
-    textbox.setAttribute('id', element.id)
-    textbox.setAttribute('item-index', index)
-    textbox.setAttribute('value', element.value || '')
-    textbox.setAttribute('flex', '1')
-    document.getElementById('groupbox').appendChild(textbox)
-  })
-  window.sizeToContent()
-}
+  window.onload = function () {
+    const _l10n = isZoteroDev ? undefined : new Localization(["batchnewcard.ftl", "zotcard.ftl"], true);
 
-function ok () {
-  var dataOut = []
-  document.querySelectorAll('#groupbox textbox').forEach(textbox => {
-    if (textbox.value.length > 0) {
-      if (textbox.value.match(/\D/g)) {
-        Zotero.ZotCard.Messages.warning(Zotero.ZotCard.L10ns.getString('zotcard.correct_quantity'))
-        textbox.focus()
-      } else {
-        let index = parseInt(textbox.getAttribute('item-index'))
-        io.dataIn.items[index].value = parseInt(textbox.value)
-        dataOut.push(io.dataIn.items[index])
+    function _pushPref(items, type) {
+      let pref = isZoteroDev ? {visible: true, card: '1', label: 'dev'} : Zotero.ZotCard.Cards.initPrefs(type);
+      if (pref.visible && pref.card.length > 0) {
+        items.push({
+          type: type,
+          label: pref.label,
+          value: 0
+        });
       }
-    }
-  })
-  if (dataOut) {
-    io.dataOut = dataOut
-    window.close()
+    };
+    createElementPlusApp({
+      setup() {
+        const cards = reactive([]);
+        const all = ref();
+
+        const _init = () => {
+          isZoteroDev || Zotero.ZotCard.Consts.defCardTypes.forEach(type => {
+            _pushPref(cards, type)
+          });
+          let quantity = isZoteroDev ? 2 : Zotero.ZotCard.Prefs.get('card_quantity', Zotero.ZotCard.Consts.card_quantity)
+          for (let index = 0; index < quantity; index++) {
+            _pushPref(cards, Zotero.ZotCard.Cards.customCardType(index))
+          }
+        }
+
+        function handleAllChange(val) {
+          cards.forEach(element => {
+            element.value = val;
+          });
+        }
+
+        function handleValueChange(val) {
+          all.value = undefined;
+        }
+
+        function submit() {
+          io.dataOut = [];
+          cards.forEach(element => {
+            if (element.value > 0) {
+              io.dataOut.push(element);
+            }
+          });
+          if (io.dataOut.length === 0) {
+            ElMessageBox.alert(_l10n.formatValueSync('zotcard-batchnewcard-please_enter'), Zotero.getString('general.error'), {
+              confirmButtonText: 'OK'
+            });
+            return;
+          }
+
+          window.close();
+        }
+
+        function cancel() {
+          window.close();
+        }
+
+        _init();
+
+        return {
+          all,
+          cards,
+          handleAllChange,
+          handleValueChange,
+          submit,
+          cancel
+        }
+      }
+    });
   }
 }
+

@@ -7,3 +7,9 @@
     align-items: center;
     flex-direction: column;
 }
+
+.hcenter {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}

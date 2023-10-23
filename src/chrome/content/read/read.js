@@ -62,10 +62,10 @@ function start () {
   document.body.style.fontSize = Zotero.Prefs.get('note.fontSize') + 'px'
   document.getElementById('concentration').style.fontSize = (parseInt(Zotero.Prefs.get('note.fontSize')) + 2) + 'px'
   Zotero.debug(`[${Zotero.ZotCard.DateTimes.now()}] body font-size: ${document.body.style.fontSize}`)
-  document.getElementById('card-width').value = Zotero.Prefs.get('zotcard.config.read.card-width') || '350'
-  document.getElementById('card-height').value = Zotero.Prefs.get('zotcard.config.read.card-height') || ''
-  document.getElementById('highlight').checked = Zotero.Prefs.get('zotcard.config.read.highlight') || false
-  document.getElementById('fit-height').checked = Zotero.Prefs.get('zotcard.config.read.fit-height') || false
+  document.getElementById('card-width').value = Zotero.ZotCard.Prefs.get('config.read.card-width') || '350'
+  document.getElementById('card-height').value = Zotero.ZotCard.Prefs.get('config.read.card-height') || ''
+  document.getElementById('highlight').checked = Zotero.ZotCard.Prefs.get('config.read.highlight') || false
+  document.getElementById('fit-height').checked = Zotero.ZotCard.Prefs.get('config.read.fit-height') || false
   document.getElementById('setting-bar').style.display = 'none'
   document.getElementById('title').textContent = title
   
@@ -118,8 +118,8 @@ function start () {
 
   document.getElementById('filter-text').value = filters.text
 
-  let orderby = Zotero.Prefs.get('zotcard.config.read.orderby') || 'date'
-  let desc = Zotero.Prefs.get('zotcard.config.read.orderbydesc') || true
+  let orderby = Zotero.ZotCard.Prefs.get('config.read.orderby') || 'date'
+  let desc = Zotero.ZotCard.Prefs.get('config.read.orderbydesc') || true
   Zotero.debug(`zotcard@orderby: ${orderby}, desc: ${desc}`)
   document.querySelectorAll('#orderby .tag').forEach(element => {
     element.textContent = ''
@@ -338,8 +338,8 @@ function ok () {
 }
 
 function loadCards () {
-  let orderby = Zotero.Prefs.get('zotcard.config.read.orderby') || 'date'
-  let desc = Zotero.Prefs.get('zotcard.config.read.orderbydesc')
+  let orderby = Zotero.ZotCard.Prefs.get('config.read.orderby') || 'date'
+  let desc = Zotero.ZotCard.Prefs.get('config.read.orderbydesc')
   desc = desc === undefined ? false : desc
   Zotero.debug(`[${Zotero.ZotCard.DateTimes.now()}] zotcard@orderby: ${orderby}, desc: ${desc}`)
 
@@ -381,11 +381,11 @@ function loadCards () {
 function orderby (target, by) {
   document.getElementById('searching').hidden = false
   Zotero.Prefs.set('zotcard.config.read.orderby', by)
-  Zotero.Prefs.set('zotcard.config.read.orderbydesc', !Zotero.Prefs.get('zotcard.config.read.orderbydesc'))
+  Zotero.Prefs.set('zotcard.config.read.orderbydesc', !Zotero.ZotCard.Prefs.get('config.read.orderbydesc'))
   document.querySelectorAll('#orderby .tag').forEach(element => {
     element.textContent = ''
   })
-  target.querySelector('.tag').textContent = (Zotero.Prefs.get('zotcard.config.read.orderbydesc') ? '▼' : '▲')
+  target.querySelector('.tag').textContent = (Zotero.ZotCard.Prefs.get('config.read.orderbydesc') ? '▼' : '▲')
   loadCards()
 }
 
@@ -578,7 +578,7 @@ function createCard (card, index) {
   cardDiv.setAttribute('id', card.id)
   cardDiv.setAttribute('key', card.key)
   cardDiv.setAttribute('class', 'card')
-  cardDiv.style.width = (Zotero.Prefs.get('zotcard.config.read.card-width') || '350') + 'px'
+  cardDiv.style.width = (Zotero.ZotCard.Prefs.get('config.read.card-width') || '350') + 'px'
   cardDiv.style.maxWidth = cardDiv.style.width
 
   let cardBar = document.createElement('div')
@@ -845,8 +845,8 @@ function createCard (card, index) {
   let cardContentAll = document.createElement('div')
   cardContentAll.setAttribute('id', `${card.id}-card-all`)
   cardContentAll.setAttribute('class', 'card-all')
-  if (!Zotero.Prefs.get('zotcard.config.read.fit-height')) {
-    cardContentAll.style.height = (Zotero.Prefs.get('zotcard.config.read.card-height') || '400') + 'px'
+  if (!Zotero.ZotCard.Prefs.get('config.read.fit-height')) {
+    cardContentAll.style.height = (Zotero.ZotCard.Prefs.get('config.read.card-height') || '400') + 'px'
     cardContentAll.style.maxHeight = cardContentAll.style.height
   }
   let noteContent = card.note

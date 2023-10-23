@@ -12,6 +12,7 @@ zotcard-preferences-general-report-startOfWeek-Sat = 周一
 
 zotcard-preferences-general-other = 其他设置
 zotcard-preferences-general-other-recently_move_collection_quantity = 最近移动分类个数
+zotcard-preferences-general-other-enable_word_count= 开启卡片字数统计
 
 zotcard-preferences-label = 菜单
 zotcard-preferences-visible = 启用

@@ -3,12 +3,30 @@
 zotero-zotcard =
     .label = ZotCard
 
+zotcard-quotescard = 金句卡
+zotcard-conceptcard = 概念卡
+zotcard-charactercard = 人物卡
+zotcard-not_commonsensecard = 反常识卡
+zotcard-skillcard = 技巧卡
+zotcard-structurecard = 结构卡
+zotcard-abstractcard = 摘要卡
+zotcard-generalcard = 短文卡
+
 
 zotcard-words = 字数：
 zotcard-words-title = 中文{ $cn_words }(占{ $cn_scale })  英文{ $en_words }(占{ $en_scale })  数字{ $num_words }(占{ $num_scale })  其他{ $other_words }(占{ $other_scale })
 zotcard-lines = 行数：
 zotcard-sizes = 占空间：
 zotcard-sizes-contentscale = 内容比
+
+zotcard-ok = 确认
+zotcard-cancel = 取消
+
+
+zotcard-newstandalone = 新建独立 { $type }
+zotcard-newstandalone-batch = 批量建卡
+zotcard-newitem-batch = 批量建卡
+zotcard-newpane-batch = 批量建卡
 
 
 zotero-zotcard-readcard =
@@ -124,22 +142,8 @@ zotcard-discardmodified =
 zotcard-save =
     .lable = 保存成功。
 
-zotcard-quantity =
-    .lable = %S 数量：
-zotcard-correct_quantity =
-    .lable = 请正确输入数量。
-zotcard-correct_recently_move_collection_quantity =
-    .lable = 请正确输入个数。
-zotcard-batchaddnote =
-    .lable = 批量建卡
-zotcard-newstandalone = 新建独立 { $type }
-zotcard-batchnewstandalone =
-    .lable = 批量新建独立
-zotcard-notelinespacing =
-    .lable = 笔记行间距
-zotcard-noteparagraphspacing =
-    .lable = 笔记段间距
-    
+
+
 
 zotcard-resetconfig =
     .lable = 重置后会清空所有配置，还原到安装时的配置。确实要重置吗？
