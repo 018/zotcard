@@ -277,21 +277,6 @@ Zotero.ZotCard.Utils = Object.assign(Zotero.ZotCard.Utils, {
     }
   },
 
-  // 标签: [无] [v1]  => [无, v1]
-  getCardItemValue(noteContent, name) {
-    let reg = new RegExp(`(?:^|\n| )${name}[:：](.*)`)
-    let match1 = reg.exec(Zotero.ZotCard.Notes.htmlToText(noteContent))
-    let content = ''
-    if (match1) {
-      if (match1[1].match(/[:：]/)) {
-        content = match1[1].replace(/[^\s]*[:：].*$/, '').trim()
-      } else {
-        content = match1[1]
-      }
-    }
-    return content
-  },
-
   refreshOptions(cardItem, options) {
     // options:
     // {
@@ -356,28 +341,6 @@ Zotero.ZotCard.Utils = Object.assign(Zotero.ZotCard.Utils, {
     return options
   },
 
-  cardDate(item) {
-    let dateString
-    let noteContent = Zotero.ZotCard.Notes.htmlToText(item.getNote())
-    let dateContent = Zotero.ZotCard.Notes.getCardItemValue(noteContent, '日期')
-    let match1 = dateContent.match(/\d{4}[-/\u5e74.]\d{1,2}[-/\u6708.]\d{1,2}\u65e5{0,1}/g)
-    if (!match1) {
-      let match3 = dateContent.match(/\d{8}/g)
-      if (match3) {
-        dateString = `${match3[0].substr(0, 4)}-${match3[0].substr(4, 2)}-${match3[0].substr(6, 2)}`
-      } else {
-        Zotero.debug(`不包含有效日期，取创建日期。${match3}`)
-        dateString = Zotero.ZotCard.DateTimes.sqlToDate(item.dateAdded, 'yyyy-MM-dd')
-      }
-    } else {
-      let match2 = match1[0].match(/\d{4}[-/\u5e74.]\d{1,2}[-/\u6708.]\d{1,2}\u65e5{0,1}/g)
-      Zotero.debug(`${match2}`)
-      dateString = match2[0].replace(/\u5e74|\u6708|\./g, '-').replace(/\u65e5/g, '')
-    }
-    let now = new Date(dateString)
-    return Zotero.ZotCard.DateTimes.formatDate(now, 'yyyy-MM-dd')
-  },
-
   swap(array, index1, index2) {
     let e = array[index1]
     array[index1] = array[index2]
@@ -415,21 +378,7 @@ Zotero.ZotCard.Utils = Object.assign(Zotero.ZotCard.Utils, {
 
   openInViewer(uri, features) {
     var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"].getService(Components.interfaces.nsIWindowWatcher)
-    return ww.openWindow(null, uri, null, features ? features : `menubar=yes,toolbar=no,location=no,scrollbars,centerscreen,resizable,,height=${screen.availHeight},width=${screen.availWidth}`, null)
-  },
-
-  getGroupIDByKey(key) {
-    var groups = Zotero.Groups.getAll()
-    var groupID
-    for (let index = 0; index < groups.length; index++) {
-      const element = groups[index];
-      if (Zotero.Items.getIDFromLibraryAndKey(element.libraryID, key)) {
-        groupID = element.id
-        break
-      }
-    }
-
-    return groupID
+    return ww.openWindow(null, uri, null, features ? features : `menubar=yes,toolbar=no,location=no,scrollbars,centerscreen,resizable,height=${screen.availHeight},width=${screen.availWidth}`, null)
   },
 
   async loadAnnotationImg(annotation) {

@@ -2,8 +2,13 @@ if (!Zotero.ZotCard) Zotero.ZotCard = {};
 if (!Zotero.ZotCard.DateTimes) Zotero.ZotCard.DateTimes = {};
 
 Zotero.ZotCard.DateTimes = Object.assign(Zotero.ZotCard.DateTimes, {
+  yyyyMM: 'yyyy-MM',
+  yyyyMMdd: 'yyyy-MM-dd',
+  yyyyMMddHHmmss: 'yyyy-MM-dd HH:mm:ss',
+  yyyyMMddHHmmssSSS: 'yyyy-MM-dd HH:mm:ss.SSS',
+
 	init() {
-		Zotero.ZotCard.Logger.log('Zotero.ZotCard.Readers inited.');
+		Zotero.ZotCard.Logger.log('Zotero.ZotCard.DateTimes inited.');
 	},
 
   formatDate(date, format) {
@@ -18,18 +23,18 @@ Zotero.ZotCard.DateTimes = Object.assign(Zotero.ZotCard.DateTimes, {
       'S' : date.getMilliseconds()
     }
     if (/(y+)/.test(format)) {
-      format = format.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length))
+      format = format.replace(RegExp.$1, (date.getFullYear() + '').substring(4 - RegExp.$1.length))
     }
     for (var k in o) {
       if (new RegExp('(' + k + ')').test(format)) {
-        format = format.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (('00' + o[k]).substr(('' + o[k]).length)))
+        format = format.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (('00' + o[k]).substring(('' + o[k]).length)))
       }
     }
     return format
   },
   
   now() {
-    return this.formatDate(new Date(), 'yyyy-MM-dd HH:mm:ss.S')
+    return this.formatDate(new Date(), Zotero.ZotCard.DateTimes.yyyyMMddHHmmssSSS);
   },
   
   sqlToDate(date, format) {

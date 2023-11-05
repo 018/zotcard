@@ -1,21 +1,20 @@
 const { createApp, ref, reactive, toRaw } = Vue
 const { ElMessageBox } = ElementPlus
 
-const isZoteroDev = !window.Zotero;
-var io = window.arguments && window.arguments.length > 0 ? window.arguments[0] : (isZoteroDev ? {} : undefined);
+var io = window.arguments && window.arguments.length > 0 ? window.arguments[0] : (ZotElementPlus.isZoteroDev ? {} : undefined);
 
 if (!io) {
   window.close();
-  Zotero.ZotCard.Messages.error('The parameter is incorrect.');
+  Zotero.ZotCard.Messages.error(undefined, 'The parameter is incorrect.');
 } else {
 
   io = Object.assign(io, { dataOut: [] })
 
   window.onload = function () {
-    const _l10n = isZoteroDev ? undefined : new Localization(["batchnewcard.ftl", "zotcard.ftl"], true);
+    const _l10n = ZotElementPlus.isZoteroDev ? undefined : new Localization(["batchnewcard.ftl", "zotcard.ftl"], true);
 
     function _pushPref(items, type) {
-      let pref = isZoteroDev ? {visible: true, card: '1', label: 'dev'} : Zotero.ZotCard.Cards.initPrefs(type);
+      let pref = ZotElementPlus.isZoteroDev ? {visible: true, card: '1', label: 'dev'} : Zotero.ZotCard.Cards.initPrefs(type);
       if (pref.visible && pref.card.length > 0) {
         items.push({
           type: type,
@@ -24,19 +23,20 @@ if (!io) {
         });
       }
     };
-    createElementPlusApp({
+    ZotElementPlus.createElementPlusApp({
       setup() {
         const cards = reactive([]);
         const all = ref();
 
         const _init = () => {
-          isZoteroDev || Zotero.ZotCard.Consts.defCardTypes.forEach(type => {
+          ZotElementPlus.isZoteroDev || Zotero.ZotCard.Consts.defCardTypes.forEach(type => {
             _pushPref(cards, type)
           });
-          let quantity = isZoteroDev ? 2 : Zotero.ZotCard.Prefs.get('card_quantity', Zotero.ZotCard.Consts.card_quantity)
+          let quantity = ZotElementPlus.isZoteroDev ? 2 : Zotero.ZotCard.Prefs.get('card_quantity', Zotero.ZotCard.Consts.card_quantity)
           for (let index = 0; index < quantity; index++) {
             _pushPref(cards, Zotero.ZotCard.Cards.customCardType(index))
           }
+          ZotElementPlus.isZoteroDev || Zotero.ZotCard.Logger.log('inited.');
         }
 
         function handleAllChange(val) {

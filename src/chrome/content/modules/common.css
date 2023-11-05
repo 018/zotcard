@@ -2,6 +2,21 @@
     --el-menu-item-height: 50px;
 }
 
+.el-tabs {
+    --el-tabs-header-height: 25px !important;
+}
+
+.el-tabs__item {
+    padding: 0 20px 5px 20px !important;
+    font-size: var(--el-font-size-small) !important;
+}
+
+.el-drawer__body {
+    padding: 10px !important;
+}
+
+
+
 .vcenter {
     display: flex;
     align-items: center;
@@ -12,4 +27,26 @@
     display: flex;
     align-items: center;
     justify-content: space-evenly;
+}
+
+.single-line {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fill {
+    width: 100%;
+}
+
+.text-color-placeholder {
+    color: var(--el-text-color-placeholder);
+}
+
+.el-link-text .el-link {
+    font-size: var(--el-font-size-extra-small) !important;
+}
+
+.el-select-dropdown__item {
+    font-size: var(--el-font-size-extra-small) !important;
 }

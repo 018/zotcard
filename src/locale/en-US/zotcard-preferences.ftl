@@ -13,6 +13,12 @@ zotcard-preferences-general-report-startOfWeek-Sat = Monday
 zotcard-preferences-general-other = Other Settings
 zotcard-preferences-general-other-recently_move_collection_quantity = Number of classes moved recently
 zotcard-preferences-general-other-enable_word_count= Enable card word count
+zotcard-preferences-general-other-enable_word_count_message = Words = ㊥Chinese + 🅰English + ➊Numbers），Scale = Chinese, English or Numbers / Card content length，Content scale = Words / Size。<br />Card content length：The length of the content of the card, including Chinese, English, numbers, punctuation, etc.<br />Size：The actual amount of space that the card is stored in zotero.
+zotcard-preferences-general-other-word_count_style = Card word count style
+zotcard-preferences-general-other-wordCountStyle-all = ALL
+zotcard-preferences-general-other-wordCountStyle-onlyWords = Only words（Includes Chinese, English and Numbers）
+zotcard-preferences-general-other-word_count_style_message = ALL：6　㊥:1(1%) 🅰:2(2%) ➊:3(3%)<br />Only words（Includes Chinese, English and Numbers）：6
+
 
 zotcard-preferences-label = Label
 zotcard-preferences-visible = Visible

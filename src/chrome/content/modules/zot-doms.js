@@ -3,10 +3,10 @@ if (!Zotero.ZotCard.Doms) Zotero.ZotCard.Doms = {};
 
 Zotero.ZotCard.Doms = Object.assign(Zotero.ZotCard.Doms, {
 	init() {
-		Zotero.ZotCard.Logger.log('Zotero.ZotCard.Readers inited.');
+		Zotero.ZotCard.Logger.log('Zotero.ZotCard.Doms inited.');
 	},
 
-  createXULElement(document, tag, { id, attrs, props, parent, childs, command, onclick }) {
+  createXULElement(document, tag, { id, attrs, props, parent, after, before, childs, command, onclick }) {
     let ele = id ? Zotero.getMainWindow().document.getElementById(id) : undefined;
     if (ele) {
       return ele;
@@ -43,6 +43,10 @@ Zotero.ZotCard.Doms = Object.assign(Zotero.ZotCard.Doms, {
     }
     if (parent) {
       parent.appendChild(element);
+    } else if (after) {
+      after.after(element);
+    } else if (before) {
+      before.before(element);
     }
     return element;
   },

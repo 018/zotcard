@@ -1,1 +1,8 @@
-#zotcard-tb-note-add { list-style-image: url('chrome://zotcard/content/images/zotcard@0.5x.png'); }
+#zotero-tb-read-manager
+{
+	list-style-image: url('chrome://zotcard/content/images/card-manager.png');
+}
+
+@media (min-resolution: 1.25dppx) {
+    #zotero-tb-read-manager { list-style-image: url('chrome://zotcard/content/images/card-manager@2x.png');}
+}

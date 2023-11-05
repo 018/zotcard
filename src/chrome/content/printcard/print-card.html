@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title data-l10n-id="zotcard-print-card"></title>
+	<script src="chrome://zotero/content/include.js"></script>
+	<link rel="localization" href="zotcard.ftl" />
+	<link rel="localization" href="print-card.ftl" />
+	<link rel="stylesheet" href="../modules/common.css" />
+	<link rel="stylesheet" href="../modules/element-plus.css" />
+	<script src="../modules/vue.global.prod.js"></script>
+	<script src="../modules/element-plus.js"></script>
+	<script src="../modules/element-plus-zh-cn.js"></script>
+	<script src="../modules/element-plus-en.js"></script>
+	<script src="../modules/element-plus-zh-tw.js"></script>
+	<script src="../modules/element-plus-icons.js"></script>
+	<script src="../modules/zot-render-element-plus.js"></script>
+	<script src="print-card.js"></script>
+	<style>
+		@page {
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			font-size: 12px;
+			padding: 0;
+			margin: 0;
+		}
+
+		@media screen {
+			.header {
+				height: 40px;
+				background-color: #dce8ff;
+				display: flex;
+				align-items: center;
+				padding: 0 10px;
+				justify-content: space-between;
+			}
+
+			#cards {
+				margin: 5px;
+			}
+
+			.card {
+				margin-bottom: 40px;
+			}
+		}
+
+		@media print {
+			#header {
+				display: none;
+			}
+
+			#cards {
+				margin: 0;
+			}
+		}
+	</style>
+	<style>
+		@page {
+		}
+	</style>
+</head>
+
+<body>
+	<div id="app">
+		<el-affix id="header" :offset="0">
+			<div class="header">
+				<el-space>
+					<div><span data-l10n-id="zotcard-print-card-cards">合计卡片：</span><span>{{ cards.length }}</span></div>
+				</el-space>
+				<el-space>
+					<div>
+						<span data-l10n-id="zotcard-print-card-titleFontSize">标题字体：</span>
+						<el-input-number style="width: 75px;" v-model="profiles.titleFontSize" :min="5" :max="20" @input="handleChange('titleFontSize')"></el-input-number>
+					</div>
+					<div>
+						<span data-l10n-id="zotcard-print-card-titleLineSpacing">标题行间距：</span>
+						<el-input-number style="width: 75px;" v-model="profiles.titleLineSpacing" :min="1" :max="20" @input="handleChange('titleLineSpacing')"></el-input-number>
+					</div>
+					<div>
+						<span data-l10n-id="zotcard-print-card-fontSize">内容字体：</span>
+						<el-input-number style="width: 75px;" v-model="profiles.fontSize" :min="5" :max="20" @input="handleChange('fontSize')"></el-input-number>
+					</div>
+					<div>
+						<span data-l10n-id="zotcard-print-card-lineSpacing">行间距：</span>
+						<el-input-number style="width: 75px;" v-model="profiles.lineSpacing" :min="1" :max="20" @input="handleChange('lineSpacing')"></el-input-number>
+					</div>
+					<div>
+						<span data-l10n-id="zotcard-print-card-paragraphSpacing">段间距：</span>
+						<el-input-number style="width: 75px;" v-model="profiles.paragraphSpacing" :min="1" :max="20" @input="handleChange('paragraphSpacing')"></el-input-number>
+					</div>
+					<el-button type="success" @click="handlePrint"><span data-l10n-id="zotcard-print-card-print">打印1</span></el-button>
+				</el-space>
+			</div>
+		</el-affix>
+		
+		<div id="cards" :style="{lineHeight: profiles.lineSpacing * 0.1}">
+			<div class="card" v-for="card in cards" :key="card.id" style="page-break-after: always;">
+				<p :style="{fontSize: profiles.titleFontSize + 'px', lineHeight: profiles.titleLineSpacing * 0.1}"><b>{{ card.note.title }}</b></p>
+				<div v-html="card.note.contentHtml" :style="{fontSize: profiles.fontSize + 'px'}"></div>
+				<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>

@@ -2,16 +2,15 @@ const { createApp, ref, reactive, toRaw } = Vue
 const { ElLoading } = ElementPlus
 
 window.onload = function() {
-	const isZoteroDev = !window.Zotero;
-	const _l10n =  isZoteroDev ? undefined : new Localization(["zotcard-preferences.ftl"], true);
-	const defCards = isZoteroDev ? ['a', 'b'] : Zotero.ZotCard.Consts.defCardTypes;
+	const _l10n =  ZotElementPlus.isZoteroDev ? undefined : new Localization(["zotcard-preferences.ftl"], true);
+	const defCards = ZotElementPlus.isZoteroDev ? ['a', 'b'] : Zotero.ZotCard.Consts.defCardTypes;
 
 	async function _buildPreview(template) {
 		if (template) {
-			var items = Zotero.ZotCard.Items.getSelectedItems('regular');
+			var items = ZotElementPlus.isZoteroDev ? [] : Zotero.ZotCard.Items.getSelectedItems('regular');
 			let item;
 			if (!items || items.length <= 0) {      
-				let allitems = (await Zotero.Items.getAll(Zotero.Libraries.userLibraryID, true));
+				let allitems = ZotElementPlus.isZoteroDev ? [] : (await Zotero.Items.getAll(Zotero.Libraries.userLibraryID, true));
 				for (let index = 0; index < allitems.length; index++) {
 					const e = allitems[index];
 					if (e.isRegularItem()) {
@@ -25,7 +24,7 @@ window.onload = function() {
 
 			if (item) {
 				let collection =item.getCollections().length > 0 ? Zotero.Collections.get(item.getCollections()[0]) : undefined;
-				let noteContent = await Zotero.ZotCard.Cards.newCardWithTemplate(collection, item, template, undefined);
+				let noteContent = await Zotero.ZotCard.Cards.newCardWithTemplate(window, collection, item, template, undefined);
 				return noteContent;
 			}
 		}
@@ -56,16 +55,18 @@ window.onload = function() {
 		return textarea.value;
 	}
 
-	createElementPlusApp({
+	ZotElementPlus.createElementPlusApp({
 		setup() {
+			const ZotCardConsts = reactive(ZotElementPlus.isZoteroDev ? {} : Zotero.ZotCard.Consts);
 			const curCards = reactive([]);
 			const datas = reactive([]);
 			const prefs = reactive({
-				card_quantity: isZoteroDev ? 0 : Zotero.ZotCard.Prefs.get('card_quantity', Zotero.ZotCard.Consts.card_quantity),
-				note_background_color: isZoteroDev ? '' : Zotero.ZotCard.Notes.getNoteBGColor(),
-				startOfWeek: isZoteroDev ? 0 : Zotero.ZotCard.Prefs.get('startOfWeek', 0),
-				recently_move_collection_quantity: isZoteroDev ? 0 : Zotero.ZotCard.Prefs.get('config.recently_move_collection_quantity', 5),
-				enable_word_count: isZoteroDev ? 0 : Zotero.ZotCard.Prefs.get('enable_word_count', true),
+				card_quantity: ZotElementPlus.isZoteroDev ? 0 : Zotero.ZotCard.Prefs.get('card_quantity', Zotero.ZotCard.Consts.card_quantity),
+				note_background_color: ZotElementPlus.isZoteroDev ? '' : Zotero.ZotCard.Notes.getNoteBGColor(),
+				startOfWeek: ZotElementPlus.isZoteroDev ? 0 : Zotero.ZotCard.Prefs.get('startOfWeek', Zotero.ZotCard.Consts.startOfWeek.sunday),
+				word_count_style: ZotElementPlus.isZoteroDev ? 1 : Zotero.ZotCard.Prefs.get('word_count_style', Zotero.ZotCard.Consts.wordCountStyle.all),
+				recently_move_collection_quantity: ZotElementPlus.isZoteroDev ? 0 : Zotero.ZotCard.Prefs.get('config.recently_move_collection_quantity', 5),
+				enable_word_count: ZotElementPlus.isZoteroDev ? 0 : Zotero.ZotCard.Prefs.get('enable_word_count', true),
 			})
 			const preview = ref('');
 			const position = ref(-1);
@@ -89,7 +90,7 @@ window.onload = function() {
 
 				[...defCards].forEach(element => {
 					// { card: card, label: label, visible: visible }
-					var card = isZoteroDev ? {
+					var card = ZotElementPlus.isZoteroDev ? {
 						card: '11',
 						label: element,
 						default: 1,
@@ -104,7 +105,7 @@ window.onload = function() {
 
 				[...curCards].forEach(element => {
 					// { card: card, label: label, visible: visible }
-					var card = isZoteroDev ? {
+					var card = ZotElementPlus.isZoteroDev ? {
 						card: '11',
 						label: element,
 						default: 0,
@@ -119,17 +120,18 @@ window.onload = function() {
 			}
 
 			const _init = () => {
-				isZoteroDev || Zotero.Prefs.registerObserver('zotcard.card_quantity', function () {
+				ZotElementPlus.isZoteroDev || Zotero.Prefs.registerObserver('zotcard.card_quantity', function () {
 					var quantity = Zotero.ZotCard.Prefs.get('card_quantity', Zotero.ZotCard.Consts.card_quantity);
 					_loadDatas(quantity);
 				})
 
-				var quantity = isZoteroDev ? 1 : Zotero.ZotCard.Prefs.get('card_quantity', Zotero.ZotCard.Consts.card_quantity);
+				var quantity = ZotElementPlus.isZoteroDev ? 1 : Zotero.ZotCard.Prefs.get('card_quantity', Zotero.ZotCard.Consts.card_quantity);
 				_loadDatas(quantity);
 
 				_buildPreview(datas[0].card.card).then(e => {
 					preview.value = e;
 				});
+				ZotElementPlus.isZoteroDev || Zotero.ZotCard.Logger.log('inited.');
 			}
 
 			const handleMenuOpen = async (index) => {
@@ -139,7 +141,7 @@ window.onload = function() {
 				}
 			}
 
-			const handlePrefsInput = (pref, value) => {
+			const handlePrefsInput = ZotElementPlus.debounce((pref, value) => {
 				var goon = true;
 				switch (pref) {
 					case 'card_quantity':
@@ -164,20 +166,22 @@ window.onload = function() {
 				}
 
 				if (goon) {
-					Zotero.Prefs.set(`zotcard.${pref}`, value);
+					ZotElementPlus.isZoteroDev || Zotero.Prefs.set(`zotcard.${pref}`, value);
 				}
-			}
+			}, 1000);
 
 			const handleNoteBackgroundColorResetDefault = () => {
 				Zotero.ZotCard.Notes.noteBGColor();
 				prefs.note_background_color = '';
 			}
 
-			const handleTemplateInput = async () => {
+			const handleTemplateInput = ZotElementPlus.debounce(async () => {
 				let template = datas[position.value].card.card;
+				template = template.replace(/(<\/(h\d|p|div)+>)\n*/g, '$1\n');
+				datas[position.value].card.card = template;
 				preview.value = await _buildPreview(template);
 				Zotero.Prefs.set(`zotcard.${datas[position.value].type}`, template);
-			};
+			}, 1000);
 
 			const handleTemplateFocus = () => {
 				popover.chars = false;
@@ -189,16 +193,16 @@ window.onload = function() {
 				Zotero.Prefs.set(`zotcard.${datas[position.value].type}.visible`, datas[position.value].card.visible);
 			};
 
-			const handleLabelInput = () => {
+			const handleLabelInput = ZotElementPlus.debounce(() => {
 				Zotero.Prefs.set(`zotcard.${datas[position.value].type}.label`, datas[position.value].card.label);
-			};
+			}, 1000);
 
 			const handlePreview = async () => {
 				preview.value = await _buildPreview(datas[position.value].card.card);
 			};
 
 			const handleResetDefault = async () => {
-				if (Zotero.ZotCard.Messages.confirm(_l10n.formatValueSync('zotcard-reset-default'))) {
+				if (Zotero.ZotCard.Messages.confirm(undefined, _l10n.formatValueSync('zotcard-reset-default'))) {
 					var template;
 					if (Object.hasOwnProperty.call(Zotero.ZotCard.Cards, datas[position.value].type)) {
 						template = Zotero.ZotCard.Cards[datas[position.value].type].default;
@@ -340,9 +344,9 @@ window.onload = function() {
 						}, {
 							name: '\'', value: '&amp;apos;'
 						}, {
-							name: isZoteroDev ? '换行' : _l10n.formatValueSync('zotcard-preferences-line'), value: '<br/>'
+							name: ZotElementPlus.isZoteroDev ? '换行' : _l10n.formatValueSync('zotcard-preferences-line'), value: '<br/>'
 						}, {
-							name: isZoteroDev ? '分割线' :  _l10n.formatValueSync('zotcard-preferences-parting'), value: '<hr/>'
+							name: ZotElementPlus.isZoteroDev ? '分割线' :  _l10n.formatValueSync('zotcard-preferences-parting'), value: '<hr/>'
 						}, {
 							name: '⬇︎', value: '⬇︎'
 						}, {
@@ -550,17 +554,17 @@ window.onload = function() {
 						fields.push({
 							name: 'ZotCard',
 							values: [
-								{value: '${clipboardText}', name: isZoteroDev ? 'clipboardText' : _l10n.formatValueSync('zotcard-preferences-clipboardText')},
-								{value: '${today}', name: isZoteroDev ? 'today' : _l10n.formatValueSync('zotcard-preferences-today')},
-								{value: '${month}', name: isZoteroDev ? 'month' : _l10n.formatValueSync('zotcard-preferences-month')},
-								{value: '${dayOfYear}', name: isZoteroDev ? 'dayOfYear' : _l10n.formatValueSync('zotcard-preferences-dayOfYear')},
-								{value: '${weekOfYear}', name: isZoteroDev ? 'weekOfYear' : _l10n.formatValueSync('zotcard-preferences-weekOfYear')},
+								{value: '${clipboardText}', name: ZotElementPlus.isZoteroDev ? 'clipboardText' : _l10n.formatValueSync('zotcard-preferences-clipboardText')},
+								{value: '${today}', name: ZotElementPlus.isZoteroDev ? 'today' : _l10n.formatValueSync('zotcard-preferences-today')},
+								{value: '${month}', name: ZotElementPlus.isZoteroDev ? 'month' : _l10n.formatValueSync('zotcard-preferences-month')},
+								{value: '${dayOfYear}', name: ZotElementPlus.isZoteroDev ? 'dayOfYear' : _l10n.formatValueSync('zotcard-preferences-dayOfYear')},
+								{value: '${weekOfYear}', name: ZotElementPlus.isZoteroDev ? 'weekOfYear' : _l10n.formatValueSync('zotcard-preferences-weekOfYear')},
 								{value: '${week}', name: '星期几'},
 								{value: '${week_en}', name: 'Week(English)'},
-								{value: '${now}', name: isZoteroDev ? 'now' : _l10n.formatValueSync('zotcard-preferences-now')},
-								{value: '${text}', name: isZoteroDev ? 'text' : _l10n.formatValueSync('zotcard-preferences-text')},
-								{value: '${collectionName}', name: isZoteroDev ? 'collectionName' : _l10n.formatValueSync('zotcard-preferences-collectionName')},
-								{value: '${itemLink}', name: isZoteroDev ? 'itemLink' : _l10n.formatValueSync('zotcard-preferences-itemLink')},
+								{value: '${now}', name: ZotElementPlus.isZoteroDev ? 'now' : _l10n.formatValueSync('zotcard-preferences-now')},
+								{value: '${text}', name: ZotElementPlus.isZoteroDev ? 'text' : _l10n.formatValueSync('zotcard-preferences-text')},
+								{value: '${collectionName}', name: ZotElementPlus.isZoteroDev ? 'collectionName' : _l10n.formatValueSync('zotcard-preferences-collectionName')},
+								{value: '${itemLink}', name: ZotElementPlus.isZoteroDev ? 'itemLink' : _l10n.formatValueSync('zotcard-preferences-itemLink')},
 								{value: '${collectionLink}', name: isZoteroDev ? 'collectionLink' : _l10n.formatValueSync('zotcard-preferences-collectionLink')},
 								{value: '${year}', name: isZoteroDev ? 'year' : _l10n.formatValueSync('zotcard-preferences-year')},
 								{value: '${tags && tags.length > 0 ? tags.join(\',\') : \'\'}', name: isZoteroDev ? 'tags' : _l10n.formatValueSync('zotcard-preferences-tags')}]
@@ -593,6 +597,7 @@ window.onload = function() {
 			_init();
 
 			return {
+				ZotCardConsts,
 				datas,
 				prefs,
 				preview,

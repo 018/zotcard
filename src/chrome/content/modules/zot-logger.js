@@ -14,15 +14,15 @@ Zotero.ZotCard.Logger = Object.assign(Zotero.ZotCard.Logger, {
   
   log(message) {
     if (this.isDebug()) {
-      if (message === undefined) {
+      if (Zotero.ZotCard.Objects.isUndefined(message)) {
         this.debug('undefined');
-      } else if (message === null) {
+      } else if (Zotero.ZotCard.Objects.isNull(message)) {
         this.debug('null');
-      } else if (message === '') {
+      } else if (Zotero.ZotCard.Objects.isEmptyString(message)) {
         this.debug('');
-      } else if (message instanceof Object || typeof message === 'object') {
+      } else if (Zotero.ZotCard.Objects.isObject(message)) {
         this.debug(this._stringifyJSON(message));
-      } else if (message instanceof Array || typeof message === 'array') {
+      } else if (Zotero.ZotCard.Objects.isArray(message)) {
         this.debug('[' + message.join(', ') + ']');
       } else {
         this.debug(message);
@@ -32,15 +32,15 @@ Zotero.ZotCard.Logger = Object.assign(Zotero.ZotCard.Logger, {
   
   trace(name, value) {
     if (this.isDebug()) {
-      if (name === undefined) {
+      if (Zotero.ZotCard.Objects.isUndefined(value)) {
         this.debug('undefined');
-      } else if (name === null) {
+      } else if (Zotero.ZotCard.Objects.isNull(value)) {
         this.debug('null');
-      } else if (name === '') {
+      } else if (Zotero.ZotCard.Objects.isEmptyString(value)) {
         this.debug('');
-      } else if (value instanceof Object || typeof message === 'object') {
+      } else if (Zotero.ZotCard.Objects.isObject(value)) {
         this.debug(`${name} >>> ` + this._stringifyJSON(value));
-      } else if (value instanceof Array || typeof message === 'array') {
+      } else if (Zotero.ZotCard.Objects.isArray(value)) {
         this.debug(`${name} >>> [` + value.join(', ') + ']');
       } else {
         this.debug(`${name} >>> ${value}`);
@@ -50,9 +50,9 @@ Zotero.ZotCard.Logger = Object.assign(Zotero.ZotCard.Logger, {
   
 
   error(err) {
-    if (err instanceof Object) {
+    if (Zotero.ZotCard.Objects.isObject(err)) {
       Zotero.logError(`${this._outPrefix()} ${filename}:${line}@${method}: ` + JSON.stringify(err));
-    } else if (err instanceof Array) {
+    } else if (Zotero.ZotCard.Objects.isArray(err)) {
       Zotero.logError(`${this._outPrefix()} ${filename}:${line}@${method}: ` + '[' + err.join(', ') + ']');
     } else {
       Zotero.logError(err);
@@ -75,9 +75,9 @@ Zotero.ZotCard.Logger = Object.assign(Zotero.ZotCard.Logger, {
     var method, filename, line;
     for (let index = 0; index < array.length; index++) {
       const element = array[index];
-      if (!filename || filename == 'zotcard-logger.js') {
+      if (!filename || filename == 'zot-logger.js' || filename == 'zot-render-element-plus.js') {
         filename = this._parseRegExpGroup(/.*\/(.*?js)\:.*$/, element);
-        if (filename === 'zotcard-logger.js') {
+        if (filename === 'zot-logger.js' || filename == 'zot-render-element-plus.js') {
           continue;
         }
       }
@@ -109,7 +109,7 @@ Zotero.ZotCard.Logger = Object.assign(Zotero.ZotCard.Logger, {
       }
       filename = this._parseRegExpGroup(/.*\/(.*?js)\:.*$/, element);
 
-      if (filename === 'zotcard-logger.js') {
+      if (filename === 'zot-logger.js' || filename == 'zot-render-element-plus.js') {
         continue;
       }
 

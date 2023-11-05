@@ -1,8 +1,8 @@
 {
 	"manifest_version": 2,
 	"name": "ZotCard",
-	"version": "3.0.2",
-	"description": "写卡更柔顺，读卡更顺滑。",
+	"version": "3.0.3",
+	"description": "Writing card is more smooth, reading card is more smooth.",
 	"homepage_url": "https://github.com/018/zotcard",
 	"author": "018",
 	"icons": {

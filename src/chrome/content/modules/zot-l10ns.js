@@ -5,7 +5,7 @@ Zotero.ZotCard.L10ns = Object.assign(Zotero.ZotCard.L10ns, {
   _l10n: new Localization(["zotcard.ftl"], true),
   
 	init() {
-		Zotero.ZotCard.Logger.log('Zotero.ZotCard.Readers inited.');
+		Zotero.ZotCard.Logger.log('Zotero.ZotCard.L10ns inited.');
 	},
   
   getString(name, params) {

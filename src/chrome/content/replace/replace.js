@@ -38,7 +38,7 @@ function replace() {
   try {
     var zitems = getSelectedItems(['note'])
     if (!zitems || zitems.length <= 0) {
-      Zotero.ZotCard.Messages.warning(Zotero.ZotCard.L10ns.getString('zotcard.only_note'))
+      Zotero.ZotCard.Messages.warning(undefined, Zotero.ZotCard.L10ns.getString('zotcard.only_note'))
       return
     }
 
@@ -47,7 +47,7 @@ function replace() {
     var text = document.getElementById('replace_edit_text').value;
     var replaceto = document.getElementById('replace_edit_replaceto').value;
     if (zitems.length > 26 && (replaceto.includes('${a}') || replaceto.includes('${A}'))) {
-      Zotero.ZotCard.Messages.warning(Zotero.ZotCard.L10ns.getString('zotcard.replace.moreletter'))
+      Zotero.ZotCard.Messages.warning(undefined, Zotero.ZotCard.L10ns.getString('zotcard.replace.moreletter'))
       return
     }
     let count = 0
@@ -110,9 +110,9 @@ function replace() {
       }
     })
     
-    Zotero.ZotCard.Messages.success(Zotero.ZotCard.L10ns.getString('zotcard.replace.success', count))
+    Zotero.ZotCard.Messages.success(undefined, Zotero.ZotCard.L10ns.getString('zotcard.replace.success', count))
     return true
   } catch (error) {
-    Zotero.ZotCard.Messages.warning(error)
+    Zotero.ZotCard.Messages.warning(undefined, error)
   }
 }

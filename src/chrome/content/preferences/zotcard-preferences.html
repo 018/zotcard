@@ -8,13 +8,13 @@
 		<link rel="localization" href="zotcard-preferences.ftl"/>
 		<link rel="stylesheet" href="../modules/common.css" />
 		<link rel="stylesheet" href="../modules/element-plus.css" />
-		<script src="../modules/vue.global.js"></script>
-		<script src="../modules/element-plus.full.js"></script>
+		<script src="../modules/vue.global.prod.js"></script>
+		<script src="../modules/element-plus.js"></script>
 		<script src="../modules/element-plus-zh-cn.js"></script>
 		<script src="../modules/element-plus-en.js"></script>
 		<script src="../modules/element-plus-zh-tw.js"></script>
 		<script src="../modules/element-plus-icons.js"></script>
-		<script src="../modules/zotcard-element-plus.js"></script>
+		<script src="../modules/zot-render-element-plus.js"></script>
 		<script src="zotcard-preferences.js"></script>
 		<style>
 			body {
@@ -69,12 +69,12 @@
 		<div id="app">
 			<el-container>
 				<el-aside width="200px">
-					<el-menu :default-active="position.toString()">
-						<el-menu-item index="-1" @click="handleMenuOpen(-1)">
+					<el-menu :default-active="position">
+						<el-menu-item :index="-1" @click="handleMenuOpen(-1)">
 							<el-icon><Tools /></el-icon>
 							<span data-l10n-id="zotcard-preferences-general">常规</span>
 						</el-menu-item>
-						<el-menu-item :class="e.card.visible ? '' : 'disable'" v-for="(e, i) in datas" :index="i.toString()" @click="handleMenuOpen(i)">
+						<el-menu-item :class="e.card.visible ? '' : 'disable'" v-for="(e, i) in datas" :index="i" @click="handleMenuOpen(i)">
 							<el-icon><Credit-Card v-if="e.default"></Credit-Card><Edit v-else></Edit></el-icon>
 							<span>{{ e.card.label }}</span>
 						</el-menu-item>
@@ -95,7 +95,7 @@
 									<label data-l10n-id="zotcard-preferences-general-card-card_backgroundColor">卡片背景</label>
 								</template>
 								<el-space>
-										<el-color-picker v-model="prefs.note_background_color" @change="handlePrefsInput('note_background_color', prefs.note_background_color)">
+									<el-color-picker v-model="prefs.note_background_color" @change="handlePrefsInput('note_background_color', prefs.note_background_color)">
 									</el-color-picker>
 									<el-button size="small" @click="handleNoteBackgroundColorResetDefault" data-l10n-id="zotcard-preferences-revert_to_default">还原到默认</el-button>
 								</el-space>
@@ -106,16 +106,31 @@
 									<label data-l10n-id="zotcard-preferences-general-report-startOfWeek">开始日期</label>
 								</template>
 								<el-select v-model="prefs.startOfWeek" size="small" @change="handlePrefsInput('startOfWeek', prefs.startOfWeek)">
-									<el-option :value="0"><span data-l10n-id="zotcard-preferences-general-report-startOfWeek-Sun"></span></el-option>
-									<el-option :value="1"><span data-l10n-id="zotcard-preferences-general-report-startOfWeek-Sat"></span></el-option>
+									<el-option :value="ZotCardConsts.startOfWeek.sunday"><span data-l10n-id="zotcard-preferences-general-report-startOfWeek-Sun"></span></el-option>
+									<el-option :value="ZotCardConsts.startOfWeek.monday"><span data-l10n-id="zotcard-preferences-general-report-startOfWeek-Sat"></span></el-option>
 								</el-select>
 							</el-form-item>
 							<h1 data-l10n-id="zotcard-preferences-general-other">其他</h1>
 							<el-form-item>
 								<template #label>
-									<label data-l10n-id="zotcard-preferences-general-other-enable_word_count">开启卡片字数统计</label>
+									<label data-l10n-id="zotcard-preferences-general-other-enable_word_count">开启卡片字数统计1</label>
 								</template>
-								<el-switch size="small" v-model="prefs.enable_word_count" @change="handlePrefsInput('enable_word_count', prefs.enable_word_count)" />
+								<el-space direction="vertical" alignment="normal">
+									<el-switch size="small" v-model="prefs.enable_word_count" @change="handlePrefsInput('enable_word_count', prefs.enable_word_count)"></el-switch>
+									<span class="text-color-placeholder" data-l10n-id="zotcard-preferences-general-other-enable_word_count_message">设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后...</span>
+								</el-space>
+							</el-form-item>
+							<el-form-item>
+								<template #label>
+									<label data-l10n-id="zotcard-preferences-general-other-word_count_style">卡片字数统计样式1</label>
+								</template>
+								<el-space direction="vertical" alignment="normal">
+									<el-select v-model="prefs.word_count_style" size="small" @change="handlePrefsInput('word_count_style', prefs.word_count_style)">
+										<el-option :value="ZotCardConsts.wordCountStyle.all"><span data-l10n-id="zotcard-preferences-general-other-wordCountStyle-all"></span></el-option>
+										<el-option :value="ZotCardConsts.wordCountStyle.onlyWords"><span data-l10n-id="zotcard-preferences-general-other-wordCountStyle-onlyWords"></span></el-option>
+									</el-select>
+									<span class="text-color-placeholder" data-l10n-id="zotcard-preferences-general-other-word_count_style_message">设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后...</span>
+								</el-space>
 							</el-form-item>
 							<el-form-item>
 								<template #label>

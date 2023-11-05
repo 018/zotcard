@@ -19,7 +19,7 @@ function onload () {
     document.getElementById('textbox').value = note.getNote()
     window.sizeToContent()
   } else {
-    Zotero.ZotCard.Messages.warning('Error id。')
+    Zotero.ZotCard.Messages.warning(undefined, 'Error id。')
     window.close()
   }
 }

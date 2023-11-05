@@ -3,7 +3,7 @@ if (!Zotero.ZotCard.Selfs) Zotero.ZotCard.Selfs = {};
 
 Zotero.ZotCard.Selfs = Object.assign(Zotero.ZotCard.Selfs, {
 	id: null,
-  name: null,
+  	name: null,
 	version: null,
 	rootURI: null,
 

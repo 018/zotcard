@@ -1,7 +1,8 @@
-
-
 zotero-zotcard =
     .label = ZotCard
+zotero-zotcard-card-manager =
+    .label = 卡片管理器
+zotero-zotcard-card-manager-title = 卡片管理器
 
 zotcard-quotescard = 金句卡
 zotcard-conceptcard = 概念卡
@@ -14,7 +15,7 @@ zotcard-generalcard = 短文卡
 
 
 zotcard-words = 字数：
-zotcard-words-title = 中文{ $cn_words }(占{ $cn_scale })  英文{ $en_words }(占{ $en_scale })  数字{ $num_words }(占{ $num_scale })  其他{ $other_words }(占{ $other_scale })
+zotcard-words-title ={ $words }，其中中文{ $cn_words }(占{ $cn_scale })、英文{ $en_words }(占{ $en_scale })、数字{ $num_words }(占{ $num_scale })、其他{ $other_words }(占{ $other_scale })。
 zotcard-lines = 行数：
 zotcard-sizes = 占空间：
 zotcard-sizes-contentscale = 内容比
@@ -27,6 +28,28 @@ zotcard-newstandalone = 新建独立 { $type }
 zotcard-newstandalone-batch = 批量建卡
 zotcard-newitem-batch = 批量建卡
 zotcard-newpane-batch = 批量建卡
+
+
+zotcard-trash = 确定要将卡片移动到回收站吗？
+zotcard-pleas_select_card = 请选择卡片。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 zotero-zotcard-readcard =

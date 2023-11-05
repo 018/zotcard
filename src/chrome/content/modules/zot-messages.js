@@ -3,23 +3,23 @@ if (!Zotero.ZotCard.Messages) Zotero.ZotCard.Messages = {};
 
 Zotero.ZotCard.Messages = Object.assign(Zotero.ZotCard.Messages, {
 	init() {
-		Zotero.ZotCard.Logger.log('Zotero.ZotCard.Readers inited.');
+		Zotero.ZotCard.Logger.log('Zotero.ZotCard.Messages inited.');
 	},
 
-  warning(message) {
-    Zotero.alert(null, Zotero.getString('general.warning'), message)
+  warning(window, message) {
+    Zotero.alert(window || Zotero.getMainWindow(), Zotero.getString('general.warning'), message);
   },
 
-  success(message) {
-    Zotero.alert(null, Zotero.getString('general.success'), message)
+  success(window, message) {
+    Zotero.alert(window || Zotero.getMainWindow(), Zotero.getString('general.success'), message);
   },
 
-  error(message) {
-    Zotero.alert(null, Zotero.getString('general.error'), message)
+  error(window, message) {
+    Zotero.alert(window || Zotero.getMainWindow(), Zotero.getString('general.error'), message);
   },
 
-  confirm(message) {
+  confirm(window, message) {
     var ps = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
-    return ps.confirm(null, Zotero.getString('general.warning'), message)
+    return ps.confirm(window || Zotero.getMainWindow(), Zotero.getString('general.warning'), message);
   }
 });

@@ -5,20 +5,10 @@ function install() {
 }
 
 async function startup({ id, version, rootURI }) {
-	Services.scriptloader.loadSubScript(rootURI + 'chrome/content/modules/moment.min.js');
-	
-    Services.scriptloader.loadSubScript(rootURI + '/chrome/content/modules/zot-selfs.js');
-    Zotero.ZotCard.Selfs.init({ id, version, rootURI });
-	
-	Services.scriptloader.loadSubScript(rootURI + 'chrome/content/modules/zot-logger.js');
-	Zotero.ZotCard.Logger.log("loadSubScript zot-logger.js");
-	Zotero.ZotCard.Logger.init();
-	Zotero.ZotCard.Logger.log(rootURI);
-
 	Services.scriptloader.loadSubScript(rootURI + '/chrome/content/modules/zot-include.js', { id, version, rootURI });
 	Zotero.ZotCard.Logger.log("loadSubScript zot-include.js");
-	Services.scriptloader.loadSubScript(rootURI + '/chrome/content/cardsearcher.js');
-	Zotero.ZotCard.Logger.log("loadSubScript zot-cardsearcher.js");
+	
+	Zotero.ZotCard.Logger.log(rootURI);
 	
 	Zotero.PreferencePanes.register({
 		pluginID: id,
@@ -65,6 +55,9 @@ async function startup({ id, version, rootURI }) {
     Services.scriptloader.loadSubScript(rootURI + 'zotcard-cards.js');
     Zotero.ZotCard.Logger.log("loadSubScript zotcard-cards.js");
 
+    Services.scriptloader.loadSubScript(rootURI + 'zotcard-dialog.js');
+    Zotero.ZotCard.Logger.log("loadSubScript zotcard-dialog.js");
+	
 	Services.scriptloader.loadSubScript(rootURI + 'zotcard.js');
 	Zotero.ZotCard.Logger.log("loadSubScript zotcard.js");
 	Zotero.ZotCard.init({ id, version, rootURI });

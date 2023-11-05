@@ -5,7 +5,7 @@ var options = {}
 /*{
   libraryID: 0,
   name: '',
-  type: '', // collection|savedSearch|library
+  type: '', // collection|search|library
   key: '' // user|group|...
 }*/
 var io = Zotero.getMainWindow().Zotero.ZotCard.report

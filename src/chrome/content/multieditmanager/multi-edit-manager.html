@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title data-l10n-id="zotcard-multi-edit-manager"></title>
+	<script src="chrome://zotero/content/include.js"></script>
+	<link rel="localization" href="zotcard.ftl" />
+	<link rel="localization" href="multi-edit-manager.ftl" />
+	<link rel="stylesheet" href="../modules/common.css" />
+	<link rel="stylesheet" href="../modules/element-plus.css" />
+	<script src="../modules/vue.global.prod.js"></script>
+	<script src="../modules/element-plus.js"></script>
+	<script src="../modules/element-plus-zh-cn.js"></script>
+	<script src="../modules/element-plus-en.js"></script>
+	<script src="../modules/element-plus-zh-tw.js"></script>
+	<script src="../modules/element-plus-icons.js"></script>
+	<script src="../modules/zot-render-element-plus.js"></script>
+	<script src="multi-edit-manager.js"></script>
+	<style>
+		body {
+			font-size: 12px;
+			padding: 10px;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="app">
+		<p>{{ current_open }}</p>
+		<el-form size="small" label-width="80px">
+			<el-form-item>
+				<template #label>
+					<label data-l10n-id="zotcard-multi-edit-manager-columns">列数1</label>
+				</template>
+				<el-input-number size="small" v-model="columns" :min="1" :max="30" @change="handleChange" />
+			</el-form-item>
+			<el-form-item>
+				<template #label>
+					<label data-l10n-id="zotcard-multi-edit-manager-rows">行数1</label>
+				</template>
+				<el-input-number size="small" v-model="rows" :min="1" :max="30" @change="handleChange" />
+			</el-form-item>
+		</el-form>
+
+		<el-space wrap class="el-link-text">
+			<el-link :underline="false" @click="handleTools('adjust')">
+				<span data-l10n-id="zotcard-multi-edit-manager-adjust">重新调整</span>
+			</el-link>
+			<el-link :underline="false" @click="handleTools('closeall')">
+				<span data-l10n-id="zotcard-multi-edit-manager-closeall">全部关闭</span>
+			</el-link>
+			<el-link :underline="false" @click="handleTools('close')">
+				<span data-l10n-id="zotcard-multi-edit-manager-close">关闭本窗口</span>
+			</el-link>
+		</el-space>
+	</div>
+</body>
+
+</html>

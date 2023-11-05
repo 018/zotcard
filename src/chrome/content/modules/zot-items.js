@@ -3,12 +3,50 @@ if (!Zotero.ZotCard.Items) Zotero.ZotCard.Items = {};
 
 Zotero.ZotCard.Items = Object.assign(Zotero.ZotCard.Items, {
 	init() {
-		Zotero.ZotCard.Logger.log('Zotero.ZotCard.Readers inited.');
+		Zotero.ZotCard.Logger.log('Zotero.ZotCard.Items inited.');
 	},
 
   isUserLibraryItem(key) {
     return Zotero.Items.getIDFromLibraryAndKey(Zotero.Libraries.userLibraryID, key);
   },
+
+  getZoteroUrl(key) {
+    return `zotero://select/library/items/${key}`;
+  },
+
+  links(itemID) {
+    let links = [];
+    let item = Zotero.Items.get(itemID);
+    if (item.getCollections().length === 0) {
+        links.push({type: 'library', dataObject: Zotero.Libraries.get(item.libraryID)});
+    } else {
+        let collectionID = item.getCollections()[0];
+        links.push(...Zotero.ZotCard.Collections.links(collectionID));
+    }
+    links.push({type: item.isRegularItem() ? 'item' : item.itemType, dataObject: item});
+    return links;
+  },
+
+  // selectedItemsLinks(itemID) {
+  //   let item = Zotero.Items.get(itemID);
+	// 	let libraryID = Zotero.getMainWindow().ZoteroPane.getSelectedLibraryID();
+	// 	let collection = Zotero.getMainWindow().ZoteroPane.getSelectedCollection();
+	// 	let search = Zotero.getMainWindow().ZoteroPane.getSelectedSavedSearch();
+
+  //   let links = [];
+	// 	if (collection) {
+  //     links.push(...Zotero.ZotCard.Collections.links(collection.id));
+	// 	} else if(search) {
+  //     links.push({type: 'library', ...Zotero.Libraries.get(libraryID)});
+  //     links.push({type: 'search', ...search});
+  //     links.push({type: 'item', ...item});
+	// 	} else {
+  //     links.push({type: 'library', ...Zotero.Libraries.get(libraryID)});
+  //     links.push({type: 'item', ...item});
+	// 	}
+    
+  //   return links;
+  // },
 
   getSelectedItems(itemType) {
     var zitems = Zotero.getMainWindow().ZoteroPane.getSelectedItems();
@@ -25,6 +63,19 @@ Zotero.ZotCard.Items = Object.assign(Zotero.ZotCard.Items, {
     } else {
       return zitems;
     }
+  },
+
+  selectItem(collectionID, itemID) {
+    Zotero.ZotCard.Collections.selectCollection(collectionID).then(() => {
+      Zotero.getMainWindow().ZoteroPane.selectItem(itemID);
+    });
+  },
+
+  selectItemFromLibraryAndKey(libraryID, collectionKey, key) {
+    let item = Zotero.Items.getIDFromLibraryAndKey(libraryID, key);
+    Zotero.ZotCard.Collections.selectCollectionFromLibraryAndKey(libraryID, collectionKey).then(() => {
+      Zotero.getMainWindow().ZoteroPane.selectItem(item.id);
+    });
   },
   
   getSelectedItemTypes() {
@@ -72,16 +123,6 @@ Zotero.ZotCard.Items = Object.assign(Zotero.ZotCard.Items, {
     }
   
     return matchBool
-  },
-  
-  getZoteroItemUrl(key) {
-    if (this.isUserLibraryItem(key)) {
-      return `zotero://select/library/items/${key}`
-    } else {
-      var groupID = this.getGroupIDByKey(key)
-      
-      return `zotero://select/groups/${groupID}/items/${key}`
-    }
   },
   
   _siftItems(itemArray, itemTypeArray) {
