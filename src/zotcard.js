@@ -705,17 +705,17 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 			items = [{
 				type: Zotero.ZotCard.Consts.cardManagerType.collection,
 				id: collection.id
-			}]
+			}];
 		} else if(search) {
 			items = [{
 				type: Zotero.ZotCard.Consts.cardManagerType.search,
 				id: search.id
-			}]
+			}];
 		} else {
 			items = [{
 				type: Zotero.ZotCard.Consts.cardManagerType.library,
 				id: libraryID
-			}]
+			}];
 		}
 		
 		Zotero.ZotCard.Dialogs.openCardManagerTab(items);
@@ -728,13 +728,13 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		selectedItems.forEach(item => {
 			if (item.isNote()) {
 				items.push({
-					collectionID: collection.id,
+					collectionID: collection ? collection.id : undefined,
 					type: Zotero.ZotCard.Consts.cardManagerType.note,
 					id: item.id
 				});
 			} else if (item.isRegularItem()) {
 				items.push({
-					collectionID: collection.id,
+					collectionID: collection ? collection.id : undefined,
 					type: Zotero.ZotCard.Consts.cardManagerType.item,
 					id: item.id
 				});

@@ -824,7 +824,7 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 		return excludeCollectionKeys;
 	},
 
-	loadCardNote(card, item) {
+	async loadCardNote(card, item) {
 		if (card.noteLoaded) {
 			return;
 		}
@@ -836,9 +836,45 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 		card.note.title = item.getNoteTitle();
 		card.note.contentHtml = Zotero.ZotCard.Notes.noteToContent(html);
 		card.note.text = Zotero.ZotCard.Notes.htmlToText(html);
-		card.note.html = html.replaceAll('<a ', '<a onclick="Zotero.launchURL(event.target.href)" ');
-		// Zotero.ZotCard.Logger.log(card.note.html);
+		card.note.html = html;
+		// card.note.contentHtml = card.note.contentHtml.replaceAll('<a ', '<a onclick="Zotero.debug(event.target.href)" ');
+		// Zotero.ZotCard.Logger.log(card.note.contentHtml);
+		let matchs = card.note.contentHtml.match(/data-attachment-key=\"(.*?)\"/g);
+		if (matchs && matchs.length > 0) {
+			for (let index = 0; index < matchs.length; index++) {
+				let element = matchs[index];
+				let ms = element.match(/data-attachment-key=\"(.*?)\"/);
+				if (ms) {
+					element = ms[1];
+					setTimeout((card, item, element) => {
+						Zotero.ZotCard.Logger.log(item.libraryID + ', ' + element);
+						let attachment = Zotero.Items.getByLibraryAndKey(item.libraryID, element);
+						if (attachment && attachment.parentID == item.id) {
+							attachment.attachmentDataURI.then(dataURI => {
+								card.note.contentHtml = card.note.contentHtml.replaceAll('data-attachment-key="' + element + '"', 'data-attachment-key="' + element + '" src="' + dataURI + '"');
+								Zotero.ZotCard.Logger.log(`attachment ${item.libraryID}, ${element} replace.`);
+							});
+						} else {
+							Zotero.ZotCard.Logger.log(`attachment ${item.libraryID}, ${element} not exists.`);
+						}
+					}, 50, card, item, element);
+				}
+			}
+		}
 		
+// 		`<div data-schema-version="8"><h1>E.cb01a - 条件三段论-1</h1>
+// <p> 提出者：亚里士多德</p>
+// <p> 解释：大前提的形式为“如果p，那么q”。</p>
+// <p> 描述：</p>
+// <p><img alt="" data-attachment-key="99MUNSUJ" width="248" height="111"></p>
+// <p>&nbsp;&nbsp;&nbsp; - 肯定前件：p，所以q。有效。</p>
+// <p>&nbsp;&nbsp;&nbsp; - 否定后件：非q，所以非p。有效。</p>
+// <p>&nbsp;&nbsp;&nbsp; - 肯定后件：q，所以p。无效。</p>
+// <p>&nbsp;&nbsp;&nbsp; - 否定前件：非p，非q。无效。</p>
+// <p><img alt="" data-attachment-key="99MUNSUJ" width="248" height="111"></p>
+// <p>&nbsp;</p>
+// </div>`.match(/data-attachment-key=\".*?\"/g)
+
 		let dateAdded = item.getField('dateAdded');
 		let dateModified = item.getField('dateModified');
 		card.note.dateAdded = dateAdded ? Zotero.ZotCard.DateTimes.sqlToDate(dateAdded, Zotero.ZotCard.DateTimes.yyyyMMddHHmmss) : '';

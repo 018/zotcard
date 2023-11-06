@@ -9,7 +9,7 @@ window.onload = function() {
 		if (template) {
 			var items = ZotElementPlus.isZoteroDev ? [] : Zotero.ZotCard.Items.getSelectedItems('regular');
 			let item;
-			if (!items || items.length <= 0) {      
+			if (!items || items.length <= 0) {
 				let allitems = ZotElementPlus.isZoteroDev ? [] : (await Zotero.Items.getAll(Zotero.Libraries.userLibraryID, true));
 				for (let index = 0; index < allitems.length; index++) {
 					const e = allitems[index];
@@ -550,6 +550,7 @@ window.onload = function() {
 				if (popover.fields) {
 					popover.emojis = false;
 					popover.chars = false;
+					
 					if (fields.length === 0) {
 						fields.push({
 							name: 'ZotCard',
@@ -565,16 +566,16 @@ window.onload = function() {
 								{value: '${text}', name: ZotElementPlus.isZoteroDev ? 'text' : _l10n.formatValueSync('zotcard-preferences-text')},
 								{value: '${collectionName}', name: ZotElementPlus.isZoteroDev ? 'collectionName' : _l10n.formatValueSync('zotcard-preferences-collectionName')},
 								{value: '${itemLink}', name: ZotElementPlus.isZoteroDev ? 'itemLink' : _l10n.formatValueSync('zotcard-preferences-itemLink')},
-								{value: '${collectionLink}', name: isZoteroDev ? 'collectionLink' : _l10n.formatValueSync('zotcard-preferences-collectionLink')},
-								{value: '${year}', name: isZoteroDev ? 'year' : _l10n.formatValueSync('zotcard-preferences-year')},
-								{value: '${tags && tags.length > 0 ? tags.join(\',\') : \'\'}', name: isZoteroDev ? 'tags' : _l10n.formatValueSync('zotcard-preferences-tags')}]
+								{value: '${collectionLink}', name: ZotElementPlus.isZoteroDev ? 'collectionLink' : _l10n.formatValueSync('zotcard-preferences-collectionLink')},
+								{value: '${year}', name: ZotElementPlus.isZoteroDev ? 'year' : _l10n.formatValueSync('zotcard-preferences-year')},
+								{value: '${tags && tags.length > 0 ? tags.join(\',\') : \'\'}', name: ZotElementPlus.isZoteroDev ? 'tags' : _l10n.formatValueSync('zotcard-preferences-tags')}]
 						});
-						const itemFields =  isZoteroDev ? [] : Zotero.ItemFields.getAll().map(element => {
+						const itemFields =  ZotElementPlus.isZoteroDev ? [] : Zotero.ItemFields.getAll().map(element => {
 							let value = '${' + element.name + '}';
 							let name = (Zotero.ItemFields.getLocalizedString(element.name) + `(${element.name})`) || element.name;
 							return {value, name};
 						});
-						const CreatorTypes = isZoteroDev ? [] : Zotero.CreatorTypes.getTypes().map(element => {
+						const CreatorTypes = ZotElementPlus.isZoteroDev ? [] : Zotero.CreatorTypes.getTypes().map(element => {
 							let value = '${' + element.name + 's}';
 							let name = (Zotero.CreatorTypes.getLocalizedString(element.name) + `(${element.name}s)`) || element.name;
 							return {value, name};

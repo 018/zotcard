@@ -24,11 +24,11 @@ Zotero.ZotCard.Dialogs = Object.assign(Zotero.ZotCard.Dialogs, {
 				dataIn: items
 			},
 			select: true,
-			preventJumpback: true
+			preventJumpback: false
 		});
 		
 		let iframe = Zotero.getMainWindow().document.createXULElement('browser');
-		iframe.setAttribute('class', 'reader');
+		iframe.setAttribute('class', 'card-manager');
 		iframe.setAttribute('flex', '1');
 		iframe.setAttribute('type', 'content');
 		iframe.setAttribute('src', 'chrome://zotcard/content/cardmanager/card-manager.html');

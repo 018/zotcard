@@ -29,7 +29,7 @@ dataIn.forEach(element => {
   switch (element.type) {
     case Zotero.ZotCard.Consts.cardManagerType.library:
       // library
-      let library = Zotero.Collections.get(element.id);
+      let library = Zotero.Libraries.get(element.id);
       if (Zotero.ZotCard.Objects.isNullOrUndefined(library)) {
         ZotElementPlus.Console.log('The libraryID ' + element.id + ' is incorrect.');
       }
@@ -68,7 +68,7 @@ dataIn.forEach(element => {
         }));
         pIDs1.push('item-' + element.id);
       } else {
-        pIDs1.push(Zotero.ZotCard.Items.links(element.id).map(e => {
+        pIDs1.push(...Zotero.ZotCard.Items.links(element.id).map(e => {
           return e.type + '-' + e.dataObject.id
         }));
       }
@@ -87,9 +87,9 @@ dataIn.forEach(element => {
         pIDs2.push(...Zotero.ZotCard.Collections.links(element.collectionID).map(e => {
           return e.type + '-' + e.dataObject.id
         }));
-        pIDs2.push('item-' + element.id);
+        pIDs2.push('note-' + element.id);
       } else {
-        pIDs2.push(Zotero.ZotCard.Notes.links(element.id).map(e => {
+        pIDs2.push(...Zotero.ZotCard.Notes.links(element.id).map(e => {
           return e.type + '-' + e.dataObject.id
         }));
       }
