@@ -28,8 +28,6 @@ zotcard-card-manager-toolbar-expand-title =
     .title = 展开
 zotcard-card-manager-toolbar-zotero-title =
     .title = 在Zotero定位
-zotcard-card-manager-toolbar-zotero-title =
-    .title = 在Zotero定位
 zotcard-card-manager-toolbar-window-title =
     .title = 独立新窗口打开
 zotcard-card-manager-toolbar-showorhide-title = 
@@ -117,5 +115,8 @@ zotcard-card-manager-show_card_viewer-all = 全选
 zotcard-card-manager-show_card_viewer-random = 随机选择
 zotcard-card-manager-show_card_viewer-selectbefore = 选择前
 zotcard-card-manager-show_card_viewer-selectafter = 选择后
+
+zotcard-card-manager-nodata = 请先在这里选择文献库：
+zotcard-card-manager-nofilterdata = 总卡片数：{ $total }，筛选暂无数据。
 
 

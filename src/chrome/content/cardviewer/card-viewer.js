@@ -101,7 +101,6 @@ if (!io) {
                         let index = cards.findIndex(e => e.id === id);
                         index > -1 && cards.splice(index, 1);
 
-
                         renders.total = cards.length;
                         renders.loads = Math.min(renders.loads, renders.total);
                         renders.currentIndex = Math.min(renders.currentIndex, renders.total - 1);
@@ -277,6 +276,7 @@ if (!io) {
               break;
           }
           Zotero.getMainWindow().focus();
+          Zotero.getMainWindow().Zotero_Tabs.select('zotero-pane');
         }
 
         const handleOrderby = ZotElementPlus.debounce((orderby) => {
@@ -286,7 +286,10 @@ if (!io) {
               let random1 = parseInt(Math.random() * (cards.length));
               let random2 = parseInt(Math.random() * (cards.length));
               Zotero.ZotCard.Utils.swap(cards, random1, random2);
-            }
+            }times
+          } else if (orderby === 'times') {
+            filters.desc = !filters.desc;
+            cards.sort((card1, card2) => Zotero.ZotCard.Cards.compare(card1.extras ? card1.extras.time : 0, card2.extras ? card2.extras.time : 0, filters.desc));
           } else {
             filters.desc = !filters.desc;
             Zotero.ZotCard.Cards.sort(cards, filters);

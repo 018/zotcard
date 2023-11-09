@@ -8,3 +8,4 @@ zotcard-card-manager-ui-style-card = 卡片
 zotcard-card-manager-ui-style-tiled = 平铺
 
 zotcard-card-manager-random = 随机
+zotcard-card-manager-times = 计时

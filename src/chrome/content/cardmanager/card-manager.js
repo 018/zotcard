@@ -53,7 +53,6 @@ window.onload = async function () {
       const ZotCardConsts = reactive(Zotero.ZotCard.Consts);
       const allCards = reactive([]);
       const cards = reactive([]);
-      const scrollCards = reactive([]);
       let saveFilters = Zotero.ZotCard.Prefs.getJson('cardmgr.savefilters', []);
       const renders = reactive({
         drawer: false,
@@ -349,6 +348,7 @@ window.onload = async function () {
         parseWords: cardmgrProfiles.parseWords,
       });
       const total = ref(0);
+      const loads = ref(0);
       const moreLoadeds = ref(0);
       const scroll = reactive({
         disabled: false,
@@ -384,13 +384,13 @@ window.onload = async function () {
                     ids.forEach(id => {
                       let index = allCards.findIndex(e => e.id === id);
                       index > -1 && allCards.splice(index, 1);
+                      total.value = allCards.length;
                       
                       index = cards.findIndex(e => e.id === id);
                       if (index > -1) {
                         cards.splice(index, 1);
-                        if (cards.length < scrollCards.length) {
-                          scrollCards.splice(scrollCards.length - 1, 1);
-                        }
+                        loads.value = Math.min(loads.value, cards.length);
+                        Zotero.ZotCard.Logger.log('load: ' + loads.value);
                       }
                     });
                     break;
@@ -436,10 +436,8 @@ window.onload = async function () {
       function _filter() {
         loading.visible = true;
         Zotero.ZotCard.Cards.filter(allCards, cards, filters);
-        scrollCards.splice(0);
-        for (let index = 0; index < _pagesize && index < cards.length; index++) {
-          scrollCards.push(index);
-        }
+        loads.value = Math.min(_pagesize, cards.length);
+        Zotero.ZotCard.Logger.log('load: ' + loads.value);
         scroll.disabled = false;
         loading.close();
       }
@@ -976,14 +974,10 @@ window.onload = async function () {
 
       async function loadMore() {
         scroll.loading = true;
-        await nextTick();
-        let initLength = scrollCards.length;
-        for (let index = initLength; (index < initLength + _pagesize) && index < cards.length; index++) {
-          scrollCards.push(index);
-        }
-        scroll.disabled = scrollCards.length === cards.length;
+        loads.value = Math.min(cards.length, loads.value + _pagesize);
+        Zotero.ZotCard.Logger.log('load: ' + loads.value);
+        scroll.disabled = loads.value === cards.length;
         scroll.loading = false;
-        await nextTick();
       }
 
       function handleLink(type, id) {
@@ -1005,6 +999,7 @@ window.onload = async function () {
             break;
         }
         Zotero.getMainWindow().focus();
+				Zotero.getMainWindow().Zotero_Tabs.select('zotero-pane');
       }
 
       function handelCardViewerPopoverChagne() {
@@ -1013,7 +1008,7 @@ window.onload = async function () {
             renders.cardViewerPopover.total = cards.length;
             break;
           case 'random':
-            renders.cardViewerPopover.total = cards.length / 2;
+            renders.cardViewerPopover.total = parseInt(cards.length / 2);
             break;
           case 'selectbefore':
             renders.cardViewerPopover.total = Math.min(5, cards.length);
@@ -1069,8 +1064,8 @@ window.onload = async function () {
         Zotero.ZotCard.Dialogs.openCardViewerWithCards(_cards);
       }
 
-      function l10n(key) {
-        return _l10n.formatValueSync(key);
+      function l10n(key, params) {
+        return params ? _l10n.formatValueSync(key, params) : _l10n.formatValueSync(key);
       }
 
       _init();
@@ -1078,7 +1073,6 @@ window.onload = async function () {
       return {
         ZotCardConsts,
         cards,
-        scrollCards,
         profiles,
         renders,
         filters,
@@ -1086,6 +1080,7 @@ window.onload = async function () {
         scroll,
         moreLoadeds,
         total,
+        loads,
         handleOrderby,
         handleLink,
         loadMore,

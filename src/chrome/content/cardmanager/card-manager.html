@@ -212,6 +212,10 @@
 		.help {
 			font-size: 12px;
 		}
+		.nodata {
+			font-size: 12px;
+			color: var(--el-text-color-placeholder) !important;
+		}
 	</style>
 </head>
 
@@ -360,43 +364,43 @@
 		<el-progress v-if="moreLoadeds < total" :percentage="moreLoadeds * 100.0 / total" :show-text="false" :stroke-width="2"></el-progress>
 
 		<!-- cards -->
-		<div v-if="scrollCards.length > 0">
+		<div v-if="cards.length > 0">
 			<el-space v-infinite-scroll="loadMore" :infinite-scroll-disabled="scroll.disabled" class="main" wrap direction="horizontal"  alignment="flex-start" :prefix-cls="'card' + profiles.columns">
-				<el-card v-for="(index) in scrollCards" :body-style="{ height: (cards[index].isExpand ? profiles.height + 'px' : 0), fontSize: profiles.contentFontSize + 'px' }" :key="cards[index].id" v-loading="!cards[index].noteLoaded" :shadow="cards[index].isShow ? 'always' : 'never'" :class="(cards[index].isSelected ? 'is-selected' : '') + ' ' + (!cards[index].isShow ? 'is-hide' : '')">
+				<el-card v-for="n in loads" :body-style="{ height: (cards[n - 1].isExpand ? profiles.height + 'px' : 0), fontSize: profiles.contentFontSize + 'px' }" :key="cards[n - 1].id" v-loading="!cards[n - 1].noteLoaded" :shadow="cards[n - 1].isShow ? 'always' : 'never'" :class="(cards[n - 1].isSelected ? 'is-selected' : '') + ' ' + (!cards[n - 1].isShow ? 'is-hide' : '')">
 					<template #header>
 						<div class="card-header">
-							<h1 class="title fill single-line" :style="{ fontSize: profiles.titleFontSize + 'px' }" @click="handleTitle(cards[index])" :title="cards[index].note.title"><zot-text :text="cards[index].note.title"></zot-text></h1>
+							<h1 class="title fill single-line" :style="{ fontSize: profiles.titleFontSize + 'px' }" @click="handleTitle(cards[n - 1])" :title="cards[n - 1].note.title"><zot-text :text="cards[n - 1].note.title"></zot-text></h1>
 							<el-space>
-								<el-link :type="cards[index].isShow ? 'success' : 'info'" :icon="cards[index].isShow ? 'View' : 'Hide'" :underline="false" @click="handleCardTools('show', cards[index])" data-l10n-id="zotcard-card-manager-toolbar-showorhide-title"></el-link>
-								<el-link :type="cards[index].isSelected ? 'success' : 'info'" :icon="cards[index].isSelected ? 'CircleCheckFilled' : 'CircleCheck'" :underline="false" @click="handleCardTools('selected', cards[index])" data-l10n-id="zotcard-card-manager-toolbar-selectedorunselected-title"></el-link>
+								<el-link :type="cards[n - 1].isShow ? 'success' : 'info'" :icon="cards[n - 1].isShow ? 'View' : 'Hide'" :underline="false" @click="handleCardTools('show', cards[n - 1])" data-l10n-id="zotcard-card-manager-toolbar-showorhide-title"></el-link>
+								<el-link :type="cards[n - 1].isSelected ? 'success' : 'info'" :icon="cards[n - 1].isSelected ? 'CircleCheckFilled' : 'CircleCheck'" :underline="false" @click="handleCardTools('selected', cards[n - 1])" data-l10n-id="zotcard-card-manager-toolbar-selectedorunselected-title"></el-link>
 							</el-space>
 						</div>
 					</template>
-					<el-carousel style="height: 100%;" v-if="cards[index].isExpand" :autoplay="false" :loop="false"
-						@change="(idx) => handleCarouselChange(idx, cards[index])">
+					<el-carousel style="height: 100%;" v-if="cards[n - 1].isExpand" :autoplay="false" :loop="false"
+						@change="(idx) => handleCarouselChange(idx, cards[n - 1])">
 						<!-- card content -->
 						<el-carousel-item>
 							<div class="card-tools">
 								<el-space wrap alignment="center">
 									<el-link :underline="false"
-										@click="handleCardTools('edit', cards[index])" data-l10n-id="zotcard-card-manager-toolbar-edit-title"><el-icon><Edit-Pen /></el-icon></el-link>
+										@click="handleCardTools('edit', cards[n - 1])" data-l10n-id="zotcard-card-manager-toolbar-edit-title"><el-icon><Edit-Pen /></el-icon></el-link>
 									<el-link :underline="false"
-										@click="handleCardTools('delete', cards[index])" data-l10n-id="zotcard-card-manager-toolbar-delete-title"><el-icon>
+										@click="handleCardTools('delete', cards[n - 1])" data-l10n-id="zotcard-card-manager-toolbar-delete-title"><el-icon>
 											<Delete />
 										</el-icon></el-link>
 									<el-dropdown>
 										<el-icon><Document-Copy /></el-icon>
 										<template #dropdown>
 											<el-dropdown-menu>
-												<el-dropdown-item @click="handleCardTools('copy-content', cards[index])"><span data-l10n-id="zotcard-card-manager-toolbar-copy-content">拷贝内容1</span></el-dropdown-item>
-												<el-dropdown-item @click="handleCardTools('copy-text', cards[index])"><span data-l10n-id="zotcard-card-manager-toolbar-copy-text">拷贝文本1</span></el-dropdown-item>
-												<el-dropdown-item @click="handleCardTools('copy-markdown', cards[index])"><span data-l10n-id="zotcard-card-manager-toolbar-copy-markdown">拷贝Markdown1</span></el-dropdown-item>
-												<el-dropdown-item @click="handleCardTools('copy-html', cards[index])"><span data-l10n-id="zotcard-card-manager-toolbar-copy-html">拷贝源代码1</span></el-dropdown-item>
+												<el-dropdown-item @click="handleCardTools('copy-content', cards[n - 1])"><span data-l10n-id="zotcard-card-manager-toolbar-copy-content">拷贝内容1</span></el-dropdown-item>
+												<el-dropdown-item @click="handleCardTools('copy-text', cards[n - 1])"><span data-l10n-id="zotcard-card-manager-toolbar-copy-text">拷贝文本1</span></el-dropdown-item>
+												<el-dropdown-item @click="handleCardTools('copy-markdown', cards[n - 1])"><span data-l10n-id="zotcard-card-manager-toolbar-copy-markdown">拷贝Markdown1</span></el-dropdown-item>
+												<el-dropdown-item @click="handleCardTools('copy-html', cards[n - 1])"><span data-l10n-id="zotcard-card-manager-toolbar-copy-html">拷贝源代码1</span></el-dropdown-item>
 											</el-dropdown-menu>
 										</template>
 									</el-dropdown>
 									<!-- <el-divider direction="vertical"></el-divider>
-									<el-link :underline="false" @click="handleCardTools('top', cards[index])">
+									<el-link :underline="false" @click="handleCardTools('top', cards[n - 1])">
 										<el-icon>
 											<svg width="16" height="16" viewBox="0 0 16 16" fill="none"
 												xmlns="http://www.w3.org/2000/svg">
@@ -406,48 +410,48 @@
 											</svg>
 										</el-icon>
 									</el-link>
-									<el-link :underline="false" @click="handleCardTools('up', cards[index])"><el-icon>
+									<el-link :underline="false" @click="handleCardTools('up', cards[n - 1])"><el-icon>
 											<Top></Top>
 										</el-icon></el-link>
-									<el-link :underline="false" @click="handleCardTools('down', cards[index])"><el-icon>
+									<el-link :underline="false" @click="handleCardTools('down', cards[n - 1])"><el-icon>
 											<Bottom></Bottom>
 										</el-icon></el-link>
 									<el-link :underline="false"
-										@click="handleCardTools('bottom', cards[index])"><el-icon>
+										@click="handleCardTools('bottom', cards[n - 1])"><el-icon>
 											<Download></Download>
 										</el-icon></el-link> -->
 									<el-divider direction="vertical"></el-divider>
 									<el-link :underline="false"
-										@click="handleCardTools('print', cards[index])" data-l10n-id="zotcard-card-manager-toolbar-print-title"><el-icon>
+										@click="handleCardTools('print', cards[n - 1])" data-l10n-id="zotcard-card-manager-toolbar-print-title"><el-icon>
 											<Printer></Printer>
 										</el-icon></el-link>
 									<el-divider direction="vertical"></el-divider>
 									<el-link :underline="false"
-										@click="handleCardTools('collapse', cards[index])" data-l10n-id="zotcard-card-manager-toolbar-collapse-title"><el-icon><Caret-Top></Caret-Top></el-icon></el-link>
+										@click="handleCardTools('collapse', cards[n - 1])" data-l10n-id="zotcard-card-manager-toolbar-collapse-title"><el-icon><Caret-Top></Caret-Top></el-icon></el-link>
 									<el-divider direction="vertical"></el-divider>
 									<!-- <el-link :underline="false"><el-icon><img src="chrome://zotcard/content/images/zotero32.png" style="object-fit: fill;"><img></el-icon></el-link> -->
-									<el-link :underline="false" @click="handleCardTools('zotero', cards[index])" data-l10n-id="zotcard-card-manager-toolbar-zotero-title">
+									<el-link :underline="false" @click="handleCardTools('zotero', cards[n - 1])" data-l10n-id="zotcard-card-manager-toolbar-zotero-title">
 										<img src="chrome://zotero/skin/zotero-new-z-48px.png" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
 									</el-link>
 								</el-space>
 							</div>
 							<el-scrollbar>
-								<div v-html="cards[index].note.contentHtml"></div>
+								<div v-html="cards[n - 1].note.contentHtml"></div>
 							</el-scrollbar>
 						</el-carousel-item>
 						<!-- card info -->
 						<el-carousel-item>
-							<el-scrollbar class="card-info" v-loading="!cards[index].moreLoaded">
-								<template v-if="cards[index].moreLoaded">
+							<el-scrollbar class="card-info" v-loading="!cards[n - 1].moreLoaded">
+								<template v-if="cards[n - 1].moreLoaded">
 									<div class="row">
 										<span class="label" data-l10n-id="zotcard-card-manager-collections">卡片所属1</span>
 										<span class="value">
-											<el-link :underline="false" v-if="!!cards[index].more.parentItem" @click="handleLink(ZotCardConsts.cardManagerType.item, cards[index].more.parentItem.id)">
-												<img :src="`chrome://zotero/skin/treeitem-${cards[index].more.parentItem.itemType}@2x.png`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
-												<span>{{ cards[index].more.parentItem.title }}</span>
+											<el-link :underline="false" v-if="!!cards[n - 1].more.parentItem" @click="handleLink(ZotCardConsts.cardManagerType.item, cards[n - 1].more.parentItem.id)">
+												<img :src="`chrome://zotero/skin/treeitem-${cards[n - 1].more.parentItem.itemType}@2x.png`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
+												<span>{{ cards[n - 1].more.parentItem.title }}</span>
 											</el-link>
-											<el-space v-else-if="cards[index].more.collections.length > 0">
-												<div v-for="c in cards[index].more.collections" :key="c.id">
+											<el-space v-else-if="cards[n - 1].more.collections.length > 0">
+												<div v-for="c in cards[n - 1].more.collections" :key="c.id">
 													<el-link :underline="false" @click="handleLink(ZotCardConsts.cardManagerType.collection, c.id)">
 														<img :src="`chrome://zotero/skin/treesource-collection@2x.png`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
 														<span>{{ c.title }}</span>
@@ -460,8 +464,8 @@
 									<div class="row">
 										<span class="label" data-l10n-id="zotcard-card-manager-relations">卡片相关1</span>
 										<span class="value">
-											<el-space v-if="cards[index].more.relations.length > 0">
-												<div v-for="r in cards[index].more.relations" :key="r.id">
+											<el-space v-if="cards[n - 1].more.relations.length > 0">
+												<div v-for="r in cards[n - 1].more.relations" :key="r.id">
 													<el-link :underline="false" @click="handleLink(ZotCardConsts.cardManagerType.item, r.id)">
 														<img :src="`chrome://zotero/skin/treeitem-${r.itemType}@2x.png`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
 														<span>{{ r.title }}</span>
@@ -472,12 +476,12 @@
 										</span>
 									</div>
 									<div class="row" v-if="profiles.parseCardType">
-										<span class="label" data-l10n-id="zotcard-card-manager-cardtype">卡片类型1</span><span class="value el-link-text"><zot-text :text="cards[index].more.cardtype"></zot-text></span>
+										<span class="label" data-l10n-id="zotcard-card-manager-cardtype">卡片类型1</span><span class="value el-link-text"><zot-text :text="cards[n - 1].more.cardtype"></zot-text></span>
 									</div>
 									<div class="row">
 										<span class="label" data-l10n-id="zotcard-card-manager-tags">卡片标签1</span><span class="value el-link-text">
-											<el-space v-if="cards[index].more.tags.length > 0">
-												<div v-for="t in cards[index].more.tags" :key="t.tag">
+											<el-space v-if="cards[n - 1].more.tags.length > 0">
+												<div v-for="t in cards[n - 1].more.tags" :key="t.tag">
 													<img v-if="t.type === ZotCardConsts.tagType.zotero" :src="`chrome://zotero/skin/tag@2x.png`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
 													<span :style="{color: t.color}">{{ t.tag }}</span>
 												</div>
@@ -489,24 +493,24 @@
 										<span class="label">
 											<span data-l10n-id="zotcard-card-manager-date">卡片日期1</span>
 										</span>
-										<span class="value el-link-text"><zot-text :text="cards[index].more.date"></zot-text></span>
+										<span class="value el-link-text"><zot-text :text="cards[n - 1].more.date"></zot-text></span>
 									</div>
 									<div class="row">
-										<span class="label" data-l10n-id="zotcard-card-manager-dateAdded">创建时间1</span><span class="value el-link-text"><zot-text :text="cards[index].note.dateAdded"></zot-text></span>
+										<span class="label" data-l10n-id="zotcard-card-manager-dateAdded">创建时间1</span><span class="value el-link-text"><zot-text :text="cards[n - 1].note.dateAdded"></zot-text></span>
 									</div>
 									<div class="row">
-										<span class="label" data-l10n-id="zotcard-card-manager-dateModified">修改时间1</span><span class="value el-link-text"><zot-text :text="cards[index].note.dateModified"></zot-text></span>
+										<span class="label" data-l10n-id="zotcard-card-manager-dateModified">修改时间1</span><span class="value el-link-text"><zot-text :text="cards[n - 1].note.dateModified"></zot-text></span>
 									</div>
 									<div class="row" v-if="profiles.parseWords">
-										<span class="label" data-l10n-id="zotcard-card-manager-words">卡片字数1</span><span class="value el-link-text" :title="cards[index].more.statistics.title">
-											{{ cards[index].more.statistics.text }}
+										<span class="label" data-l10n-id="zotcard-card-manager-words">卡片字数1</span><span class="value el-link-text" :title="cards[n - 1].more.statistics.title">
+											{{ cards[n - 1].more.statistics.text }}
 										</span>
 									</div>
 									<div class="row" v-if="profiles.parseWords">
-										<span class="label" data-l10n-id="zotcard-card-manager-lines">卡片行数1</span><span class="value el-link-text">{{ cards[index].more.statistics.lines }}</span>
+										<span class="label" data-l10n-id="zotcard-card-manager-lines">卡片行数1</span><span class="value el-link-text">{{ cards[n - 1].more.statistics.lines }}</span>
 									</div>
 									<div class="row" v-if="profiles.parseWords">
-										<span class="label" data-l10n-id="zotcard-card-manager-sizes">卡片占空间1</span><span class="value el-link-text">{{ cards[index].more.statistics.space }}</span>
+										<span class="label" data-l10n-id="zotcard-card-manager-sizes">卡片占空间1</span><span class="value el-link-text">{{ cards[n - 1].more.statistics.space }}</span>
 									</div>
 									<div class="row">
 										<span class="label"></span><span class="value el-link-text"></span>
@@ -522,7 +526,19 @@
 			<div v-if="scroll.disabled" class="fill hcenter text-color-placeholder more" data-l10n-id="zotcard-card-manager-nomore">No More</div>
 			<div v-if="scroll.loading" class="fill hcenter text-color-placeholder more" data-l10n-id="zotcard-card-manager-loading">Loading</div>
 		</div>
-		<el-empty v-else></el-empty>
+		<el-empty v-else>
+			<template #description>
+				<span class="nodata" v-if="filters.parentIDs.length > 0">{{l10n('zotcard-card-manager-nofilterdata', {total})}}</span>
+				<span class="nodata" v-else>
+					<span data-l10n-id="zotcard-card-manager-nodata">请在这里选择文献库：1</span>
+					<el-badge is-dot class="item">
+						<el-link :underline="false" @click="handleTools('menu')" data-l10n-id="zotcard-card-manager-toolbar-menu-title">
+							<el-icon><Expand></Expand></el-icon>
+						</el-link>
+					</el-badge>
+				</span>
+			</template>
+		</el-empty>
 
 		<!-- menu -->
 		<el-drawer v-model="renders.drawer" direction="ltr" :size="400" :with-header="false">

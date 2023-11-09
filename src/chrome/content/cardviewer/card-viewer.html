@@ -60,6 +60,7 @@
 
 		.card-header .el-icon {
 			font-size: 18px;
+			width: 100%;
 		}
 
 		.card-footer {
@@ -154,6 +155,13 @@
 						<Switch v-if="filters.orderby === 'random'"></Switch>
 					</el-icon> <span data-l10n-id="zotcard-card-manager-random">random</span>
 				</el-link>
+				<el-link :underline="false" @click="handleOrderby('times')" :type="filters.orderby === 'times' ? 'primary' : ''">
+					<el-icon>
+						<D-Caret v-if="filters.orderby !== 'times'"></D-Caret>
+						<Caret-Bottom v-else-if="renders.isOrderbyDesc('times')"></Caret-Bottom>
+						<Caret-Top v-else></Caret-Top>
+					</el-icon> <span data-l10n-id="zotcard-card-manager-times">times</span>
+				</el-link>
 				<el-link v-for="f in ['date', 'dateAdded', 'dateModified', 'title']" :underline="false" @click="handleOrderby(f)" :type="filters.orderby === f ? 'primary' : ''">
 					<el-icon>
 						<D-Caret v-if="filters.orderby !== f"></D-Caret>
@@ -180,7 +188,8 @@
 							<div class="card-header">
 								<h1 class="title fill single-line" :style="{ fontSize: profiles.titleFontSize + 'px' }" :title="cards[n - 1].note.title"><zot-text :text="cards[n - 1].note.title"></zot-text></h1>
 								<el-space>
-									<span>{{ renders.formatTime(cards[n - 1].extras.time) }}</span>
+									<el-icon v-if="cards[n - 1].extras.time % 2 === 0"><Timer /></el-icon>
+									<span style="font-size: 14px;">{{ renders.formatTime(cards[n - 1].extras.time) }}</span>
 								</el-space>
 							</div>
 						</template>

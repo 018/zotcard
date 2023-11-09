@@ -787,24 +787,24 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 		this.sort(cards, filters);
 	},
 
-	sort(cards, filters) {
+	sort(cards, filters, defCompare) {
 		// 'date', 'dateAdded', 'dateModified', 'title' ,'words', 'lines', 'sizes'
 		cards.sort((card1, card2) => {
 			switch (filters.orderby) {
 				case 'date':
-					return this._compareString(card1.more.date, card2.more.date, filters.desc);
+					return this.compare(card1.more.date, card2.more.date, filters.desc);
 				case 'dateAdded':
-					return this._compareString(card1.note.dateAdded, card2.note.dateAdded, filters.desc);
+					return this.compare(card1.note.dateAdded, card2.note.dateAdded, filters.desc);
 				case 'dateModified':
-					return this._compareString(card1.note.dateModified, card2.note.dateModified, filters.desc);
+					return this.compare(card1.note.dateModified, card2.note.dateModified, filters.desc);
 				case 'title':
-					return this._compareString(card1.note.title, card2.note.title, filters.desc);
+					return this.compare(card1.note.title, card2.note.title, filters.desc);
 				case 'words':
-					return this._compareString(card1.more.statistics.words, card2.more.statistics.words, filters.desc);
+					return this.compare(card1.more.statistics.words, card2.more.statistics.words, filters.desc);
 				case 'lines':
-					return this._compareString(card1.more.statistics.lines, card2.more.statistics.lines, filters.desc);
+					return this.compare(card1.more.statistics.lines, card2.more.statistics.lines, filters.desc);
 				case 'sizes':
-					return this._compareString(card1.more.statistics.sizes, card2.more.statistics.sizes, filters.desc);
+					return this.compare(card1.more.statistics.sizes, card2.more.statistics.sizes, filters.desc);
 			}
 		});
 
@@ -817,6 +817,8 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 			let title = item.getDisplayTitle();
 			if (!item) {
 				Zotero.ZotCard.Logger.log(`The itemID ${id} is incorrect.`);
+			} else if(item.deleted) {
+				Zotero.ZotCard.Logger.log(`The itemID ${id} is deleted.`);
 			} else if (item.isNote()) {
 				if (allCards.find((c) => c.id === id)) {
 					Zotero.ZotCard.Logger.log(`The note ${title} is loaded, skip.`);
@@ -1055,7 +1057,7 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 		card.moreLoaded = true;
 	},
 
-	_compareString(s1, s2, desc) {
+	compare(s1, s2, desc) {
 		return s1 === s2 ? 0 : (!desc ? (s1 > s2 ? 1 : -1) : (s1 > s2 ? -1 : 1));
 	}
 });

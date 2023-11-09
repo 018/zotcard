@@ -33,7 +33,6 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		Zotero.ZotCard.Cards.initPrefs();
 
 		this.createToolbarButton();
-		this.createCollectionMenu();
 		this.createStandaloneMenu();
 		this.registerEvent();
 
@@ -77,21 +76,26 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 			},
 			parent: zotero_collections_toolbar,
 		});
-
     	zotcardManager.style.listStyleImage = `url(chrome://zotcard/content/images/card-manager.png)`;
+		zotcardManager.style.width = 24;
+		zotcardManager.style.height = 24;
 		this.storeAddedElement(zotcardManager);
 	},
 	
 	createCollectionMenu() {
+		let allowTypes = ['library', 'collection', 'search', 'group'];
+		let type = Zotero.getMainWindow().ZoteroPane.getCollectionTreeRow().type;
+		Zotero.ZotCard.Logger.log(type);
+
 		let root = 'zotero-collectionmenu';
 		let zotero_collectionmenu = Zotero.getMainWindow().document.getElementById(root);
 
 		let menuseparator = Zotero.ZotCard.Doms.createMainWindowXULMenuSeparator({
 			id: `${root}-zotcard-separator1`,
-			// after: zotcardRead
 			parent: zotero_collectionmenu,
 		});
 		this.storeAddedElement(menuseparator);
+		menuseparator.hidden = !allowTypes.includes(type);
 
 		let zotcardRead = Zotero.ZotCard.Doms.createMainWindowXULElement('menuitem', {
 			id: `${root}-zotcard-card-manager`,
@@ -101,8 +105,8 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 			command: this.collectionCardManagerd,
 			parent: zotero_collectionmenu,
 		});
-		// zotero_collectionmenu.prepend(zotcardRead);
 		this.storeAddedElement(zotcardRead);
+		zotcardRead.hidden = !allowTypes.includes(type);
 	},
 
 	_createMenuItem(mnupopupZotCard, type, onlyRegular, onlySimple) {
@@ -560,6 +564,7 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		Zotero.ZotCard.Events.register({
 			itemsViewOnSelect: this.itemsViewOnSelect.bind(this),
 			noteEditorKeyup: this.noteEditorKeyup.bind(this),
+			refreshCollectionMenuPopup: this.refreshCollectionMenuPopup.bind(this),
 			refreshItemMenuPopup: this.refreshItemMenuPopup.bind(this),
 			refreshStandaloneMenuPopup: this.refreshStandaloneMenuPopup.bind(this),
 			refreshPaneItemMenuPopup: this.refreshPaneItemMenuPopup.bind(this)
@@ -870,6 +875,10 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 
 	noteEditorKeyup(e) {
 		// You do not need to add it. It automatically triggers itemsViewOnSelect.
+	},
+
+	refreshCollectionMenuPopup () {
+		this.createCollectionMenu();
 	},
 
 	refreshItemMenuPopup() {

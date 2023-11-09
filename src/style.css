@@ -1,8 +1,9 @@
-#zotero-tb-read-manager
-{
-	list-style-image: url('chrome://zotcard/content/images/card-manager.png');
+#zotero-tb-card-manager .toolbarbutton-icon {
+    width: 16px;
+    height: 16px;
 }
 
-@media (min-resolution: 1.25dppx) {
-    #zotero-tb-read-manager { list-style-image: url('chrome://zotcard/content/images/card-manager@2x.png');}
+#zotero-tb-card-viewer .toolbarbutton-icon {
+    width: 16px;
+    height: 16px;
 }

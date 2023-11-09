@@ -123,6 +123,8 @@ Zotero.ZotCard.Dialogs = Object.assign(Zotero.ZotCard.Dialogs, {
               },
             });
             zotcardViewer.style.listStyleImage = `url(chrome://zotcard/content/images/card-viewer.png)`;
+			zotcardViewer.style.width = 24;
+			zotcardViewer.style.height = 24;
 			tbCardManager.after(zotcardViewer);
 		} else {
 			Zotero.ZotCard.Logger.ding();
