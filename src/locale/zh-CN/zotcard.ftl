@@ -3,6 +3,9 @@ zotero-zotcard =
 zotero-zotcard-card-manager =
     .label = 卡片管理器
 zotero-zotcard-card-manager-title = 卡片管理器
+zotero-zotcard-card-viewer =
+    .label = 读卡
+zotero-zotcard-card-viewer-title = 读卡
 
 zotcard-quotescard = 金句卡
 zotcard-conceptcard = 概念卡
@@ -31,7 +34,9 @@ zotcard-newpane-batch = 批量建卡
 
 
 zotcard-trash = 确定要将卡片移动到回收站吗？
-zotcard-pleas_select_card = 请选择卡片。
+zotcard-please_select_card = 请选择卡片。
+
+zotcard-click_to_load = 请选择卡片。
 
 
 

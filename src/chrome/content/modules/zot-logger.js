@@ -33,11 +33,11 @@ Zotero.ZotCard.Logger = Object.assign(Zotero.ZotCard.Logger, {
   trace(name, value) {
     if (this.isDebug()) {
       if (Zotero.ZotCard.Objects.isUndefined(value)) {
-        this.debug('undefined');
+        this.debug(`${name} >>> undefined`);
       } else if (Zotero.ZotCard.Objects.isNull(value)) {
-        this.debug('null');
+        this.debug(`${name} >>> null`);
       } else if (Zotero.ZotCard.Objects.isEmptyString(value)) {
-        this.debug('');
+        this.debug(`${name} >>> ""`);
       } else if (Zotero.ZotCard.Objects.isObject(value)) {
         this.debug(`${name} >>> ` + this._stringifyJSON(value));
       } else if (Zotero.ZotCard.Objects.isArray(value)) {

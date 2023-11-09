@@ -1,18 +1,43 @@
 zotcard-card-manager = 卡片管理器
 
-zotcard-card-manager-toolbar-menu = 菜单
-zotcard-card-manager-toolbar-edit = 编辑
-zotcard-card-manager-toolbar-delete = 删除
-zotcard-card-manager-toolbar-copy = 复制
-zotcard-card-manager-toolbar-top = 置顶
-zotcard-card-manager-toolbar-up = 向上
-zotcard-card-manager-toolbar-down = 向下
-zotcard-card-manager-toolbar-botton = 置顶
-zotcard-card-manager-toolbar-print = 打印
-zotcard-card-manager-toolbar-hide = 隐藏
-zotcard-card-manager-toolbar-show = 显示
-zotcard-card-manager-toolbar-collapse = 收缩
-zotcard-card-manager-toolbar-expand = 展开
+zotcard-card-manager-toolbar-menu-title =
+    .title = 菜单
+zotcard-card-manager-toolbar-refresh-title =
+    .title = 刷新
+zotcard-card-manager-toolbar-edit-title =
+    .title = 编辑
+zotcard-card-manager-toolbar-remove-title =
+    .title = 移除
+zotcard-card-manager-toolbar-delete-title =
+    .title = 删除
+zotcard-card-manager-toolbar-copy-title =
+    .title = 复制
+zotcard-card-manager-toolbar-print-title =
+    .title = 打印
+zotcard-card-manager-toolbar-selectedall-title =
+    .title = 全选
+zotcard-card-manager-toolbar-unselectedall-title =
+    .title = 全部反选
+zotcard-card-manager-toolbar-view-title =
+    .title = 显示
+zotcard-card-manager-toolbar-hide-title =
+    .title = 隐藏
+zotcard-card-manager-toolbar-collapse-title =
+    .title = 收缩
+zotcard-card-manager-toolbar-expand-title =
+    .title = 展开
+zotcard-card-manager-toolbar-zotero-title =
+    .title = 在Zotero定位
+zotcard-card-manager-toolbar-zotero-title =
+    .title = 在Zotero定位
+zotcard-card-manager-toolbar-window-title =
+    .title = 独立新窗口打开
+zotcard-card-manager-toolbar-showorhide-title = 
+    .title = 显示 / 不显示
+zotcard-card-manager-toolbar-selectedorunselected-title = 
+    .title = 选择 / 不选择
+
+
 
 zotcard-card-manager-toolbar-all = 所有
 zotcard-card-manager-toolbar-onlyshow = 仅显示
@@ -83,5 +108,14 @@ zotcard-card-manager-setting-exclude_collectionoritem_message = 设置之后将�
 zotcard-card-manager-help = 帮助
 zotcard-card-manager-help-message = 一、关于性能，如果使用该功能卡顿建议你<br \>　1、尽可能少的加载卡片。<br \>　2、尽可能关闭「设置」-「解析」和清空「设置」-「忽略」，这样加载卡片时不会解析和执行忽略。<br \>　3、界面上已经做了优化，一屏一屏加载，尽可能减少所有都加载显示。<br \>二、关于解析，详细的解释已经在「设置」-「解析」各个配置项中，如果解析不到，可以修改卡片内容。<br \>三、其他问题可以反馈给开发者，联系方式请在Zotero的「设置」-「ZotCard」查看。
 
+zotcard-card-manager-show_card_viewer-in_the = 在
+zotcard-card-manager-show_card_viewer-in_the2 = 中
+zotcard-card-manager-show_card_viewer-in_the_card = 张卡片。
+zotcard-card-manager-show_card_viewer-cancel = 取消
+zotcard-card-manager-show_card_viewer-open = 立即读卡
+zotcard-card-manager-show_card_viewer-all = 全选
+zotcard-card-manager-show_card_viewer-random = 随机选择
+zotcard-card-manager-show_card_viewer-selectbefore = 选择前
+zotcard-card-manager-show_card_viewer-selectafter = 选择后
 
 

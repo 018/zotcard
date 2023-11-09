@@ -14,6 +14,20 @@ Zotero.ZotCard.Dialogs = Object.assign(Zotero.ZotCard.Dialogs, {
 		win.focus();
 	},
 
+	findCardManager() {
+		var wm = Services.wm;
+		var e = wm.getEnumerator(null);
+		let winCardManager;
+		while (e.hasMoreElements()) {
+		  win = e.getNext();
+		  if (win.name === 'card-manager') {
+			winCardManager = win;
+			break;
+		  }
+		}
+		return winCardManager;
+	},
+
 	openCardManagerTab(items) {
 		let { id, container } = Zotero.getMainWindow().Zotero_Tabs.add({
 			id: 'card-manager-' + Zotero.Utilities.randomString(),
@@ -24,7 +38,10 @@ Zotero.ZotCard.Dialogs = Object.assign(Zotero.ZotCard.Dialogs, {
 				dataIn: items
 			},
 			select: true,
-			preventJumpback: false
+			preventJumpback: true,
+			onClose: () => {
+				Zotero.getMainWindow().Zotero_Tabs.select('zotero-pane');
+			}
 		});
 		
 		let iframe = Zotero.getMainWindow().document.createXULElement('browser');
@@ -35,6 +52,17 @@ Zotero.ZotCard.Dialogs = Object.assign(Zotero.ZotCard.Dialogs, {
 		container.appendChild(iframe);
 
 		iframe.docShell.windowDraggingAllowed = true;
+	},
+
+	findCardManagerTabs() {
+		let tabCardManagers = [];
+		for (let index = 0; index < Zotero.getMainWindow().Zotero_Tabs._tabs.length; index++) {
+			const element = Zotero.getMainWindow().Zotero_Tabs._tabs[index];
+			if (element.id.startsWith('card-manager-')) {
+				tabCardManagers.push(element);
+			}
+		}
+		return tabCardManagers;
 	},
 
 	openMultiEditManager(noteIDs) {
@@ -58,10 +86,79 @@ Zotero.ZotCard.Dialogs = Object.assign(Zotero.ZotCard.Dialogs, {
 	},
 
 	openPrintCard(noteIDs) {
+		Zotero.openInViewer('chrome://zotcard/content/printcard/print-card.html?ids=' + noteIDs.join(','));
+	},
+
+	openCardViewer(items) {
 		let io = {
-			dataIn: noteIDs
+			dataIn: items
 		}
-		let win = Zotero.getMainWindow().openDialog('chrome://zotcard/content/printcard/print-card.html', 'print-card', `chrome,menubar=no,toolbar=no,dialog=no,resizable,height=${Zotero.getMainWindow().screen.availWidth / 2},width=${Math.max(Zotero.getMainWindow().screen.availWidth / 2, 1000)},centerscreen`, io);
-		win.focus();
-	}
+		let windowCardViewer = Zotero.getMainWindow().openDialog('chrome://zotcard/content/cardviewer/card-viewer.html', 'card-viewer', 'chrome,menubar=no,toolbar=no,dialog=no,centerscreen,height=' + Zotero.getMainWindow().screen.availHeight + ',width=' + Zotero.getMainWindow().screen.availWidth, io);
+		windowCardViewer.focus();
+
+		this._handleCardViewerWindowEvent(windowCardViewer);
+	},
+
+	_handleCardViewerWindowEvent(windowCardViewer) {
+		let id = 'zotero-tb-card-viewer';
+		if (!Zotero.getMainWindow().document.getElementById(id)) {
+            let tbCardManager = Zotero.getMainWindow().document.getElementById('zotero-tb-card-manager');
+        
+            let zotcardViewer = Zotero.ZotCard.Doms.createMainWindowXULElement('toolbarbutton', {
+              id: id,
+              attrs: {
+                'class': 'zotero-tb-button',
+                'tooltiptext': Zotero.ZotCard.L10ns.getString('zotero-zotcard-card-viewer-title'),
+                'tabindex': '0'
+              },
+              command: () => {
+                Zotero.ZotCard.Logger.ding();
+                
+                let win = Zotero.ZotCard.Dialogs.findCardViewer();
+                if (win) {
+                  win.focus();
+                } else {
+                  Zotero.getMainWindow().document.getElementById(id).remove();
+                }
+              },
+            });
+            zotcardViewer.style.listStyleImage = `url(chrome://zotcard/content/images/card-viewer.png)`;
+			tbCardManager.after(zotcardViewer);
+		} else {
+			Zotero.ZotCard.Logger.ding();
+		}
+
+		windowCardViewer.onclose = function() {
+			Zotero.ZotCard.Logger.log('onclose');
+			
+			let viewer = Zotero.getMainWindow().document.getElementById(id);
+			if (viewer) {
+				viewer.remove();
+			}
+		}
+	},
+
+	openCardViewerWithCards(cards) {
+		let io = {
+			cards: cards
+		}
+		let windowCardViewer = Zotero.getMainWindow().openDialog('chrome://zotcard/content/cardviewer/card-viewer.html', 'card-viewer', 'chrome,menubar=no,toolbar=no,dialog=no,centerscreen,height=' + Zotero.getMainWindow().screen.availHeight + ',width=' + Zotero.getMainWindow().screen.availWidth, io);
+		windowCardViewer.focus();
+
+		this._handleCardViewerWindowEvent(windowCardViewer);
+	},
+
+	findCardViewer() {
+		var wm = Services.wm;
+		var e = wm.getEnumerator(null);
+		let winCardViewer;
+		while (e.hasMoreElements()) {
+		  win = e.getNext();
+		  if (win.name === 'card-viewer') {
+			winCardViewer = win;
+			break;
+		  }
+		}
+		return winCardViewer;
+	},
 });

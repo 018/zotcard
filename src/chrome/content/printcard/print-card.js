@@ -1,8 +1,15 @@
 const { createApp, ref, reactive, toRaw } = Vue
 const { ElMessageBox } = ElementPlus
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var io = window.arguments && window.arguments.length > 0 ? window.arguments[0] : (ZotElementPlus.isZoteroDev ? [] : undefined);
-  if (!ZotElementPlus.isZoteroDev && (!io || Zotero.ZotCard.Objects.isEmptyArray(io.dataIn))) {
+var dataIn;
+let ids = Zotero.ZotCard.Utils.getUrlParam(window.location.href, 'ids');
+if (ids) {
+  dataIn = ids.split(',');
+}
+
+Zotero.ZotCard.Logger.log(dataIn);
+if (!ZotElementPlus.isZoteroDev && Zotero.ZotCard.Objects.isEmptyArray(dataIn)) {
   window.close();
   Zotero.ZotCard.Messages.error(undefined, 'The parameter is incorrect.');
 } else {
@@ -35,7 +42,7 @@ var io = window.arguments && window.arguments.length > 0 ? window.arguments[0] :
       }
     });
   } else {
-    io.dataIn.forEach(id => {
+    dataIn.forEach(id => {
       let item = Zotero.Items.get(id);
       let card = {
         id: id,
@@ -57,10 +64,10 @@ var io = window.arguments && window.arguments.length > 0 ? window.arguments[0] :
       setup() {
         let def = {
           titleFontSize: 14,
-          titleLineSpacing: 14,
+          titleLineSpacing: 12,
           fontSize: 12,
-          lineSpacing: 1,
-          paragraphSpacing: 0
+          lineSpacing: 12,
+          paragraphSpacing: 5
         };
         let printcard = ZotElementPlus.isZoteroDev ? def : Zotero.ZotCard.Prefs.getJson('printcard', def);
 

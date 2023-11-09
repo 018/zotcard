@@ -32,7 +32,7 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 
 		Zotero.ZotCard.Cards.initPrefs();
 
-		// this.createToolbarButton();
+		this.createToolbarButton();
 		this.createCollectionMenu();
 		this.createStandaloneMenu();
 		this.registerEvent();
@@ -55,51 +55,31 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		let root = 'zotero-collections-toolbar';
 		let zotero_collections_toolbar = Zotero.getMainWindow().document.getElementById(root);
 
-		let zotcardReadManager = Zotero.ZotCard.Doms.createMainWindowXULElement('toolbarbutton', {
-			id: `zotero-tb-read-manager`,
+		let zotcardManager = Zotero.ZotCard.Doms.createMainWindowXULElement('toolbarbutton', {
+			id: `zotero-tb-card-manager`,
 			attrs: {
 				'class': 'zotero-tb-button',
-				'tooltiptext': '卡片管理',
+				'tooltiptext': Zotero.ZotCard.L10ns.getString('zotero-zotcard-card-manager-title'),
 				'tabindex': '0'
 			},
 			command: () => {
-				var wm = Services.wm;
-				var e = wm.getEnumerator(null);
-				let winCardManager;
-				while (e.hasMoreElements()) {
-				  win = e.getNext();
-				  if (win.name === 'card-manager') {
-					winCardManager = win;
-					break;
-				  }
-				}
-				if (winCardManager) {
-					winCardManager.focus();
-				} else {
-					let io = {
-						dataIn: []
-					};
-					let win = Zotero.getMainWindow().openDialog('chrome://zotcard/content/cardmanager/card-manager.html', 'card-manager', 'chrome,centerscreen,height=' + Zotero.getMainWindow().screen.availHeight + ',width=' + Zotero.getMainWindow().screen.availWidth, io);
+				let win = Zotero.ZotCard.Dialogs.findCardManager();
+				if (win) {
 					win.focus();
+				} else {
+					let cardManagerTabs = Zotero.ZotCard.Dialogs.findCardManagerTabs();
+					if (Zotero.ZotCard.Objects.isNoEmptyArray(cardManagerTabs)) {
+						Zotero.getMainWindow().Zotero_Tabs.select(cardManagerTabs[0].id);
+					} else {
+						Zotero.ZotCard.Dialogs.openCardManagerTab([]);
+					}
 				}
 			},
 			parent: zotero_collections_toolbar,
 		});
-		this.storeAddedElement(zotcardReadManager);
-		// Zotero.ZotCard.Doms.createMainWindowXULElement('image', {
-		// 	attrs: {
-		// 		'class': 'toolbarbutton-icon',
-		// 	},
-		// 	parent: zotcardReadManager,
-		// });
-		// Zotero.ZotCard.Doms.createMainWindowXULElement('label', {
-		// 	attrs: {
-		// 		'class': 'toolbarbutton-text',
-		// 		'crop': 'right',
-		// 		'flex': '1',
-		// 	},
-		// 	parent: zotcardReadManager,
-		// });
+
+    	zotcardManager.style.listStyleImage = `url(chrome://zotcard/content/images/card-manager.png)`;
+		this.storeAddedElement(zotcardManager);
 	},
 	
 	createCollectionMenu() {
@@ -175,12 +155,9 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		if (!items) {
 			zotcardMenu.disabled = true;
 			Zotero.ZotCard.Logger.log(`Not Select Item`);
-		} else if (items.length > 1 && !onlyNote) {
+		} else if (items.length > 1 && !onlyRegular) {
 			zotcardMenu.disabled = true
 			Zotero.ZotCard.Logger.log(`Mutil-Select Items but not onlyNote`);
-		} else if (itemTypes.length > 1) {
-			zotcardMenu.disabled = true;
-			Zotero.ZotCard.Logger.log(`Mutil item types`);
 		} else if (onlySimple && !onlyRegular) {
 			zotcardMenu.disabled = true;
 			Zotero.ZotCard.Logger.log(`Simple but not onlyRegular and onlyNote`);
@@ -240,8 +217,18 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		menuitem.setAttribute('label', Zotero.ZotCard.L10ns.getString('zotcard-newitem-batch'));
 		menuitem.hidden = !onlyRegular || !onlySimple;
 
-		zotcardMenu.disabled = zotcardMenu.children.length === 0;
+		// card-viewer
+		let cardViewerMenu = Zotero.ZotCard.Doms.createMainWindowXULElement('menuitem', {
+			id: `${root}-zotcard-card-viewer-menuitem`,
+			attrs: {
+				'data-l10n-id': 'zotero-zotcard-card-viewer',
+			},
+			command: this.itemCardViewer,
+			parent: zotero_itemmenu
+		});
+		this.storeAddedElement(cardViewerMenu);
 
+		// card-manager
 		let cardManagerMenu = Zotero.ZotCard.Doms.createMainWindowXULElement('menuitem', {
 			id: `${root}-zotcard-card-manager-menuitem`,
 			attrs: {
@@ -330,13 +317,24 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		menuitem.setAttribute('label', Zotero.ZotCard.L10ns.getString('zotcard-newpane-batch'));
 		this.storeAddedElement(menuitem);
 
-		// card-manager
 		let menuseparator4 = Zotero.ZotCard.Doms.createMainWindowXULMenuSeparator({
 			id: `${root}-zotcard-separator4`,
 			parent: elPanePopup
 		});
 		this.storeAddedElement(menuseparator4);
 
+		// card-viewer
+		menuitem = Zotero.ZotCard.Doms.createMainWindowXULElement('menuitem', {
+			id: `${root}-zotcard-card-viewer`,
+			command: () =>{
+				this.paneCardViewer();
+			},
+			parent: elPanePopup
+		});
+		menuitem.setAttribute('label', Zotero.ZotCard.L10ns.getString('zotero-zotcard-card-viewer-title'));
+		this.storeAddedElement(menuitem);
+
+		// card-manager
 		menuitem = Zotero.ZotCard.Doms.createMainWindowXULElement('menuitem', {
 			id: `${root}-zotcard-card-manager`,
 			command: () =>{
@@ -744,6 +742,29 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		Zotero.ZotCard.Dialogs.openCardManagerTab(items);
 	},
 
+	itemCardViewer() {
+		let items = [];
+		let collection = Zotero.getMainWindow().ZoteroPane.getSelectedCollection();
+		let selectedItems = Zotero.ZotCard.Items.getSelectedItems();
+		selectedItems.forEach(item => {
+			if (item.isNote()) {
+				items.push({
+					collectionID: collection ? collection.id : undefined,
+					type: Zotero.ZotCard.Consts.cardManagerType.note,
+					id: item.id
+				});
+			} else if (item.isRegularItem()) {
+				items.push({
+					collectionID: collection ? collection.id : undefined,
+					type: Zotero.ZotCard.Consts.cardManagerType.item,
+					id: item.id
+				});
+			}
+		});
+		
+		Zotero.ZotCard.Dialogs.openCardViewer(items);
+	},
+	
 	paneCardManager() {
 		var reader = Zotero.ZotCard.Readers.getSelectedReader();
 		if (reader) {
@@ -752,6 +773,17 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 				id: Zotero.Items.get(reader.itemID).parentID
 			}];
 			Zotero.ZotCard.Dialogs.openCardManager(items);
+		}
+	},
+	
+	paneCardViewer() {
+		var reader = Zotero.ZotCard.Readers.getSelectedReader();
+		if (reader) {
+			let items = [{
+				type: Zotero.ZotCard.Consts.cardViewerType.item,
+				id: Zotero.Items.get(reader.itemID).parentID
+			}];
+			Zotero.ZotCard.Dialogs.openCardViewer(items);
 		}
 	},
 
@@ -787,6 +819,17 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 	
 	// ####### Zotero事件 #######
 
+	handleSelectTab: Zotero.Utilities.debounce((id) => {
+		if (id === Zotero.ZotCard.Zoteros.mainTabID) {
+			Zotero.ZotCard.removeAddedWordElement('tab-');
+			Zotero.ZotCard._clearTabTimedRun();
+		} else if(id.startsWith('card-manager-')) {
+
+		} else {
+			Zotero.ZotCard.createPaneNoteStatistics(id);
+		}
+	}, 1000),
+
 	_tab_timed_interval: 0,
 	notify: function (event, type, ids, extraData) {
 		// 新增
@@ -797,14 +840,7 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 					let id = ids[0];
 					if (event === 'add') {
 					} else if (event === 'select') {
-						if (id === Zotero.ZotCard.Zoteros.mainTabID) {
-							this.removeAddedWordElement('tab-');
-							this._clearTabTimedRun();
-						} else if(id.startsWith('card-manager-')) {
-
-						} else {
-							this.createPaneNoteStatistics(id);
-						}
+						this.handleSelectTab(id);
 					} else if(event === 'close') {
 						this.removeAddedWordElement('tab-');
 						this._clearTabTimedRun();

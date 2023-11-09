@@ -24,7 +24,14 @@ Zotero.ZotCard.Consts = Object.assign(Zotero.ZotCard.Consts, {
 		collection: 'collection',
 		search: 'search',
 		item: 'item',
-		note: 'note'
+		note: 'note',
+		cards: 'cards'
+	},
+
+	cardViewerType: {
+		item: 'item',
+		note: 'note',
+		cards: 'cards'
 	},
 
 	tagType: {

@@ -106,8 +106,8 @@
 									<label data-l10n-id="zotcard-preferences-general-report-startOfWeek">开始日期</label>
 								</template>
 								<el-select v-model="prefs.startOfWeek" size="small" @change="handlePrefsInput('startOfWeek', prefs.startOfWeek)">
-									<el-option :value="ZotCardConsts.startOfWeek.sunday"><span data-l10n-id="zotcard-preferences-general-report-startOfWeek-Sun"></span></el-option>
-									<el-option :value="ZotCardConsts.startOfWeek.monday"><span data-l10n-id="zotcard-preferences-general-report-startOfWeek-Sat"></span></el-option>
+									<el-option :value="ZotCardConsts.startOfWeek.sunday" :label="l10n('zotcard-preferences-general-report-startOfWeek-Sun')"></span></el-option>
+									<el-option :value="ZotCardConsts.startOfWeek.monday" :label="l10n('zotcard-preferences-general-report-startOfWeek-Sat')"></span></el-option>
 								</el-select>
 							</el-form-item>
 							<h1 data-l10n-id="zotcard-preferences-general-other">其他</h1>
@@ -126,8 +126,8 @@
 								</template>
 								<el-space direction="vertical" alignment="normal">
 									<el-select v-model="prefs.word_count_style" size="small" @change="handlePrefsInput('word_count_style', prefs.word_count_style)">
-										<el-option :value="ZotCardConsts.wordCountStyle.all"><span data-l10n-id="zotcard-preferences-general-other-wordCountStyle-all"></span></el-option>
-										<el-option :value="ZotCardConsts.wordCountStyle.onlyWords"><span data-l10n-id="zotcard-preferences-general-other-wordCountStyle-onlyWords"></span></el-option>
+										<el-option :value="ZotCardConsts.wordCountStyle.all" :label="l10n('zotcard-preferences-general-other-wordCountStyle-all')"></el-option>
+										<el-option :value="ZotCardConsts.wordCountStyle.onlyWords" :label="l10n('zotcard-preferences-general-other-wordCountStyle-onlyWords')"></el-option>
 									</el-select>
 									<span class="text-color-placeholder" data-l10n-id="zotcard-preferences-general-other-word_count_style_message">设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后...</span>
 								</el-space>

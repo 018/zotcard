@@ -31,4 +31,6 @@ zotcard-newpane-batch = Batch card building
 
 
 zotcard-trash = Are you sure you want to move the card to the recycle bin?
-zotcard-pleas_select_card = Please select the card.
+zotcard-please_select_card = Please select the card.
+
+zotcard-click_to_load = Click to load

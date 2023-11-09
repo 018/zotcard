@@ -47,7 +47,7 @@ Zotero.ZotCard.Utils = Object.assign(Zotero.ZotCard.Utils, {
     return Zotero.ZotCard.Prefs.get('sync.server.username', Zotero.Users.getCurrentUsername());
   },
 
-  getParam(url, name) {
+  getUrlParam(url, name) {
     if (!url) return ''
 
     var src = new RegExp('[?&]' + name + '=([^&#]*)').exec(url)
@@ -112,83 +112,6 @@ Zotero.ZotCard.Utils = Object.assign(Zotero.ZotCard.Utils, {
     return xmlhttp
   },
 
-  copyHtmlToClipboard(textHtml) {
-    var htm, lstring = Components.classes['@mozilla.org/supports-string;1'].createInstance(Components.interfaces.nsISupportsString)
-    if (!htmlstring) {
-      Zotero.ZotCard.Logger.log('htmlstring is null.')
-      return false
-    }
-    htmlstring.data = textHtml
-
-    var tra, ns = Components.classes['@mozilla.org/widget/transferable;1'].createInstance(Components.interfaces.nsITransferable)
-    if (!trans) {
-      Zotero.ZotCard.Logger.log('trans is null.')
-      return false
-    }
-
-    trans.addDataFlavor('text/html')
-    trans.setTransferData('text/html', htmlstring, textHtml.length * 2)
-
-    var cli, pboard = Components.classes['@mozilla.org/widget/clipboard;1'].getService(Components.interfaces.nsIClipboard)
-    if (!clipboard) {
-      Zotero.ZotCard.Logger.log('clipboard is null.')
-      return false
-    }
-
-    clipboard.setData(trans, null, Components.interfaces.nsIClipboard.kGlobalClipboard)
-    return true
-  },
-
-  copyHtmlTextToClipboard(textHtml, text) {
-    text = text.replace(/\r\n/g, '\n')
-    textHtml = textHtml.replace(/\r\n/g, '\n')
-
-    // copy to clipboard
-    let transferable = Components.classes['@mozilla.org/widget/transferable;1']
-      .createInstance(Components.interfaces.nsITransferable)
-    let clipboardService = Components.classes['@mozilla.org/widget/clipboard;1']
-      .getService(Components.interfaces.nsIClipboard)
-
-    // Add Text
-    let str = Components.classes['@mozilla.org/supports-string;1']
-      .createInstance(Components.interfaces.nsISupportsString)
-    str.data = text
-    transferable.addDataFlavor('text/unicode')
-    transferable.setTransferData('text/unicode', str, text.length * 2)
-
-    // Add HTML
-    str = Components.classes['@mozilla.org/supports-string;1']
-      .createInstance(Components.interfaces.nsISupportsString)
-    str.data = textHtml
-    transferable.addDataFlavor('text/html')
-    transferable.setTransferData('text/html', str, textHtml.length * 2)
-
-    clipboardService.setData(
-      transferable, null, Components.interfaces.nsIClipboard.kGlobalClipboard
-    )
-  },
-
-  copyTextToClipboard(text) {
-    text = text.replace(/\r\n/g, '\n')
-    // copy to clipboard
-    let transferable = Components.classes['@mozilla.org/widget/transferable;1'].createInstance(Components.interfaces.nsITransferable)
-    let clipboardService = Components.classes['@mozilla.org/widget/clipboard;1'].getService(Components.interfaces.nsIClipboard)
-
-    // Add Text
-    let str = Components.classes['@mozilla.org/supports-string;1'].createInstance(Components.interfaces.nsISupportsString);
-    str.data = text
-    transferable.addDataFlavor('text/unicode')
-    transferable.setTransferData('text/unicode', str, text.length * 2)
-
-    clipboardService.setData(
-      transferable, null, Components.interfaces.nsIClipboard.kGlobalClipboard
-    )
-  },
-
-  getClipboard() {
-    return Zotero.Utilities.Internal.getClipboard("text/unicode")
-  },
-
   dataURItoBlob(dataURI) {
     var mimeString = dataURI
       .split(',')[0]
@@ -243,102 +166,6 @@ Zotero.ZotCard.Utils = Object.assign(Zotero.ZotCard.Utils, {
 
   attachmentExistsImg(noteContent) {
     return noteContent.includes('data-attachment-key')
-  },
-
-  toCardItem(note) {
-    let noteTitle = note.getNoteTitle()
-    let noteContent = note.getNote()
-
-    let match3 = noteTitle.match('[\u4e00-\u9fa5]+卡')
-    if (!match3) {
-      match3 = noteTitle.match('[a-zA-Z0-9 ]+Card')
-    }
-    let cardtype = match3 ? match3[0].trim() : Zotero.ZotCard.L10ns.getString('zotcard.other')
-
-    let author = Zotero.ZotCard.Utils.getCardItemValue(noteContent, Zotero.ZotCard.L10ns.getString('zotcard.author'))
-    let tags = Zotero.ZotCard.Utils.getCardItemValue(noteContent, Zotero.ZotCard.L10ns.getString('zotcard.tag')).split(/[\[ \],，]/).filter(e => e && e !== Zotero.ZotCard.L10ns.getString('zotcard.none'))
-
-    note.getTags().forEach(tag => {
-      tags.push(tag.tag)
-    })
-
-    return {
-      id: note.id,
-      key: note.key,
-      title: noteTitle,
-      type: cardtype,
-      date: Zotero.ZotCard.Utils.cardDate(note),
-      tags: ta, gs,
-      note: noteContent,
-      words: hangzi(noteContent),
-      author: author,
-      dateAdded: Zotero.ZotCard.DateTimes.sqlToDate(note.dateAdded, 'yyyy-MM-dd HH:mm:ss'),
-      dateModified: Zotero.ZotCard.DateTimes.sqlToDate(note.dateModified, 'yyyy-MM-dd HH:mm:ss')
-    }
-  },
-
-  refreshOptions(cardItem, options) {
-    // options:
-    // {
-    //    startDate: '',
-    //    endDate: '',
-    //    cardtypes: [{name: '', count: 0}, ...],
-    //    cardtags: [{name: '', count: 0}, ...],
-    //    cardauthors: [{name: '', count: 0}, ...]
-    // }
-    if (!options) {
-      options = {}
-    }
-    options = Object.assign({
-      startDate: '',
-      endDate: '',
-      cardtypes: [],
-      cardtags: [],
-      cardauthors: []
-    }, options)
-
-    if (!options.startDate || cardItem.date < options.startDate) {
-      options.startDate = cardItem.date
-    }
-    if (!options.endDate || cardItem.date > options.endDate) {
-      options.endDate = cardItem.date
-    }
-
-    _calculateOptionItem(options.cardtypes, cardItem.type)
-    if (cardItem.author) {
-      _calculateOptionItem(options.cardauthors, cardItem.author)
-    }
-
-    if (cardItem.tags.length === 0) {
-      _calculateOptionItem(options.cardtags, '无')
-    } else {
-      let, diff = cardItem.tags.filter(e => !options.cardtags.includes(e))
-      diff.forEach(element => {
-        _calculateOptionItem(options.cardtags, element)
-      })
-    }
-
-    return options
-  },
-
-  _calculateOptionItem(items, name) {
-    let filters = items.filter(e => e.name === name)
-    if (filters && filters.length > 0) {
-      filters[0].count = filters[0].count + 1
-    } else {
-      items.push({
-        name: name,
-        count: 1
-      })
-    }
-  },
-
-  bulidOptions(cards) {
-    let options = {}
-    cards.forEach(element => {
-      options = Zotero.ZotCard.Utils.refreshOptions(element, options)
-    })
-    return options
   },
 
   swap(array, index1, index2) {

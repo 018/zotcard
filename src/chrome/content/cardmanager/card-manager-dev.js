@@ -194,6 +194,11 @@ window.onload = async function () {
         options: {
           cardtypes: ['1', '2'],
           tags: [{type: 1, tag: '333'}]
+        },
+        cardViewerPopover: {
+          visible: false,
+          selected: 'all',
+          total: 0,
         }
       });
       const filters = reactive({
@@ -373,6 +378,9 @@ window.onload = async function () {
           case 'hide':
             card.isShow = false;
             break;
+          case 'cardviewer':
+            renders.cardViewerPopover.visible = true;
+            break;
           case 'zotero':
             
             break;
@@ -531,6 +539,26 @@ window.onload = async function () {
         Zotero.getMainWindow().focus();
       }
 
+      function handelCardViewerPopoverChagne() {
+        switch (renders.cardViewerPopover.selected) {
+          case 'all':
+            renders.cardViewerPopover.total = cards.length;
+            break;
+          case 'random':
+            renders.cardViewerPopover.total = cards.length / 2;
+            break;
+          case 'selectbefore':
+            renders.cardViewerPopover.total = Math.min(5, cards.length);
+            break;
+          case 'selectafter':
+            renders.cardViewerPopover.total = Math.min(5, cards.length);
+            break;
+        
+          default:
+            break;
+        }
+      }
+
       _init();
 
       return {
@@ -555,7 +583,8 @@ window.onload = async function () {
         handleExcludeChange,
         handleTools,
         handleTitle,
-        handleCardTools
+        handleCardTools,
+        handelCardViewerPopoverChagne
       }
     }
   });

@@ -594,6 +594,10 @@ window.onload = function() {
 			function filterField(values) {
 				return values.filter(e => e.name.toLowerCase().includes(searchField.value.toLowerCase()));
 			}
+
+			function l10n(key) {
+			  return _l10n.formatValueSync(key);
+			}
 			
 			_init();
 
@@ -629,7 +633,8 @@ window.onload = function() {
 				handleShowEmojisPopover,
 				handleShowFieldsPopover,
 				filterField,
-				handlePreview
+				handlePreview,
+				l10n
 			}
 		}
 	});

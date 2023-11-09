@@ -29,7 +29,8 @@
       app.component('zot-text', {
         props: ['text'],
         setup(props) {
-          if (props.text && props.text.toString().length) {
+          let ret = props.text && props.text.toString().length > 0;
+          if (ret) {
             return () => Vue.h('span', props.text);
           } else {
             return () => Vue.h('span', {style: {color: '#BDC4CC'}}, '-');

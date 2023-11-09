@@ -216,7 +216,7 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 				}
 			}
 
-			var clipboardText = Zotero.getMainWindow().Zotero.ZotCard.Utils.getClipboard();
+			var clipboardText = Zotero.ZotCard.Clipboards.getClipboard();
 			var tags = [];
 			var dateAdded = '';
 			var dateModified = '';
@@ -473,10 +473,87 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 		return match ? match[0].trim() : '';
 	},
 
-	async load(window, allCards, filters, profiles, process, complete) {
+	parseParentIDs (dataIn) {
+		var parentIDs = [];
+		dataIn.forEach(element => {
+			switch (element.type) {
+				case Zotero.ZotCard.Consts.cardManagerType.library:
+				// library
+				let library = Zotero.Libraries.get(element.id);
+				if (Zotero.ZotCard.Objects.isNullOrUndefined(library)) {
+					ZotElementPlus.Console.log('The libraryID ' + element.id + ' is incorrect.');
+				}
+				parentIDs.push(['library-' + library.id]);
+				break;
+				case Zotero.ZotCard.Consts.cardManagerType.collection:
+				// collection
+				let collection = Zotero.Collections.get(element.id);
+				if (Zotero.ZotCard.Objects.isNullOrUndefined(collection)) {
+					ZotElementPlus.Console.log('The collectionID ' + element.id + ' is incorrect.');
+				}
+				parentIDs.push(Zotero.ZotCard.Collections.links(element.id).map(e => {
+					return e.type + '-' + e.dataObject.id
+				}));
+				break;
+				case Zotero.ZotCard.Consts.cardManagerType.search:
+				// search
+				let search = Zotero.Searches.get(element.id);
+				if (Zotero.ZotCard.Objects.isNullOrUndefined(search)) {
+					ZotElementPlus.Console.log('The searchID ' + element.id + ' is incorrect.');
+				}
+				parentIDs.push(Zotero.ZotCard.Searches.links(element.id).map(e => {
+					return e.type + '-' + e.dataObject.id
+				}));
+				break;
+				case Zotero.ZotCard.Consts.cardManagerType.item:
+				// item
+				let item = Zotero.Items.get(element.id);
+				if (Zotero.ZotCard.Objects.isEmptyNumber(item)) {
+					ZotElementPlus.Console.log('The itemID ' + element.id + ' is incorrect.');
+				}
+				let pIDs1 = [];
+				if (element.collectionID) {
+					pIDs1.push(...Zotero.ZotCard.Collections.links(element.collectionID).map(e => {
+					return e.type + '-' + e.dataObject.id
+					}));
+					pIDs1.push('item-' + element.id);
+				} else {
+					pIDs1.push(...Zotero.ZotCard.Items.links(element.id).map(e => {
+					return e.type + '-' + e.dataObject.id
+					}));
+				}
+				parentIDs.push(pIDs1);
+
+				break;
+				case Zotero.ZotCard.Consts.cardManagerType.note:
+				// note
+				let note = Zotero.Items.get(element.id);
+				if (Zotero.ZotCard.Objects.isEmptyNumber(note)) {
+					ZotElementPlus.Console.log('The noteID ' + element.id + ' is incorrect.');
+				}
+
+				let pIDs2 = [];
+				if (element.collectionID) {
+					pIDs2.push(...Zotero.ZotCard.Collections.links(element.collectionID).map(e => {
+					return e.type + '-' + e.dataObject.id
+					}));
+					pIDs2.push('note-' + element.id);
+				} else {
+					pIDs2.push(...Zotero.ZotCard.Notes.links(element.id).map(e => {
+					return e.type + '-' + e.dataObject.id
+					}));
+				}
+				parentIDs.push(pIDs2);
+				break;
+			}
+		});
+		return parentIDs;
+	},
+
+	async load(window, allCards, parentIDs, profiles, process, complete) {
 		allCards.splice(0);
-		for (let index = 0; index < filters.parentIDs.length; index++) {
-			const element = filters.parentIDs[index];
+		for (let index = 0; index < parentIDs.length; index++) {
+			const element = parentIDs[index];
 			let splits = element[element.length - 1].split('-');
 			let type = splits[0], id = parseInt(splits[1]);
 			Zotero.ZotCard.Logger.log('type: ' + type + ', id: ' + id);
@@ -707,6 +784,10 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 			}
 		}));
 
+		this.sort(cards, filters);
+	},
+
+	sort(cards, filters) {
 		// 'date', 'dateAdded', 'dateModified', 'title' ,'words', 'lines', 'sizes'
 		cards.sort((card1, card2) => {
 			switch (filters.orderby) {
@@ -742,7 +823,7 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 					return;
 				}
 
-				let excludeTitle = profiles.excludeTitle.trim().replaceAll('\n\r', '\n');
+				let excludeTitle = profiles.excludeTitle?.trim().replaceAll('\n\r', '\n');
 				if (excludeTitle) {
 					Zotero.ZotCard.Logger.log('excludeTitle: ' + excludeTitle);
 					let reg = new RegExp(`(?:${excludeTitle.split('\n').map(e => {
@@ -769,10 +850,10 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 				}
 
 				if (item.parentItem) {
-					let excludeItemKeys = this._excludeItemKeys(profiles);
+					let excludeItemKeys = this._excludeItemKeys(item.libraryID, profiles);
 					if (Zotero.ZotCard.Objects.isNoEmptyArray(excludeItemKeys)) {
 						if (excludeItemKeys.includes(item.parentItem.key)) {
-							Zotero.ZotCard.Logger.log(`The item ${title} is exclude, skip.`);
+							Zotero.ZotCard.Logger.log(`The item ${title} is exclude(${excludeItemKeys.join(',')}), skip.`);
 							return;
 						}
 					}
@@ -796,16 +877,18 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 		});
 	},
 
-	_excludeItemKeys(profiles) {
+	_excludeItemKeys(libraryID, profiles) {
 		let excludeItemKeys;
 		if (Zotero.ZotCard.Objects.isNoEmptyArray(profiles.excludeCollectionOrItemKeys)) {
-			excludeItemKeys = profiles.excludeCollectionOrItemKeys.filter(e => e[e.length - 1].startsWith('item-'));
+			excludeItemKeys = profiles.excludeCollectionOrItemKeys.filter(e => e[e.length - 1].startsWith('item-' + libraryID + '-'));
 			if (Zotero.ZotCard.Objects.isNoEmptyArray(excludeItemKeys)) {
 				Zotero.ZotCard.Logger.log('excludeItemKeys: ' + excludeItemKeys.join(','));
 				excludeItemKeys = excludeItemKeys.map(e => {
-					return e[e.length - 1].replaceAll('item-', '');
+					return e[e.length - 1].replaceAll('item-' + libraryID + '-', '');
 				});
 			}
+		} else {
+			Zotero.ZotCard.Logger.log('profiles.excludeCollectionOrItemKeys is empty.');
 		}
 		return excludeItemKeys;
 	},
@@ -820,6 +903,8 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 					return e[e.length - 1].replaceAll('collection-' + libraryID + '-', '');
 				});
 			}
+		} else {
+			Zotero.ZotCard.Logger.log('profiles.excludeCollectionOrItemKeys is empty.');
 		}
 		return excludeCollectionKeys;
 	},
@@ -837,30 +922,31 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 		card.note.contentHtml = Zotero.ZotCard.Notes.noteToContent(html);
 		card.note.text = Zotero.ZotCard.Notes.htmlToText(html);
 		card.note.html = html;
-		// card.note.contentHtml = card.note.contentHtml.replaceAll('<a ', '<a onclick="Zotero.debug(event.target.href)" ');
+		card.note.contentHtml = card.note.contentHtml.replaceAll('<img ', '<img itemID="' + item.id + '" title="' + Zotero.ZotCard.L10ns.getString('zotcard-click_to_load') + '" ');
 		// Zotero.ZotCard.Logger.log(card.note.contentHtml);
-		let matchs = card.note.contentHtml.match(/data-attachment-key=\"(.*?)\"/g);
-		if (matchs && matchs.length > 0) {
-			for (let index = 0; index < matchs.length; index++) {
-				let element = matchs[index];
-				let ms = element.match(/data-attachment-key=\"(.*?)\"/);
-				if (ms) {
-					element = ms[1];
-					setTimeout((card, item, element) => {
-						Zotero.ZotCard.Logger.log(item.libraryID + ', ' + element);
-						let attachment = Zotero.Items.getByLibraryAndKey(item.libraryID, element);
-						if (attachment && attachment.parentID == item.id) {
-							attachment.attachmentDataURI.then(dataURI => {
-								card.note.contentHtml = card.note.contentHtml.replaceAll('data-attachment-key="' + element + '"', 'data-attachment-key="' + element + '" src="' + dataURI + '"');
-								Zotero.ZotCard.Logger.log(`attachment ${item.libraryID}, ${element} replace.`);
-							});
-						} else {
-							Zotero.ZotCard.Logger.log(`attachment ${item.libraryID}, ${element} not exists.`);
-						}
-					}, 50, card, item, element);
-				}
-			}
-		}
+		// let matchs = card.note.contentHtml.match(/data-attachment-key=\"(.*?)\"/g);
+		// if (matchs && matchs.length > 0) {
+		// 	for (let index = 0; index < matchs.length; index++) {
+		// 		let element = matchs[index];
+		// 		let ms = element.match(/data-attachment-key=\"(.*?)\"/);
+		// 		if (ms) {
+		// 			element = ms[1];
+		// 			setTimeout((card, item, element) => {
+		// 				Zotero.ZotCard.Logger.log(item.libraryID + ', ' + element);
+		// 				let attachment = Zotero.Items.getByLibraryAndKey(item.libraryID, element);
+		// 				if (attachment && attachment.parentID == item.id) {
+		// 					attachment.attachmentDataURI.then(dataURI => {
+		// 						card.note.contentHtml = card.note.contentHtml.replaceAll('data-attachment-key="' + element + '"', 'data-attachment-key="' + element + '" src="' + dataURI + '"');
+		// 						card.note.html = card.note.html.replaceAll('data-attachment-key="' + element + '"', 'data-attachment-key="' + element + '" src="' + dataURI + '"');
+		// 						Zotero.ZotCard.Logger.log(`attachment ${item.libraryID}, ${element} replace.`);
+		// 					});
+		// 				} else {
+		// 					Zotero.ZotCard.Logger.log(`attachment ${item.libraryID}, ${element} not exists.`);
+		// 				}
+		// 			}, 50, card, item, element);
+		// 		}
+		// 	}
+		// }
 		
 // 		`<div data-schema-version="8"><h1>E.cb01a - 条件三段论-1</h1>
 // <p> 提出者：亚里士多德</p>

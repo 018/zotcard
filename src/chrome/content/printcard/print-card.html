@@ -92,7 +92,7 @@
 						<span data-l10n-id="zotcard-print-card-paragraphSpacing">段间距：</span>
 						<el-input-number style="width: 75px;" v-model="profiles.paragraphSpacing" :min="1" :max="20" @input="handleChange('paragraphSpacing')"></el-input-number>
 					</div>
-					<el-button type="success" @click="handlePrint"><span data-l10n-id="zotcard-print-card-print">打印1</span></el-button>
+					<el-button  type="success" plain @click="handlePrint"><span data-l10n-id="zotcard-print-card-print">打印1</span></el-button>
 				</el-space>
 			</div>
 		</el-affix>

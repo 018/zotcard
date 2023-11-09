@@ -1,6 +1,8 @@
 const { createApp, ref, reactive, toRaw, computed, nextTick } = Vue;
 const { ElMessageBox, ElLoading } = ElementPlus;
 
+// [{type: 'library', id: 1}, {type: 'collection', id: 1}, {type: 'search', id: 1}, {type: 'item', id: 1}, {type: 'note', id: 1}]
+
 var from;
 var dataIn;
 let io;
@@ -23,82 +25,7 @@ if (!dataIn) {
 
 Zotero.ZotCard.Logger.log('dataIn: ' + JSON.stringify(dataIn));
 
-
-const parentIDs = [];
-dataIn.forEach(element => {
-  switch (element.type) {
-    case Zotero.ZotCard.Consts.cardManagerType.library:
-      // library
-      let library = Zotero.Libraries.get(element.id);
-      if (Zotero.ZotCard.Objects.isNullOrUndefined(library)) {
-        ZotElementPlus.Console.log('The libraryID ' + element.id + ' is incorrect.');
-      }
-      parentIDs.push(['library-' + library.id]);
-      break;
-    case Zotero.ZotCard.Consts.cardManagerType.collection:
-      // collection
-      let collection = Zotero.Collections.get(element.id);
-      if (Zotero.ZotCard.Objects.isNullOrUndefined(collection)) {
-        ZotElementPlus.Console.log('The collectionID ' + element.id + ' is incorrect.');
-      }
-      parentIDs.push(Zotero.ZotCard.Collections.links(element.id).map(e => {
-        return e.type + '-' + e.dataObject.id
-      }));
-      break;
-    case Zotero.ZotCard.Consts.cardManagerType.search:
-      // search
-      let search = Zotero.Searches.get(element.id);
-      if (Zotero.ZotCard.Objects.isNullOrUndefined(search)) {
-        ZotElementPlus.Console.log('The searchID ' + element.id + ' is incorrect.');
-      }
-      parentIDs.push(Zotero.ZotCard.Searches.links(element.id).map(e => {
-        return e.type + '-' + e.dataObject.id
-      }));
-      break;
-    case Zotero.ZotCard.Consts.cardManagerType.item:
-      // item
-      let item = Zotero.Items.get(element.id);
-      if (Zotero.ZotCard.Objects.isEmptyNumber(item)) {
-        ZotElementPlus.Console.log('The itemID ' + element.id + ' is incorrect.');
-      }
-      let pIDs1 = [];
-      if (element.collectionID) {
-        pIDs1.push(...Zotero.ZotCard.Collections.links(element.collectionID).map(e => {
-          return e.type + '-' + e.dataObject.id
-        }));
-        pIDs1.push('item-' + element.id);
-      } else {
-        pIDs1.push(...Zotero.ZotCard.Items.links(element.id).map(e => {
-          return e.type + '-' + e.dataObject.id
-        }));
-      }
-      parentIDs.push(pIDs1);
-
-      break;
-    case Zotero.ZotCard.Consts.cardManagerType.note:
-      // note
-      let note = Zotero.Collections.get(element.id);
-      if (Zotero.ZotCard.Objects.isEmptyNumber(note)) {
-        ZotElementPlus.Console.log('The noteID ' + element.id + ' is incorrect.');
-      }
-
-      let pIDs2 = [];
-      if (element.collectionID) {
-        pIDs2.push(...Zotero.ZotCard.Collections.links(element.collectionID).map(e => {
-          return e.type + '-' + e.dataObject.id
-        }));
-        pIDs2.push('note-' + element.id);
-      } else {
-        pIDs2.push(...Zotero.ZotCard.Notes.links(element.id).map(e => {
-          return e.type + '-' + e.dataObject.id
-        }));
-      }
-      parentIDs.push(pIDs2);
-      break;
-  }
-});
-
-Zotero.ZotCard.Logger.log('parentIDs: ' + JSON.stringify(parentIDs));
+const parentIDs = Zotero.ZotCard.Cards.parseParentIDs(dataIn);
 
 const _profiles = {
   excludeTitle: '',
@@ -364,6 +291,11 @@ window.onload = async function () {
           cardtypes: [],
           tags: []
         },
+        cardViewerPopover: {
+          visible: false,
+          selected: 'all',
+          total: 0,
+        }
       });
       const filters = reactive({
         parentIDs: parentIDs,
@@ -482,7 +414,7 @@ window.onload = async function () {
         moreLoadeds.value = 0;
         renders.options.cardtypes.splice(0);
         renders.options.tags.splice(0);
-        await Zotero.ZotCard.Cards.load(window, allCards, filters, profiles, (card) => {
+        await Zotero.ZotCard.Cards.load(window, allCards, filters.parentIDs, profiles, (card) => {
           card.more.tags.forEach(tag => {
             if (!renders.options.tags.find((t) => tag.type === t.type && tag.tag === t.tag)) {
               renders.options.tags.push(tag);
@@ -515,7 +447,7 @@ window.onload = async function () {
       const handleOrderby = ZotElementPlus.debounce((orderby) => {
         filters.orderby = orderby;
         filters.desc = !filters.desc;
-        _filter();
+        Zotero.ZotCard.Cards.sort(cards, filters);
       }, 50);
 
       const handleModeChange = () => {
@@ -552,7 +484,7 @@ window.onload = async function () {
           case 'delete':
             selecteds = cards.filter(e => e.isSelected);
             if (selecteds.length === 0) {
-              Zotero.ZotCard.Messages.warning(window, Zotero.ZotCard.L10ns.getString('zotcard-pleas_select_card'));
+              Zotero.ZotCard.Messages.warning(window, Zotero.ZotCard.L10ns.getString('zotcard-please_select_card'));
               return;
             }
 
@@ -565,7 +497,7 @@ window.onload = async function () {
           case 'copy-content':
             selecteds = cards.filter(e => e.isSelected);
             if (selecteds.length === 0) {
-              Zotero.ZotCard.Messages.warning(window, Zotero.ZotCard.L10ns.getString('zotcard-pleas_select_card'));
+              Zotero.ZotCard.Messages.warning(window, Zotero.ZotCard.L10ns.getString('zotcard-please_select_card'));
               return;
             }
             
@@ -587,7 +519,7 @@ window.onload = async function () {
           case 'copy-text':
             selecteds = cards.filter(e => e.isSelected);
             if (selecteds.length === 0) {
-              Zotero.ZotCard.Messages.warning(window, Zotero.ZotCard.L10ns.getString('zotcard-pleas_select_card'));
+              Zotero.ZotCard.Messages.warning(window, Zotero.ZotCard.L10ns.getString('zotcard-please_select_card'));
               return;
             }
             
@@ -603,7 +535,7 @@ window.onload = async function () {
           case 'copy-markdown':
             selecteds = cards.filter(e => e.isSelected);
             if (selecteds.length === 0) {
-              Zotero.ZotCard.Messages.warning(window, Zotero.ZotCard.L10ns.getString('zotcard-pleas_select_card'));
+              Zotero.ZotCard.Messages.warning(window, Zotero.ZotCard.L10ns.getString('zotcard-please_select_card'));
               return;
             }
             
@@ -619,7 +551,7 @@ window.onload = async function () {
           case 'copy-html':
             selecteds = cards.filter(e => e.isSelected);
             if (selecteds.length === 0) {
-              Zotero.ZotCard.Messages.warning(window, Zotero.ZotCard.L10ns.getString('zotcard-pleas_select_card'));
+              Zotero.ZotCard.Messages.warning(window, Zotero.ZotCard.L10ns.getString('zotcard-please_select_card'));
               return;
             }
             
@@ -677,7 +609,7 @@ window.onload = async function () {
           case 'print':
             selecteds = cards.filter(e => e.isSelected);
             if (selecteds.length === 0) {
-              Zotero.ZotCard.Messages.warning(window, Zotero.ZotCard.L10ns.getString('zotcard-pleas_select_card'));
+              Zotero.ZotCard.Messages.warning(window, Zotero.ZotCard.L10ns.getString('zotcard-please_select_card'));
               return;
             }
 
@@ -708,6 +640,12 @@ window.onload = async function () {
               default:
                 break;
             }
+            break;
+          case 'cardviewer':
+            if (renders.cardViewerPopover.selected === 'all') {
+              renders.cardViewerPopover.total = cards.length;
+            }
+            renders.cardViewerPopover.visible = !renders.cardViewerPopover.visible;
             break;
           case 'window':
             if (tabID) {
@@ -1069,6 +1007,72 @@ window.onload = async function () {
         Zotero.getMainWindow().focus();
       }
 
+      function handelCardViewerPopoverChagne() {
+        switch (renders.cardViewerPopover.selected) {
+          case 'all':
+            renders.cardViewerPopover.total = cards.length;
+            break;
+          case 'random':
+            renders.cardViewerPopover.total = cards.length / 2;
+            break;
+          case 'selectbefore':
+            renders.cardViewerPopover.total = Math.min(5, cards.length);
+            break;
+          case 'selectafter':
+            renders.cardViewerPopover.total = Math.min(5, cards.length);
+            break;
+        
+          default:
+            break;
+        }
+      }
+
+      function handleCancelCardViewer() {
+        renders.cardViewerPopover.visible = false;
+      }
+
+      function handleCardViewer (){
+        Zotero.ZotCard.Logger.log(renders.cardViewerPopover.selected);
+        
+        let _cards = [];
+        renders.cardViewerPopover.visible = false;
+        switch (renders.cardViewerPopover.selected) {
+          case 'all':
+            _cards.push(...cards);
+            break;
+          case 'random':
+            if (renders.cardViewerPopover.total >= cards.length) {
+              _cards.push(...cards);
+            } else {
+              _cards.push(...cards);
+              for (let index = 0; index < cards.length - renders.cardViewerPopover.total; index++) {
+                let random = parseInt(Math.random() * (_cards.length));
+                _cards.splice(random, 1);
+              }
+            }
+            break;
+          case 'selectbefore':
+            for (let index = 0; index < Math.min(renders.cardViewerPopover.total, cards.length); index++) {
+              _cards.push(cards[index]);
+            }
+            break;
+          case 'selectafter':
+            for (let index = Math.max(0, cards.length - renders.cardViewerPopover.total - 1); index < cards.length; index++) {
+              _cards.push(cards[index]);
+            }
+            break;
+        
+          default:
+            break;
+        }
+        
+        Zotero.ZotCard.Dialogs.openCardViewerWithCards(_cards);
+      }
+
+      function l10n(key) {
+        return _l10n.formatValueSync(key);
+      }
+
       _init();
 
       return {
@@ -1100,11 +1104,64 @@ window.onload = async function () {
         handleSaveFilterChange,
         handleTools,
         handleTitle,
-        handleCardTools
+        handleCardTools,
+        handleCancelCardViewer,
+        handleCardViewer,
+        handelCardViewerPopoverChagne,
+        l10n
       }
     }
   });
 }
+
+window.addEventListener("click", function (event) {
+	if (event.originalTarget.localName == 'a') {
+    let href = event.originalTarget.getAttribute('href');
+    if (href) {
+      Zotero.launchURL(href);
+    } else {
+      Zotero.ZotCard.Logger.log('click a but the href is null.');
+    }
+	} else if (event.originalTarget.localName == 'img') {
+    let src = event.originalTarget.getAttribute('src');
+    let itemID = event.originalTarget.getAttribute('itemID');
+    let key = event.originalTarget.getAttribute('data-attachment-key');
+    if (src) {
+      Zotero.ZotCard.Logger.log('click img but the loaded.');
+      let width = event.originalTarget.getAttribute('width');
+      let height = event.originalTarget.getAttribute('height');
+      let srcWidth = event.originalTarget.getAttribute('srcWidth');
+      let srcHeight = event.originalTarget.getAttribute('srcHeight');
+      if (srcWidth || srcHeight) {
+        event.originalTarget.setAttribute('width', srcWidth);
+        event.originalTarget.setAttribute('height', srcHeight);
+        event.originalTarget.removeAttribute('srcWidth');
+        event.originalTarget.removeAttribute('srcHeight');
+      } else {
+        event.originalTarget.setAttribute('srcWidth', width);
+        event.originalTarget.setAttribute('srcHeight', height);
+        event.originalTarget.setAttribute('width', '100%');
+        event.originalTarget.setAttribute('height', '100%');
+      }
+      return;
+    }
+
+    if (itemID && key) {
+      let item = Zotero.Items.get(itemID);
+      let attachment = Zotero.Items.getByLibraryAndKey(item.libraryID, key);
+      if (attachment && attachment.parentID == item.id) {
+        attachment.attachmentDataURI.then(dataURI => {
+          event.originalTarget.setAttribute('src', dataURI);
+          Zotero.ZotCard.Logger.log(`attachment ${item.libraryID}, ${key} replace.`);
+        });
+      } else {
+        Zotero.ZotCard.Logger.log(`attachment ${item.libraryID}, ${key} not exists.`);
+      }
+    } else {
+      Zotero.ZotCard.Logger.log('click img but the itemID or key is null.');
+    }
+	}
+});
 
 window.onclose = function() {
   Zotero.ZotCard.Logger.log('onclose');
