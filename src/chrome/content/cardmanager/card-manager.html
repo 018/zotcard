@@ -233,12 +233,12 @@
 					<el-divider direction="vertical"></el-divider>
 					<el-link :underline="false"
 						@click="handleTools('refresh')" data-l10n-id="zotcard-card-manager-toolbar-refresh-title"><el-icon><Refresh /></el-icon></el-link>
-					<el-link :underline="false"
+					<el-link :disabled="total === 0" :underline="false"
 						@click="handleTools('edit')" data-l10n-id="zotcard-card-manager-toolbar-edit-title"><el-icon><Edit-Pen /></el-icon></el-link>
-					<el-link :underline="false" @click="handleTools('delete')" data-l10n-id="zotcard-card-manager-toolbar-delete-title"><el-icon>
+					<el-link :disabled="total === 0" :underline="false" @click="handleTools('delete')" data-l10n-id="zotcard-card-manager-toolbar-delete-title"><el-icon>
 							<Delete />
 						</el-icon></el-link>
-					<el-dropdown>
+					<el-dropdown :disabled="total === 0">
 						<el-icon><Document-Copy /></el-icon>
 						<template #dropdown>
 							<el-dropdown-menu>
@@ -270,36 +270,37 @@
 							<Download></Download>
 						</el-icon></el-link> -->
 					<el-divider direction="vertical"></el-divider>
-					<el-link :underline="false" @click="handleTools('selectedall')" data-l10n-id="zotcard-card-manager-toolbar-selectedall-title"><el-icon>
+					<el-link :disabled="total === 0" :underline="false" @click="handleTools('selectedall')" data-l10n-id="zotcard-card-manager-toolbar-selectedall-title"><el-icon>
 						<Circle-Check-Filled></Circle-Check-Filled>
 					</el-icon></el-link>
-					<el-link :underline="false" @click="handleTools('unselectedall')" data-l10n-id="zotcard-card-manager-toolbar-unselectedall-title"><el-icon>
+					<el-link :disabled="total == 0" :underline="false" @click="handleTools('unselectedall')" data-l10n-id="zotcard-card-manager-toolbar-unselectedall-title"><el-icon>
 						<Circle-Check></Circle-Check>
 					</el-icon></el-link>
-					<el-link :underline="false" icon="View" @click="handleTools('view')" data-l10n-id="zotcard-card-manager-toolbar-view-title"></el-link>
-					<el-link :underline="false" @click="handleTools('hide')" data-l10n-id="zotcard-card-manager-toolbar-hide-title"><el-icon>
+					<el-link :disabled="total === 0" :underline="false" icon="View" @click="handleTools('view')" data-l10n-id="zotcard-card-manager-toolbar-view-title"></el-link>
+					<el-link :disabled="total === 0" :underline="false" @click="handleTools('hide')" data-l10n-id="zotcard-card-manager-toolbar-hide-title"><el-icon>
 						<Hide></Hide>
 					</el-icon></el-link>
-					<el-link v-if="moreLoadeds === cards.length" :underline="false" @click="handleTools('collapse')" data-l10n-id="zotcard-card-manager-toolbar-collapse-title"><el-icon>
+					<el-link :disabled="total === 0" v-if="moreLoadeds === cards.length" :underline="false" @click="handleTools('collapse')" data-l10n-id="zotcard-card-manager-toolbar-collapse-title"><el-icon>
 						<Caret-Top></Caret-Top>
 					</el-icon></el-link>
-					<el-link :underline="false" @click="handleTools('expand')" data-l10n-id="zotcard-card-manager-toolbar-expand-title"><el-icon>
+					<el-link :disabled="total === 0" :underline="false" @click="handleTools('expand')" data-l10n-id="zotcard-card-manager-toolbar-expand-title"><el-icon>
 						<Caret-Bottom></Caret-Bottom>
 					</el-icon></el-link>
 					<el-divider direction="vertical"></el-divider>
-					<el-link :underline="false" @click="handleTools('print')" data-l10n-id="zotcard-card-manager-toolbar-print-title"><el-icon>
+					<el-link :disabled="total === 0" :underline="false" @click="handleTools('print')" data-l10n-id="zotcard-card-manager-toolbar-print-title"><el-icon>
 							<Printer></Printer>
 						</el-icon></el-link>
 					<el-divider direction="vertical"></el-divider>
-					<el-popover :width="350" :visible="renders.cardViewerPopover.visible" trigger="click" placement="bottom">
+					<el-popover :width="450" :visible="renders.cardViewerPopover.visible" trigger="click" placement="bottom">
 						<template #reference>
-							<el-link :underline="false" @click="handleTools('cardviewer')">
+							<el-link :disabled="total === 0" :underline="false" @click="handleTools('cardviewer')" data-l10n-id="zotcard-card-manager-toolbar-cardviewer-title">
 								<img src="chrome://zotcard/content/images/card-viewer.png" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
 							</el-link>
 						</template>
 						<el-space size="large" alignment="center" direction="vertical" style="font-size: 12px;">
 							<el-space wrap>
 								<span data-l10n-id="zotcard-card-manager-show_card_viewer-in_the">在1</span>
+								<span data-l10n-id="zotcard-card-manager">卡片管理器1</span>
 								<span v-if="filters.mode === ZotCardConsts.modeProps.all" data-l10n-id="zotcard-card-manager-toolbar-all">所有</span>
 								<span v-if="filters.mode === ZotCardConsts.modeProps.only_show" data-l10n-id="zotcard-card-manager-toolbar-onlyshow">仅显示1</span>
 								<span v-if="filters.mode === ZotCardConsts.modeProps.only_hide" data-l10n-id="zotcard-card-manager-toolbar-onlyhide">仅隐藏1</span>
@@ -318,7 +319,7 @@
 							</el-space>
 							<el-space>
 								<el-button @click="handleCancelCardViewer"><span data-l10n-id="zotcard-card-manager-show_card_viewer-cancel">取消1</span></el-button>
-								<el-button @click="handleCardViewer" type="success" plain><span data-l10n-id="zotcard-card-manager-show_card_viewer-open">立即读卡1</span></el-button>
+								<el-button @click="handleCardViewer" type="success" plain :disabled="renders.cardViewerPopover.total <= 0"><span data-l10n-id="zotcard-card-manager-show_card_viewer-open">立即读卡1</span></el-button>
 							</el-space>
 						</el-space>
 					</el-popover>
@@ -334,7 +335,7 @@
 					</el-link> -->
 				</el-space>
 				<el-space>
-					<el-radio-group v-model="filters.mode" size="small" @change="handleModeChange">
+					<el-radio-group v-model="filters.mode" size="small" @change="handleModeChange" :disabled="total === 0">
 						<el-radio-button :label="ZotCardConsts.modeProps.all"><span data-l10n-id="zotcard-card-manager-toolbar-all">所有</span></el-radio-button>
 						<el-radio-button :label="ZotCardConsts.modeProps.only_show"><span data-l10n-id="zotcard-card-manager-toolbar-onlyshow">仅显示1</span></el-radio-button>
 						<el-radio-button :label="ZotCardConsts.modeProps.only_hide"><span data-l10n-id="zotcard-card-manager-toolbar-onlyhide">仅隐藏1</span></el-radio-button>
@@ -344,14 +345,14 @@
 					</el-radio-group>
 				</el-space>
 				<el-space class="el-link-text">
-					<el-link :disabled="moreLoadeds < total" v-for="f in ['date', 'dateAdded', 'dateModified', 'title']" :underline="false" @click="handleOrderby(f)" :type="filters.orderby === f ? 'primary' : ''">
+					<el-link :disabled="moreLoadeds < total || total === 0" v-for="f in ['date', 'dateAdded', 'dateModified', 'title']" :underline="false" @click="handleOrderby(f)" :type="filters.orderby === f ? 'primary' : ''">
 						<el-icon>
 							<D-Caret v-if="filters.orderby !== f"></D-Caret>
 							<Caret-Bottom v-else-if="renders.isOrderbyDesc(f)"></Caret-Bottom>
 							<Caret-Top v-else></Caret-Top>
 						</el-icon> <span :data-l10n-id="`zotcard-card-manager-${f}`">{{ f }}</span>
 					</el-link>
-					<el-link v-if="profiles.parseWords" :disabled="moreLoadeds < total" v-for="f in ['words', 'lines', 'sizes']" :underline="false" @click="handleOrderby(f)" :type="filters.orderby === f ? 'primary' : ''">
+					<el-link v-if="profiles.parseWords" :disabled="moreLoadeds < total || total === 0" v-for="f in ['words', 'lines', 'sizes']" :underline="false" @click="handleOrderby(f)" :type="filters.orderby === f ? 'primary' : ''">
 						<el-icon>
 							<D-Caret v-if="filters.orderby !== f"></D-Caret>
 							<Caret-Bottom v-else-if="renders.isOrderbyDesc(f)"></Caret-Bottom>
@@ -523,7 +524,7 @@
 				</el-card>
 			</el-space>
 
-			<div v-if="scroll.disabled" class="fill hcenter text-color-placeholder more" data-l10n-id="zotcard-card-manager-nomore">No More</div>
+			<div v-if="scroll.disabled" class="fill hcenter text-color-placeholder more">{{l10n('zotcard-card-manager-nomore', {total})}}</div>
 			<div v-if="scroll.loading" class="fill hcenter text-color-placeholder more" data-l10n-id="zotcard-card-manager-loading">Loading</div>
 		</div>
 		<el-empty v-else>

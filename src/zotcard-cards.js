@@ -483,7 +483,7 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 				if (Zotero.ZotCard.Objects.isNullOrUndefined(library)) {
 					ZotElementPlus.Console.log('The libraryID ' + element.id + ' is incorrect.');
 				}
-				parentIDs.push(['library-' + library.id]);
+				parentIDs.push(['library-' + library.libraryID]);
 				break;
 				case Zotero.ZotCard.Consts.cardManagerType.collection:
 				// collection

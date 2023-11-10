@@ -37,6 +37,7 @@ if (!io) {
 
   window.onload = async function () {
     const _pagesize = 5;
+    const _l10n = new Localization(["card-viewer.ftl", "zotcard.ftl"], true);
 
     Zotero.ZotCard.Logger.ding();
     ZotElementPlus.createElementPlusApp({

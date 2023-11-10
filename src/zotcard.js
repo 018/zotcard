@@ -700,25 +700,35 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 
 	collectionCardManagerd() {
 		let items;
-		let libraryID = Zotero.getMainWindow().ZoteroPane.getSelectedLibraryID();
-		let collection = Zotero.getMainWindow().ZoteroPane.getSelectedCollection();
-		let search = Zotero.getMainWindow().ZoteroPane.getSelectedSavedSearch();
 
-		if (collection) {
-			items = [{
-				type: Zotero.ZotCard.Consts.cardManagerType.collection,
-				id: collection.id
-			}];
-		} else if(search) {
-			items = [{
-				type: Zotero.ZotCard.Consts.cardManagerType.search,
-				id: search.id
-			}];
-		} else {
-			items = [{
-				type: Zotero.ZotCard.Consts.cardManagerType.library,
-				id: libraryID
-			}];
+		switch (Zotero.getMainWindow().ZoteroPane.getCollectionTreeRow().type) {
+			case 'library':
+			case 'group':
+				let libraryID = Zotero.getMainWindow().ZoteroPane.getSelectedLibraryID();
+				items = [{
+					type: Zotero.ZotCard.Consts.cardManagerType.library,
+					id: libraryID
+				}];
+				break;
+			case 'collection':
+				let collection = Zotero.getMainWindow().ZoteroPane.getSelectedCollection();
+				items = [{
+					type: Zotero.ZotCard.Consts.cardManagerType.collection,
+					id: collection.id
+				}];
+				break;
+			case 'search':
+				let search = Zotero.getMainWindow().ZoteroPane.getSelectedSavedSearch();
+				items = [{
+					type: Zotero.ZotCard.Consts.cardManagerType.search,
+					id: search.id
+				}];
+				break;
+				
+				break;
+		
+			default:
+				break;
 		}
 		
 		Zotero.ZotCard.Dialogs.openCardManagerTab(items);

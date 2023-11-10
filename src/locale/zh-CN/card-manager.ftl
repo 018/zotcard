@@ -34,6 +34,8 @@ zotcard-card-manager-toolbar-showorhide-title =
     .title = 显示 / 不显示
 zotcard-card-manager-toolbar-selectedorunselected-title = 
     .title = 选择 / 不选择
+zotcard-card-manager-toolbar-cardviewer-title = 
+    .title = 读卡
 
 
 
@@ -64,7 +66,7 @@ zotcard-card-manager-relations = 卡片相关
 zotcard-card-manager-cardtype = 卡片类型
 zotcard-card-manager-tags = 卡片标签
 
-zotcard-card-manager-nomore = 没有卡片了。
+zotcard-card-manager-nomore = 总卡片数：{ $total }
 zotcard-card-manager-loading = 加载卡片中...
 
 zotcard-card-manager-filter = 筛选

@@ -117,18 +117,10 @@
 		<!-- header -->
 		<div class="header">
 			<el-space wrap>
-				<!-- <el-badge is-dot class="item">
-					<el-link :underline="false" @click="handleTools('menu')" data-l10n-id="zotcard-card-manager-toolbar-menu-title">
-						<el-icon><Expand></Expand></el-icon>
-					</el-link>
-				</el-badge> -->
 				<el-link :underline="false" @click="handleTools('zotero')" data-l10n-id="zotcard-card-manager-toolbar-zotero-title">
 					<img src="chrome://zotero/skin/zotero-new-z-48px.png" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
 				</el-link>
 				<el-divider direction="vertical"></el-divider>
-
-
-
 				<el-space :size="5">
 					<label data-l10n-id="zotcard-card-manager-ui-title_fontsize">标题字体1</label>
 					<el-input-number style="width: 80px;" v-model="profiles.titleFontSize" :min="5" :max="50" @input="handleUIChange('titleFontSize')"></el-input-number>
@@ -144,12 +136,11 @@
 						<el-radio-button label=""><span data-l10n-id="zotcard-card-manager-ui-style-tiled">平铺1</span></el-radio-button>
 					</el-radio-group>
 				</el-space>
-
 			</el-space>
-			<el-space>
+			<el-space v-if="cards.length > 1">
 				<span>{{ renders.currentIndex + 1 }}</span><span>/</span>{{ renders.total }}<span></span>
 			</el-space>
-			<el-space class="el-link-text">
+			<el-space v-if="cards.length > 1" class="el-link-text">
 				<el-link :underline="false" @click="handleOrderby('random')" :type="filters.orderby === 'random' ? 'primary' : ''">
 					<el-icon>
 						<Switch v-if="filters.orderby === 'random'"></Switch>
@@ -198,7 +189,7 @@
 							<el-space wrap alignment="center">
 								<el-link :underline="false"
 									@click="handleCardTools('edit', cards[n - 1])" data-l10n-id="zotcard-card-manager-toolbar-edit-title"><el-icon><Edit-Pen /></el-icon></el-link>
-									<el-link :underline="false"
+								<el-link v-if="cards.length > 1" :underline="false"
 										@click="handleCardTools('remove', cards[n - 1])" data-l10n-id="zotcard-card-manager-toolbar-remove-title"><el-icon><Circle-Close /></el-icon></el-link>
 								<el-link :underline="false"
 									@click="handleCardTools('delete', cards[n - 1])" data-l10n-id="zotcard-card-manager-toolbar-delete-title"><el-icon>
