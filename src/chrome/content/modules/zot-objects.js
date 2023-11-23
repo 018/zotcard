@@ -3,6 +3,15 @@ if (!Zotero.ZotCard.Objects) Zotero.ZotCard.Objects = {};
 
 Zotero.ZotCard.Objects = Object.assign(Zotero.ZotCard.Objects, {
 	init() {
+    Array.prototype.groupBy = function(array, name) {
+      const groups = {};
+      array.forEach((e) =>{
+        const group = e[name];
+        groups[group] = groups[group] || [];
+        groups[group].push(o);
+      });
+      return Object.values(groups);
+    };
 	},
 
   isNull(value) {

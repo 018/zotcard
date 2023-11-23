@@ -20,22 +20,31 @@ Zotero.ZotCard.Utils = Object.assign(Zotero.ZotCard.Utils, {
 
   // 0.32433 -> 32.4
   scale(number, n) {
+    if (!n) {
+      n = 0;
+    }
     return (number.toFixed(n + 1) * 100).toFixed(n).toString().replace(/\.0*$/g, '');
   },
 
   // 1024 -> 1KB
   displayStore(size) {
-    var data = "";
+    var value;
+    var unit;
     if (size < 0.1 * 1024) { //如果小于0.1KB转化成B  
-      data = size.toFixed(2).replace(/\.0*$/g, '') + "B";
+      value = size.toFixed(2).replace(/\.0*$/g, '');
+      unit = 'B';
     } else if (size < 0.1 * 1024 * 1024) {//如果小于0.1MB转化成KB  
-      data = (size / 1024).toFixed(2).replace(/\.0*$/g, '') + "KB";
+      value = (size / 1024).toFixed(2).replace(/\.0*$/g, '');
+      unit = 'KB';
     } else if (size < 0.1 * 1024 * 1024 * 1024) { //如果小于0.1GB转化成MB  
-      data = (size / (1024 * 1024)).toFixed(2).replace(/\.0*$/g, '') + "MB";
+      value = (size / (1024 * 1024)).toFixed(2).replace(/\.0*$/g, '');
+      unit = 'MB';
     } else {
-      data = (size / (1024 * 1024 * 1024)).toFixed(2).replace(/\.0*$/g, '') + "GB";
+      value = (size / (1024 * 1024 * 1024)).toFixed(2).replace(/\.0*$/g, '');
+      unit = 'GB';
     }
-    return data;
+    var text = value + unit;
+    return {value, unit, text};
   },
 
 

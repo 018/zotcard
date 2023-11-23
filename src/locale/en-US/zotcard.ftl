@@ -3,6 +3,15 @@ zotero-zotcard =
 zotero-zotcard-card-manager =
     .label = Card Manager
 zotero-zotcard-card-manager-title = Card Manager
+zotero-zotcard-card-viewer =
+    .label = Card Viewer
+zotero-zotcard-card-viewer-title = Card Viewer
+zotero-zotcard-card-editor =
+    .label = Source Code Editor
+zotero-zotcard-card-editor-title = Source Card Editor
+zotero-zotcard-card-report =
+    .label = Card Report
+zotero-zotcard-card-report-title = Card Report
 
 zotcard-quotescard = Quotes Card
 zotcard-conceptcard = Concept Card
@@ -34,3 +43,5 @@ zotcard-trash = Are you sure you want to move the card to the recycle bin?
 zotcard-please_select_card = Please select the card.
 
 zotcard-click_to_load = Click to load
+
+zotcard-editInWindow = Edit in a Separate Window

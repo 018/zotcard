@@ -179,16 +179,26 @@
 							<div class="card-header">
 								<h1 class="title fill single-line" :style="{ fontSize: profiles.titleFontSize + 'px' }" :title="cards[n - 1].note.title"><zot-text :text="cards[n - 1].note.title"></zot-text></h1>
 								<el-space>
-									<el-icon v-if="cards[n - 1].extras.time % 2 === 0"><Timer /></el-icon>
-									<span style="font-size: 14px;">{{ renders.formatTime(cards[n - 1].extras.time) }}</span>
+									<el-icon v-if="cards[n - 1].extras?.time % 2 === 0"><Timer /></el-icon>
+									<span style="font-size: 14px;">{{ renders.formatTime(cards[n - 1].extras?.time) }}</span>
 								</el-space>
 							</div>
 						</template>
 
 						<div class="card-tools">
 							<el-space wrap alignment="center">
-								<el-link :underline="false"
-									@click="handleCardTools('edit', cards[n - 1])" data-l10n-id="zotcard-card-manager-toolbar-edit-title"><el-icon><Edit-Pen /></el-icon></el-link>
+								<!-- <el-link :underline="false"
+									@click="handleCardTools('edit', cards[n - 1])" data-l10n-id="zotcard-card-manager-toolbar-edit-title"><el-icon><Edit-Pen /></el-icon></el-link> -->
+
+								<el-dropdown>
+									<el-icon><Edit-Pen /></el-icon>
+									<template #dropdown>
+										<el-dropdown-menu>
+											<el-dropdown-item @click="handleCardTools('edit-editInWindow', cards[n - 1])"><span data-l10n-id="zotcard-editInWindow">在独立窗口编辑1</span></el-dropdown-item>
+											<el-dropdown-item @click="handleCardTools('edit-cardEditor', cards[n - 1])"><span data-l10n-id="zotero-zotcard-card-editor-title">源代码编辑</span></el-dropdown-item>
+										</el-dropdown-menu>
+									</template>
+								</el-dropdown>
 								<el-link v-if="cards.length > 1" :underline="false"
 										@click="handleCardTools('remove', cards[n - 1])" data-l10n-id="zotcard-card-manager-toolbar-remove-title"><el-icon><Circle-Close /></el-icon></el-link>
 								<el-link :underline="false"
@@ -248,7 +258,7 @@
 									</el-space>
 									<zot-text v-else></zot-text>
 								</el-descriptions-item>
-								<el-descriptions-item>
+								<el-descriptions-item v-if="profiles.parseCardType">
 									<template #label><span data-l10n-id="zotcard-card-manager-cardtype">卡片类型1</span></template>
 									<span class="el-link-text"><zot-text :text="cards[n - 1].more.cardtype"></zot-text></span>
 								</el-descriptions-item>
@@ -274,10 +284,22 @@
 									<template #label><span data-l10n-id="zotcard-card-manager-dateModified">修改时间1</span></template>
 									<span class="el-link-text"><zot-text :text="cards[n - 1].note.dateModified"></zot-text></span>
 								</el-descriptions-item>
-								<el-descriptions-item>
+								<el-descriptions-item v-if="profiles.parseWords">
 									<template #label><span data-l10n-id="zotcard-card-manager-words">卡片字数1</span></template>
 									<span class="el-link-text" :title="cards[n - 1].more.statistics.title">
 										{{ cards[n - 1].more.statistics.text }}
+									</span>
+								</el-descriptions-item>
+								<el-descriptions-item v-if="profiles.parseWords">
+									<template #label><span data-l10n-id="zotcard-card-manager-lines">卡片行数1</span></template>
+									<span class="el-link-text">
+										{{ cards[n - 1].more.statistics.lines }}
+									</span>
+								</el-descriptions-item>
+								<el-descriptions-item v-if="profiles.parseWords">
+									<template #label><span data-l10n-id="zotcard-card-manager-sizes">卡片占空间1</span></template>
+									<span class="el-link-text">
+										{{ cards[n - 1].more.statistics.space }}
 									</span>
 								</el-descriptions-item>
 							</el-descriptions>

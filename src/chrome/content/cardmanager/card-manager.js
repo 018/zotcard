@@ -5,12 +5,14 @@ const { ElMessageBox, ElLoading } = ElementPlus;
 
 var from;
 var dataIn;
+var _filters;
 let io;
 let tabID = Zotero.getMainWindow().Zotero_Tabs.selectedID;
 if (tabID) {
   let tab = Zotero.getMainWindow().Zotero_Tabs._getTab(tabID);
   if (tab && tab.tab && tab.tab.type === 'zotero-pane' && tab.tab.id.startsWith('card-manager-')) {
     dataIn = tab.tab.data ? tab.tab.data.dataIn : undefined;
+    _filters = tab.tab.data ? tab.tab.data.filters : undefined;
 
     from = 'tab';
   }
@@ -20,10 +22,12 @@ Zotero.ZotCard.Logger.log('dataIn: ' + JSON.stringify(dataIn));
 if (!dataIn) {
   io = window.arguments && window.arguments.length > 0 ? window.arguments[0] : {dataIn: []};
   dataIn = io.dataIn;
+  _filters = io.filters;
   from = 'window';
 }
 
 Zotero.ZotCard.Logger.log('dataIn: ' + JSON.stringify(dataIn));
+Zotero.ZotCard.Logger.log('_filters: ' + JSON.stringify(_filters));
 
 const parentIDs = Zotero.ZotCard.Cards.parseParentIDs(dataIn);
 
@@ -300,14 +304,16 @@ window.onload = async function () {
         parentIDs: parentIDs,
         match: Zotero.ZotCard.Consts.matchProps.all,
         mode: Zotero.ZotCard.Consts.modeProps.all,
-        dates: [],
-        cardtypes: [],
-        tags: [],
+        dates: _filters?.dates || [],
+        cardtypes: _filters?.cardtypes || [],
+        tags: _filters?.tags || [],
         title: '',
         content: '',
         orderby: 'dateAdded',
         desc: false
       });
+      Zotero.ZotCard.Logger.log(filters);
+      
       const saveFilter = reactive({
         label: '',
         selectedLabel: '',
@@ -414,6 +420,7 @@ window.onload = async function () {
         moreLoadeds.value = 0;
         renders.options.cardtypes.splice(0);
         renders.options.tags.splice(0);
+        renders.options.tags.push({type: 0, tag: ''});
         await Zotero.ZotCard.Cards.load(window, allCards, filters.parentIDs, profiles, (card) => {
           card.more.tags.forEach(tag => {
             if (!renders.options.tags.find((t) => tag.type === t.type && tag.tag === t.tag)) {
@@ -421,16 +428,16 @@ window.onload = async function () {
             }
           });
 
-          if (!renders.options.cardtypes.includes(card.more.cardtype)) {
+          if (profiles.parseCardType && !renders.options.cardtypes.includes(card.more.cardtype)) {
             renders.options.cardtypes.push(card.more.cardtype);
           }
         }, (allCards) => {
+          renders.options.tags.sort((a, b) => a.type - b.type)
           moreLoadeds.value = allCards.length;
+          _filter();
         });
         total.value = allCards.length;
         loading.close();
-
-        _filter();
       }
 
       function _filter() {
@@ -438,7 +445,7 @@ window.onload = async function () {
         Zotero.ZotCard.Cards.filter(allCards, cards, filters);
         loads.value = Math.min(_pagesize, cards.length);
         Zotero.ZotCard.Logger.log('load: ' + loads.value);
-        scroll.disabled = false;
+        scroll.disabled = loads.value === cards.length;
         loading.close();
       }
 
@@ -477,6 +484,10 @@ window.onload = async function () {
             break;
           case 'edit':
             selecteds = cards.filter(e => e.isSelected);
+            if (selecteds.length === 0) {
+              Zotero.ZotCard.Messages.warning(window, Zotero.ZotCard.L10ns.getString('zotcard-please_select_card'));
+              return;
+            }
             Zotero.ZotCard.Dialogs.openMultiEditManager(selecteds.map(e => e.id));
             break;
           case 'delete':
@@ -651,9 +662,6 @@ window.onload = async function () {
             }
             Zotero.ZotCard.Dialogs.openCardManager(dataIn);
             break;
-          case 'report':
-            
-            break;
           default:
             break;
         }
@@ -661,8 +669,11 @@ window.onload = async function () {
 
       function handleCardTools(key, card) {
         switch (key) {
-          case 'edit':
+          case 'edit-editInWindow':
             Zotero.getMainWindow().ZoteroPane.openNoteWindow(card.id);
+            break;
+          case 'edit-cardEditor':
+            Zotero.ZotCard.Dialogs.openCardEditor(card.id);
             break;
           case 'delete':
             if (Zotero.ZotCard.Messages.confirm(window, Zotero.ZotCard.L10ns.getString('zotcard-trash'))) {

@@ -7,7 +7,7 @@ Zotero.ZotCard.Doms = Object.assign(Zotero.ZotCard.Doms, {
 	},
 
   createXULElement(document, tag, { id, attrs, props, parent, after, before, childs, command, onclick }) {
-    let ele = id ? Zotero.getMainWindow().document.getElementById(id) : undefined;
+    let ele = id ? document.getElementById(id) : undefined;
     if (ele) {
       return ele;
     }

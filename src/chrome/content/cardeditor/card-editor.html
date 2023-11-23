@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title data-l10n-id="zotcard-card-editor"></title>
+	<script src="chrome://zotero/content/include.js"></script>
+	<link rel="localization" href="zotcard.ftl" />
+	<link rel="localization" href="card-manager.ftl" />
+	<link rel="localization" href="card-editor.ftl" />
+	<link rel="stylesheet" href="../modules/common.css" />
+	<link rel="stylesheet" href="../modules/element-plus.css" />
+	<script src="../modules/vue.global.prod.js"></script>
+	<script src="../modules/element-plus.js"></script>
+	<script src="../modules/element-plus-zh-cn.js"></script>
+	<script src="../modules/element-plus-en.js"></script>
+	<script src="../modules/element-plus-zh-tw.js"></script>
+	<script src="../modules/element-plus-icons.js"></script>
+	<script src="../modules/zot-render-element-plus.js"></script>
+	<script id="jsfile"></script>
+	<script>
+		document.getElementById('jsfile').src = window.Zotero ? "card-editor.js" : "card-editor-dev.js"
+	</script>
+	<style>
+		html,body {
+			height: calc(100% - 5px);
+		}
+		body {
+			font-size: 5px;
+			padding: 5px;
+			margin: 0;
+			background-color: #FFFFFF;
+			font-size: 12px;
+			position: relative;
+		}
+		#app {
+			height: 100%;
+		}
+		.tool-bar .el-button--small {
+			--el-button-size: 20px;
+			padding: 5px 5px;
+			font-size: 12px;
+		}
+		.tool-bar {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			height: 25px;
+		}
+		.tool-bar .el-button+.el-button {
+			margin-left: 5px;
+		}
+		.tool-bar .tool-bar-group {
+			margin-right: 0;
+			display: inline;
+		}
+		.input {
+			margin: 5px 0;
+			height: calc(100% - 25px - 10px);
+		}
+		.el-menu-item.disable {
+			color: var(--el-text-color-disabled);
+		}
+		.el-menu-item.is-active.disable {
+			color: var(--el-color-primary-light-5);
+		}
+		.el-color-picker {
+			visibility: hidden;
+			width: 5px;
+		}
+		.chars {
+			display: flex;
+			flex-wrap: wrap;
+		}
+		.chars > .el-button+.el-button, .chars > .el-button:first-child {
+			margin: 0 10px 10px 0;
+		}
+		.el-textarea textarea {
+			height: 100%;
+		}
+		.el-button span {
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="app">
+		<div class="tool-bar">
+			<div class="tool-bar-group">
+				<div class="tool-bar-group">
+					<el-button size="small" @click="handleTools('copy')"><el-icon><Document-Copy /></el-icon></el-button>
+				</div>
+				<el-divider direction="vertical"></el-divider>
+				<div class="tool-bar-group">
+					<el-button size="small" @click="handleStyles('B')">B</el-button>
+					<el-button size="small" @click="handleStyles('I')">I</el-button>
+					<el-button size="small" @click="handleStyles('U')">U</el-button>
+					<el-button size="small" @click="handleStyles('S')">S</el-button>
+					<el-button size="small" @click="handleStyles('pre')"><svg width="15px" height="15px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><path d="M10.6689782,9.21845958 C10.9812657,8.91680892 11.4679109,8.92570969 11.7697387,9.23859257 C12.0715666,9.55147544 12.0801529,10.0559448 11.7891604,10.3796704 L7.56205798,14.7615982 C7.25261554,15.0819756 6.75131828,15.0819756 6.44187585,14.7615982 L2.21477346,10.3796704 C1.92378094,10.0559448 1.93236723,9.55147544 2.2341951,9.23859257 C2.53602297,8.92570969 3.0226681,8.91680892 3.3349556,9.21845958 L7.00196691,13.0197819 L10.6689782,9.21845958 Z" fill="currentColor" fill-rule="nonzero" transform="translate(7.001967, 11.999914) rotate(90.000000) translate(-7.001967, -11.999914) "></path><path d="M20.6689782,9.21845958 C20.9812657,8.91680892 21.4679109,8.92570969 21.7697387,9.23859257 C22.0715666,9.55147544 22.0801529,10.0559448 21.7891604,10.3796704 L17.562058,14.7615982 C17.2526155,15.0819756 16.7513183,15.0819756 16.4418758,14.7615982 L12.2147735,10.3796704 C11.9237809,10.0559448 11.9323672,9.55147544 12.2341951,9.23859257 C12.536023,8.92570969 13.0226681,8.91680892 13.3349556,9.21845958 L17.0019669,13.0197819 L20.6689782,9.21845958 Z" fill="currentColor" fill-rule="nonzero" transform="translate(17.001967, 11.999914) scale(-1, 1) rotate(90.000000) translate(-17.001967, -11.999914) "></path></g></svg></el-button>
+				</div>
+				<el-divider direction="vertical"></el-divider>
+				<div class="tool-bar-group">
+					<el-button size="small" @click="handleStyles('h1')" data-l10n-id="zotcard-preferences-title1">标题1</el-button>
+					<el-button size="small" @click="handleStyles('h2')" data-l10n-id="zotcard-preferences-title2">标题2</el-button>
+					<el-button size="small" @click="handleStyles('h3')" data-l10n-id="zotcard-preferences-title3">标题3</el-button>
+					<el-button size="small" @click="handleStyles('p')" data-l10n-id="zotcard-preferences-paragraph">段落</el-button>
+					<el-button size="small" @click="handleStyles('blockquote')" data-l10n-id="zotcard-preferences-quote">引用</el-button>
+				</div>
+				<el-divider direction="vertical"></el-divider>
+				<div class="tool-bar-group">
+					<el-button size="small" @click="handleStyles('left')"><svg t="1654269604433" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3167" width="12" height="12"><path d="M162.304 186.88H865.28v63.488H162.304zM162.304 376.832h534.528V440.32H162.304zM162.304 567.296H865.28v63.488H162.304zM162.304 757.248h534.528v63.488H162.304z" fill="#000000" p-id="3168"></path></svg></el-button>
+					<el-button size="small" @click="handleStyles('center')"><svg t="1654269545134" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1289" width="12" height="12"><path d="M162.304 186.88H865.28v63.488H162.304zM246.272 376.832h534.528V440.32H246.272zM162.304 567.296H865.28v63.488H162.304zM246.272 757.248h534.528v63.488H246.272z" fill="#2c2c2c" p-id="1290"></path></svg></el-button>
+					<el-button size="small" @click="handleStyles('right')"><svg t="1654269627584" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3369" width="12" height="12"><path d="M162.304 186.88H865.28v63.488H162.304zM330.752 376.832H865.28V440.32H330.752zM162.304 567.296H865.28v63.488H162.304zM330.752 757.248H865.28v63.488H330.752z" fill="#2c2c2c" p-id="3370"></path></svg></el-button>
+				</div>
+				<el-divider direction="vertical"></el-divider>
+				<div class="tool-bar-group">
+					<el-button for="color-picker" size="small" @click="handleFontColor"><svg t="1654597526507" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="825" width="12" height="12"><path d="M839 768H735.3l-74.1-192.7H358.6L288.7 768H185L461.8 64h100.4L839 768zM632.1 495.8L522.3 203.1c-3.4-9.4-7.2-25.7-11.3-49.1h-2.3c-3.4 21.2-7.4 37.6-11.7 49.1L388.1 495.8h244z" fill="#2c2c2c" p-id="826" data-spm-anchor-id="a313x.7781069.0.i0" class="selected"></path><path d="M64 832h896v128H64z" fill="#CE6043" p-id="827"></path></svg></el-button>
+					<el-color-picker id="font-color-picker" @change="handleFontColorChange" size="small"></el-color-picker>
+					<el-button size="small" @click="handleBackgroundColor"><svg width="15px" height="15px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg"><g id="text-color" fill-rule="evenodd"><rect x="3" y="18" width="3.6495" height="3" fill="#d6b728" stroke-width=".45028"></rect><rect x="6.6495" y="18" width="3.6391" height="3" fill="#ff6666" stroke-width=".44963"></rect><rect x="10.289" y="18" width="3.5477" height="3" fill="#5fb236" stroke-width=".44395"></rect><rect x="13.836" y="18" width="3.677" height="3" fill="#2ea8e5" stroke-width=".45197"></rect><rect x="17.513" y="18" width="3.4867" height="3" fill="#a28ae5" stroke-width=".44012"></rect><g id="highlight-bg-color" fill="none" fill-rule="evenodd"><path id="Shape" d="m7.7 16.72h-4.7l3.35-3.34-0.79-0.79 4.59-4.59 4.14 4.14-4.14 4.14c-0.19781 0.19178-0.51219 0.19178-0.71 0l-0.65-0.66zm5.09-7.4811-1.79-1.79 2.93-2.9c0.74342-0.73191 1.9366-0.73191 2.68 0l1.4 1.45c0.73734 0.74119 0.73734 1.9388 0 2.68l-2.9 2.9-1.79-1.8-0.53-0.54" fill="currentColor" fill-rule="nonzero"></path></g></g></svg></el-button>
+					<el-color-picker id="background-color-picker" @change="handleBackgroundColorChange" size="small"></el-color-picker>
+				</div>
+			</div>
+			<div class="tool-bar-group">
+				<el-popover
+					placement="bottom"
+					:width="400"
+					:visible="popover.chars"
+				>
+					<template #reference>
+						<el-button size="small" @click="handleShowCharsPopover">⦿</el-button>
+					</template>
+					<template #default>
+						<div class="chars">
+							<el-button plain v-for="c in chars" @click="handleSChars(c.value)">{{ c.name }}</el-button>
+						</div>
+					</template>
+				</el-popover>
+				<el-popover
+					placement="bottom"
+					:width="550"
+					:visible="popover.emojis"
+				>
+					<template #reference>
+						<el-button size="small" @click="handleShowEmojisPopover">🤪</el-button>
+					</template>
+					<template #default>
+						<el-tabs>
+							<el-tab-pane v-for="e in emojis" :label="e.name">
+								<div class="chars">
+									<el-button plain v-for="c in e.values" @click="handleEmojis(c)" style="font-size: 20px;" size="large">{{ c }}</el-button>
+								</div>
+							</el-tab-pane>
+						</el-tabs>
+					</template>
+				</el-popover>
+				<el-popover
+					placement="bottom"
+					:width="500"
+					:visible="popover.fields"
+				>
+					<template #reference>
+						<el-button size="small" @click="handleShowFieldsPopover" data-l10n-id="zotcard-preferences-field">字段</el-button>
+					</template>
+					<template #default>
+						<el-tabs size="small">
+							<el-tab-pane v-for="e in fields" :label="e.name">
+								<el-space direction="vertical" fill style="width: 100%;">
+									<el-input v-model="searchField" placeholder="Search"></el-input>
+									<div class="chars">
+										<el-button style="max-width: 440px;" :title="c.name" plain v-for="c in filterField(e.values)" @click="handleFileds(c.value)">{{ c.name }}</el-button>
+									</div>
+								</el-space>
+							</el-tab-pane>
+						</el-tabs>
+					</template>
+				</el-popover>
+			</div>
+		</div>
+		<el-input class="input" type="textarea" v-model="html" @focus="handleTemplateFocus" @input="handleTemplateInput" :rows="15"></el-input>
+	</div>
+</body>
+</html>

@@ -66,8 +66,11 @@ zotcard-card-manager-relations = 卡片相关
 zotcard-card-manager-cardtype = 卡片类型
 zotcard-card-manager-tags = 卡片标签
 
-zotcard-card-manager-nomore = 总卡片数：{ $total }
+zotcard-card-manager-nomore = 总卡片数：{ $total }，筛选卡片数：{ $filter }
 zotcard-card-manager-loading = 加载卡片中...
+
+zotcard-card-manager-nodata = 请先在这里选择文献库：
+zotcard-card-manager-nofilterdata = 总卡片数：{ $total }，筛选暂无数据。
 
 zotcard-card-manager-filter = 筛选
 zotcard-card-manager-filter-library = 文献库
@@ -117,8 +120,5 @@ zotcard-card-manager-show_card_viewer-all = 全选
 zotcard-card-manager-show_card_viewer-random = 随机选择
 zotcard-card-manager-show_card_viewer-selectbefore = 选择前
 zotcard-card-manager-show_card_viewer-selectafter = 选择后
-
-zotcard-card-manager-nodata = 请先在这里选择文献库：
-zotcard-card-manager-nofilterdata = 总卡片数：{ $total }，筛选暂无数据。
 
 

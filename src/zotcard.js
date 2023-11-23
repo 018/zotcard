@@ -23,7 +23,7 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		link1.id = 'zotcard-stylesheet';
 		link1.type = 'text/css';
 		link1.rel = 'stylesheet';
-		link1.href = this.rootURI + 'style.css';
+		link1.href = this.rootURI + `style-${Zotero.isMac ? 'mac' : 'win'}.css`;
 		Zotero.getMainWindow().document.documentElement.appendChild(link1);
 		this.storeAddedElement(link1);
 
@@ -48,6 +48,44 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		Zotero.ZotCard.Prefs.clear('config.print');
 
 		Zotero.ZotCard.Logger.log('Zotero.ZotCard inited.');
+	},
+
+	createNoteToolbar() {
+		let editor_view_middle = Zotero.getMainWindow().document.getElementById('editor-view').contentDocument.querySelector('#editor-container .middle');
+		Zotero.ZotCard.Logger.log(editor_view_middle);
+		if (!editor_view_middle) {
+			return;
+		}
+
+		let divOpenCardEditor = Zotero.getMainWindow().MozXULElement.parseXULToFragment(`<div id="zotero-card-editor" class="dropdown text-dropdown">
+			<button aria-haspopup="true" aria-expanded="false" class="toolbar-button" title="源代码编辑器">
+				<svg t="1700189370031" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2515" width="24" height="24">
+					<path d="M224.96 653.376H158.72V223.104h618.496V288.64h94.72V128.32H64v619.776h160.96z" fill="currentColor" p-id="2516"></path>
+					<path d="M251.52 318.464v560.704h704.192v-560.64H251.52z m243.392 369.28l-43.52 49.92-120-138.176 120.704-139.52 43.52 49.92-77.888 89.6 77.184 88.32z m127.872 43.52h-60.352l38.272-270.016h60.352l-38.272 269.952z m139.52 6.4l-43.52-49.92 77.248-88.96-77.824-89.536 43.456-49.92 121.344 139.52-120.704 138.88z" fill="currentColor" p-id="2517"></path>
+				</svg>
+			</button>
+		</div>`).querySelector('div');
+		divOpenCardEditor.querySelector('button').onclick = () => {
+			Zotero.ZotCard.Dialogs.openCardEditor(Zotero.getMainWindow().document.getElementById('zotero-note-editor').item.id);
+		}
+		editor_view_middle.append(divOpenCardEditor);
+		this.storeAddedElement(divOpenCardEditor);
+		
+		// Zotero.ZotCard.Doms.createMainWindowXULElement('button', {
+		// 	attrs: {
+		// 		'aria-haspopup': 'dropdown text-dropdown',
+		// 		'aria-expanded': 'false',
+		// 		'class': 'toolbar-button',
+		// 		'title': Zotero.ZotCard.L10ns.getString('zotero-zotcard-card-editor-title'),
+		// 	},
+		// 	props: {
+		// 		innerHTML: '<svg t="1700189370031" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2515" width="24" height="24"><path d="M224.96 653.376H158.72V223.104h618.496V288.64h94.72V128.32H64v619.776h160.96z" fill="currentColor" p-id="2516"></path><path d="M251.52 318.464v560.704h704.192v-560.64H251.52z m243.392 369.28l-43.52 49.92-120-138.176 120.704-139.52 43.52 49.92-77.888 89.6 77.184 88.32z m127.872 43.52h-60.352l38.272-270.016h60.352l-38.272 269.952z m139.52 6.4l-43.52-49.92 77.248-88.96-77.824-89.536 43.456-49.92 121.344 139.52-120.704 138.88z" fill="currentColor" p-id="2517"></path></svg>'
+		// 	},
+		// 	click: () => {
+		// 		Zotero.ZotCard.Dialogs.openCardEditor(Zotero.getMainWindow().document.getElementById('zotero-note-editor').item.id);
+		// 	},
+		// 	parent: divOpenCardEditor,
+		// });
 	},
 	
 	createToolbarButton() {
@@ -97,16 +135,27 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		this.storeAddedElement(menuseparator);
 		menuseparator.hidden = !allowTypes.includes(type);
 
-		let zotcardRead = Zotero.ZotCard.Doms.createMainWindowXULElement('menuitem', {
+		let zotcardCardManager = Zotero.ZotCard.Doms.createMainWindowXULElement('menuitem', {
 			id: `${root}-zotcard-card-manager`,
 			attrs: {
 				'data-l10n-id': 'zotero-zotcard-card-manager',
 			},
-			command: this.collectionCardManagerd,
+			command: this.collectionCardManager,
 			parent: zotero_collectionmenu,
 		});
-		this.storeAddedElement(zotcardRead);
-		zotcardRead.hidden = !allowTypes.includes(type);
+		this.storeAddedElement(zotcardCardManager);
+		zotcardCardManager.hidden = !allowTypes.includes(type);
+
+		let zotcardCardReport = Zotero.ZotCard.Doms.createMainWindowXULElement('menuitem', {
+			id: `${root}-zotcard-card-report`,
+			attrs: {
+				'data-l10n-id': 'zotero-zotcard-card-report',
+			},
+			command: this.collectionCardReport,
+			parent: zotero_collectionmenu,
+		});
+		this.storeAddedElement(zotcardCardReport);
+		zotcardCardReport.hidden = !allowTypes.includes(type);
 	},
 
 	_createMenuItem(mnupopupZotCard, type, onlyRegular, onlySimple) {
@@ -133,6 +182,7 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		let onlyNote = itemTypes && itemTypes.length === 1 && itemTypes[0] === 'note';
 		let onlyRegular = itemTypes && itemTypes.length === 1 && itemTypes[0] === 'regular';
 		var onlySimple = items && items.length === 1;
+		let hasNote = itemTypes && itemTypes.includes('note');
 
 		Zotero.ZotCard.Logger.log({onlyNote, onlyRegular, onlySimple});
 
@@ -164,7 +214,7 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 			Zotero.ZotCard.Logger.log(`Mutil-Select Items but not onlyNote`);
 		} else if (onlySimple && !onlyRegular) {
 			zotcardMenu.disabled = true;
-			Zotero.ZotCard.Logger.log(`Simple but not onlyRegular and onlyNote`);
+			Zotero.ZotCard.Logger.log(`Simple but not onlyRegular`);
 		}
 
 		let mnupopupZotCard = Zotero.ZotCard.Doms.createMainWindowXULElement('menupopup', {
@@ -230,7 +280,20 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 			command: this.itemCardViewer,
 			parent: zotero_itemmenu
 		});
+		cardViewerMenu.hidden = !hasNote;
 		this.storeAddedElement(cardViewerMenu);
+
+		// card-editor
+		let cardEditorMenu = Zotero.ZotCard.Doms.createMainWindowXULElement('menuitem', {
+			id: `${root}-zotcard-card-editor-menuitem`,
+			attrs: {
+				'data-l10n-id': 'zotero-zotcard-card-editor',
+			},
+			command: this.itemCardEditor,
+			parent: zotero_itemmenu
+		});
+		cardEditorMenu.hidden = !(onlySimple && onlyNote);
+		this.storeAddedElement(cardEditorMenu);
 
 		// card-manager
 		let cardManagerMenu = Zotero.ZotCard.Doms.createMainWindowXULElement('menuitem', {
@@ -698,7 +761,7 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		return itemID;
 	},
 
-	collectionCardManagerd() {
+	collectionCardManager() {
 		let items;
 
 		switch (Zotero.getMainWindow().ZoteroPane.getCollectionTreeRow().type) {
@@ -724,14 +787,52 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 					id: search.id
 				}];
 				break;
-				
+			default:
+				break;
+		}
+		
+		Zotero.ZotCard.Dialogs.openCardManagerTab(items);
+	},
+
+	collectionCardReport() {
+		let items;
+		let type;
+		let id;
+		switch (Zotero.getMainWindow().ZoteroPane.getCollectionTreeRow().type) {
+			case 'library':
+			case 'group':
+				let libraryID = Zotero.getMainWindow().ZoteroPane.getSelectedLibraryID();
+				items = [{
+					type: Zotero.ZotCard.Consts.cardManagerType.library,
+					id: libraryID
+				}];
+				type = 'library';
+				id = libraryID;
+				break;
+			case 'collection':
+				let collection = Zotero.getMainWindow().ZoteroPane.getSelectedCollection();
+				items = [{
+					type: Zotero.ZotCard.Consts.cardManagerType.collection,
+					id: collection.id
+				}];
+				type = 'collection';
+				id = collection.id;
+				break;
+			case 'search':
+				let search = Zotero.getMainWindow().ZoteroPane.getSelectedSavedSearch();
+				items = [{
+					type: Zotero.ZotCard.Consts.cardManagerType.search,
+					id: search.id
+				}];
+				type = 'search';
+				id = search.id;
 				break;
 		
 			default:
 				break;
 		}
 		
-		Zotero.ZotCard.Dialogs.openCardManagerTab(items);
+		Zotero.ZotCard.Dialogs.openCardReport(type, id);
 	},
 
 	itemCardManager() {
@@ -778,6 +879,13 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		});
 		
 		Zotero.ZotCard.Dialogs.openCardViewer(items);
+	},
+
+	itemCardEditor() {
+		let selectedItems = Zotero.ZotCard.Items.getSelectedItems();
+		if (selectedItems.length > 0) {
+			Zotero.ZotCard.Dialogs.openCardEditor(selectedItems[0].id);
+		}
 	},
 	
 	paneCardManager() {

@@ -1,34 +1,11 @@
-const { createApp, ref, reactive, toRaw } = Vue
-const { ElLoading } = ElementPlus
+const { createApp, ref, reactive, toRaw, computed, nextTick } = Vue;
+const { ElMessageBox, ElLoading } = ElementPlus;
 
-window.onload = function() {
-	const _l10n =  ZotElementPlus.isZoteroDev ? undefined : new Localization(["zotcard-preferences.ftl"], true);
-	const defCards = ZotElementPlus.isZoteroDev ? ['a', 'b'] : Zotero.ZotCard.Consts.defCardTypes;
+var io = {dataIn:{type:1}};
+const parentIDs = [];
+parentIDs.push(['library-1']);
 
-	async function _buildPreview(template) {
-		if (template) {
-			var items = ZotElementPlus.isZoteroDev ? [] : Zotero.ZotCard.Items.getSelectedItems('regular');
-			let item;
-			if (!items || items.length <= 0) {
-				let allitems = ZotElementPlus.isZoteroDev ? [] : (await Zotero.Items.getAll(Zotero.Libraries.userLibraryID, true));
-				for (let index = 0; index < allitems.length; index++) {
-					const e = allitems[index];
-					if (e.isRegularItem()) {
-						item = e;
-						break;
-					}
-				}
-			} else {
-				item = items[0];
-			}
-
-			if (item) {
-				let collection =item.getCollections().length > 0 ? Zotero.Collections.get(item.getCollections()[0]) : undefined;
-				let noteContent = await Zotero.ZotCard.Cards.newCardWithTemplate(window, collection, item, template, undefined);
-				return noteContent;
-			}
-		}
-	}
+window.onload = async function () {
 
 	function _insertPrefixSuffix(textarea, prefix, suffix) {
 		let selectionStart = textarea.selectionStart;
@@ -55,133 +32,82 @@ window.onload = function() {
 		return textarea.value;
 	}
 
-	ZotElementPlus.createElementPlusApp({
-		setup() {
-			const ZotCardConsts = reactive(ZotElementPlus.isZoteroDev ? {} : Zotero.ZotCard.Consts);
-			const curCards = reactive([]);
-			const datas = reactive([]);
-			const prefs = reactive({
-				card_quantity: ZotElementPlus.isZoteroDev ? 0 : Zotero.ZotCard.Prefs.get('card_quantity', Zotero.ZotCard.Consts.card_quantity),
-				note_background_color: ZotElementPlus.isZoteroDev ? '' : Zotero.ZotCard.Notes.getNoteBGColor(),
-				startOfWeek: ZotElementPlus.isZoteroDev ? 0 : Zotero.ZotCard.Prefs.get('startOfWeek', Zotero.ZotCard.Consts.startOfWeek.sunday),
-				word_count_style: ZotElementPlus.isZoteroDev ? 1 : Zotero.ZotCard.Prefs.get('word_count_style', Zotero.ZotCard.Consts.wordCountStyle.all),
-				recently_move_collection_quantity: ZotElementPlus.isZoteroDev ? 0 : Zotero.ZotCard.Prefs.get('config.recently_move_collection_quantity', 5),
-				enable_word_count: ZotElementPlus.isZoteroDev ? 0 : Zotero.ZotCard.Prefs.get('enable_word_count', true),
-			})
-			const preview = ref('');
-			const position = ref(-1);
-			const searchField = ref('');
-			const chars = reactive([]);
-			const emojis = reactive([])
-			const fields = reactive([])
+  ZotElementPlus.createElementPlusApp({
+    setup() {
+      const ZotCardConsts = reactive({
+        defCardTypes: ['abstract', 'quotes', 'concept', 'character', 'not_commonsense', 'skill', 'structure', 'general'],
+        card_quantity: 3,
+        startOfWeek: 0,
+        recently_move_collection_quantity: 5,
+        enable_word_count: true,
+        note_background_color: '',
+      
+        cardManagerType: {
+          library: 'library',
+          collection: 'collection',
+          search: 'search',
+          item: 'item',
+          note: 'note'
+        },
+      
+        tagType: {
+          zotero: 1,
+          custom: 2
+        },
+      
+        modeProps: {
+          all: 1,
+          only_show: 2,
+          only_hide: 3,
+          only_expand: 4,
+          only_collapse: 5,
+          only_selected: 6,
+        },
+        
+        matchProps: {
+          all: 1,
+          any: 2,
+        },
+      
+        init({ id, version, rootURI }) {
+          Zotero.ZotCard.Logger.log('Zotero.ZotCard.Consts inited.');
+        }
+      });
+      const renders = reactive({
+        drawer: false,
+        innerHeight: window.innerHeight,
+        currentIndex: 0,
+        total: 0,
+        loads: 0,
+        isOrderbyDesc: (f) => {
+          return filters.orderby === f && filters.desc;
+        },
+        formatTime: (time) => {
+          let s = parseInt(time % 60);
+          let m = parseInt(time % (60 * 60) / 60);
+          let h = parseInt(time % (60 * 60 * 60) / (60 * 60));
+          return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+      });
 			const popover = reactive({
 				chars: false,
 				emojis: false,
 				fields: false
 			});
+			const searchField = ref('');
+			const html = ref('');
+			const chars = reactive([]);
+			const emojis = reactive([]);
+			const fields = reactive([]);
 
-			const _loadDatas = (quantity) => {
-				curCards.splice(0, curCards.length);
-				datas.splice(0, datas.length);
+      const loading = ElLoading.service({
+        lock: true,
+        background: 'rgba(0, 0, 0, 0.7)',
+      });
 
-				for (let index = 0; index < quantity; index++) {
-					curCards.push('card' + (index + 1))
-				}
-
-				[...defCards].forEach(element => {
-					// { card: card, label: label, visible: visible }
-					var card = ZotElementPlus.isZoteroDev ? {
-						card: '11',
-						label: element,
-						default: 1,
-						visible: false
-					} : Zotero.ZotCard.Cards.initPrefs(element);
-					datas.push({
-						type: element,
-						default: 1,
-						card: card
-					});
-				});
-
-				[...curCards].forEach(element => {
-					// { card: card, label: label, visible: visible }
-					var card = ZotElementPlus.isZoteroDev ? {
-						card: '11',
-						label: element,
-						default: 0,
-						visible: false
-					} : Zotero.ZotCard.Cards.initPrefs(element);
-					datas.push({
-						type: element,
-						default: 0,
-						card: card
-					});
-				});
-			}
-
-			const _init = () => {
-				ZotElementPlus.isZoteroDev || Zotero.Prefs.registerObserver('zotcard.card_quantity', function () {
-					var quantity = Zotero.ZotCard.Prefs.get('card_quantity', Zotero.ZotCard.Consts.card_quantity);
-					_loadDatas(quantity);
-				})
-
-				var quantity = ZotElementPlus.isZoteroDev ? 1 : Zotero.ZotCard.Prefs.get('card_quantity', Zotero.ZotCard.Consts.card_quantity);
-				_loadDatas(quantity);
-
-				_buildPreview(datas[0].card.card).then(e => {
-					preview.value = e;
-				});
-				ZotElementPlus.isZoteroDev || Zotero.ZotCard.Logger.log('inited.');
-			}
-
-			const handleMenuOpen = async (index) => {
-				position.value = index;
-				if (index > -1) {
-					preview.value = await _buildPreview(datas[position.value].card.card);
-				}
-			}
-
-			const handlePrefsInput = ZotElementPlus.debounce((pref, value) => {
-				var goon = true;
-				switch (pref) {
-					case 'card_quantity':
-						
-						break;
-					case 'startOfWeek':
-							
-						break;
-					case 'recently_move_collection_quantity':
-							
-						break;
-					case 'enable_word_count':
-							
-						break;
-					case 'note_background_color':
-						goon = false;
-						Zotero.ZotCard.Notes.noteBGColor(value);
-						break;
-				
-					default:
-						break;
-				}
-
-				if (goon) {
-					ZotElementPlus.isZoteroDev || Zotero.Prefs.set(`zotcard.${pref}`, value);
-				}
-			}, 1000);
-
-			const handleNoteBackgroundColorResetDefault = () => {
-				Zotero.ZotCard.Notes.noteBGColor();
-				prefs.note_background_color = '';
-			}
-
-			const handleTemplateInput = ZotElementPlus.debounce(async () => {
-				let template = datas[position.value].card.card;
-				template = template.replace(/(<\/(h\d|p|div)+>)\n*/g, '$1\n');
-				datas[position.value].card.card = template;
-				preview.value = await _buildPreview(template);
-				Zotero.Prefs.set(`zotcard.${datas[position.value].type}`, template);
-			}, 1000);
+      const _init = async () => {
+        loading.close();
+      }
 
 			const handleTemplateFocus = () => {
 				popover.chars = false;
@@ -189,38 +115,8 @@ window.onload = function() {
 				popover.emojis = false;
 			}
 
-			const handleVisibleChange = () => {
-				Zotero.Prefs.set(`zotcard.${datas[position.value].type}.visible`, datas[position.value].card.visible);
-			};
-
-			const handleLabelInput = ZotElementPlus.debounce(() => {
-				Zotero.Prefs.set(`zotcard.${datas[position.value].type}.label`, datas[position.value].card.label);
-			}, 1000);
-
-			const handlePreview = async () => {
-				preview.value = await _buildPreview(datas[position.value].card.card);
-			};
-
-			const handleResetDefault = async () => {
-				if (Zotero.ZotCard.Messages.confirm(undefined, _l10n.formatValueSync('zotcard-reset-default'))) {
-					var template;
-					if (Object.hasOwnProperty.call(Zotero.ZotCard.Cards, datas[position.value].type)) {
-						template = Zotero.ZotCard.Cards[datas[position.value].type].default;
-					} else {
-						template = '';
-					}
-					preview.value = await _buildPreview(template);
-					Zotero.Prefs.set(`zotcard.${datas[position.value].type}`, template);
-					datas[position.value].card.card = template;
-				}
-			}
-
-			const handleToRSS = () => {
-				Zotero.launchURL('https://github.com/018/zotcard/discussions/2');
-			}
-
 			const handleStyles = async (type, param) => {
-				let textarea = window.document.querySelector('.template textarea');
+				let textarea = window.document.querySelector('.input textarea');
 				let template;
 				switch (type) {
 					case 'B':
@@ -287,7 +183,7 @@ window.onload = function() {
 				if (value) {
 					handleStyles('color', value);
 				}
-				window.document.querySelector('.template textarea').focus();
+				window.document.querySelector('.input textarea').focus();
 			}
 
 			function handleBackgroundColor(event) {
@@ -298,11 +194,11 @@ window.onload = function() {
 				if (value) {
 					handleStyles('background-color', value);
 				}
-				window.document.querySelector('.template textarea').focus();
+				window.document.querySelector('.input textarea').focus();
 			}
 
 			async function _handleInsertContent(value) {
-				let textarea = window.document.querySelector('.template textarea');
+				let textarea = window.document.querySelector('.input textarea');
 				let template = _insertContent(textarea, value);
 				if (template) {
 					datas[position.value].card.card = template;
@@ -570,7 +466,7 @@ window.onload = function() {
 								{value: '${year}', name: ZotElementPlus.isZoteroDev ? 'year' : _l10n.formatValueSync('zotcard-preferences-year')},
 								{value: '${tags && tags.length > 0 ? tags.join(\',\') : \'\'}', name: ZotElementPlus.isZoteroDev ? 'tags' : _l10n.formatValueSync('zotcard-preferences-tags')}]
 						});
-						const itemFields =  ZotElementPlus.isZoteroDev ? [] : Zotero.ItemFields.getAll().map(element => {
+						const itemFields =  ZotElementPlus.isZoteroDev ? [{value: '123', name: '我是:我是我是我是我是我是我是我是我是我是我是我是我是我是我是我是我是我是我是我是我是我是我是我是'}] : Zotero.ItemFields.getAll().map(element => {
 							let value = '${' + element.name + '}';
 							let name = (Zotero.ItemFields.getLocalizedString(element.name) + `(${element.name})`) || element.name;
 							return {value, name};
@@ -595,32 +491,28 @@ window.onload = function() {
 				return values.filter(e => e.name.toLowerCase().includes(searchField.value.toLowerCase()));
 			}
 
+			const handleTemplateInput = ZotElementPlus.debounce(async () => {
+        Zotero.ZotCard.Logger.log('handleTemplateInput');
+        
+			}, 1000);
+
 			function l10n(key, params) {
 			  return params ? _l10n.formatValueSync(key, params) : _l10n.formatValueSync(key);
 			}
-			
-			_init();
 
-			return {
-				ZotCardConsts,
-				datas,
-				prefs,
-				preview,
-				position,
+      _init();
+
+      return {
+        ZotCardConsts,
+        popover,
 				chars,
 				emojis,
 				fields,
-				popover,
-				searchField,
-				handleMenuOpen,
-				handlePrefsInput,
-				handleNoteBackgroundColorResetDefault,
+        searchField,
+        html,
+
+        handleTemplateFocus,
 				handleTemplateInput,
-				handleTemplateFocus,
-				handleVisibleChange,
-				handleLabelInput,
-				handleResetDefault,
-				handleToRSS,
 				handleStyles,
 				handleFontColor,
 				handleFontColorChange,
@@ -633,9 +525,8 @@ window.onload = function() {
 				handleShowEmojisPopover,
 				handleShowFieldsPopover,
 				filterField,
-				handlePreview,
 				l10n
-			}
-		}
-	});
+      }
+    }
+  });
 }

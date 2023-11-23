@@ -176,23 +176,14 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 			var now = Zotero.ZotCard.DateTimes.formatDate(nowDate, Zotero.ZotCard.DateTimes.yyyyMMddHHmmss);
 			var today = Zotero.ZotCard.DateTimes.formatDate(nowDate, Zotero.ZotCard.DateTimes.yyyyMMdd);
 			var month = Zotero.ZotCard.DateTimes.formatDate(nowDate, Zotero.ZotCard.DateTimes.yyyyMM);
-			var firstDay = new Date();
-			firstDay.setMonth(0);
-			firstDay.setDate(1);
-			firstDay.setHours(0);
-			firstDay.setMinutes(0);
-			firstDay.setSeconds(0);
-			firstDay.setMilliseconds(0);
-			let dateGap = nowDate.getTime() - firstDay.getTime() + 1;
-			let dayOfYear = Math.ceil(dateGap / (24 * 60 * 60 * 1000));
+			let dayOfYear = Zotero.ZotCard.DateTimes.dayOfYear(nowDate);
 			// 0: 周日开始
 			// 1: 周一开始
 			let startOfWeek = Zotero.ZotCard.Prefs.get('startOfWeek', Zotero.ZotCard.Consts.startOfWeek.sunday);
-			firstDay.setDate(1 + (7 - firstDay.getDay() + startOfWeek) % 7);
-			dateGap = nowDate.getTime() - firstDay.getTime();
-			let weekOfYear = Math.ceil(dateGap / (7 * 24 * 60 * 60 * 1000)) + 1;
-			let week = ['日', '一', '二', '三', '四', '五', '六'][nowDate.getDay()];
-			let weekEn = ['Sun.', 'Mon.', 'Tues.', 'Wed.', 'Thurs.', 'Fri.', 'Sat.'][nowDate.getDay()];
+			let weekOfYear = Zotero.ZotCard.Moments.weekOfYear(nowDate, startOfWeek);
+			let w = Zotero.ZotCard.DateTimes.week(nowDate);
+			let week = w.cn;
+			let weekEn = w.en;
 			itemType = item ? item.itemType : undefined;
 			year = item ? item.getField('year') : undefined;
 
@@ -368,7 +359,7 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 	},
 
 	// ${name}：...
-	parseCardItemValue(noteHtml, names) {
+	parseCardItemValue(noteHtml, names, ends) {
 		// <p>...${name}：...</p> <h1>...${name}:...</h1> <h2>...${name}...</h2> ...
 		let reg = new RegExp(`\<((?:p|h1|h2|h3|h4|h5|h6))\>.*?(?:${names.join('|')}).*?<\/\\1\>`, 'gi')
 		let matchs = noteHtml.match(reg);
@@ -376,11 +367,14 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 		if (matchs) {
 			matchs.forEach(element => {
 				// 去掉name和：;
-				reg = new RegExp(`.*?(?:${names.join('|')}).*?[:|：]?(.*)`);
+				reg = new RegExp(`^(?:${names.join('|')})[:|：](.*)`);
 				// matchs = element.trim().replace(/<\/?.*?>/g, '').match(reg);
 				matchs = Zotero.Utilities.unescapeHTML(element.trim()).match(reg);
 				if (matchs) {
 					content = matchs[1].replace(/ +/g, ' ').trim();
+					if (Zotero.ZotCard.Objects.isNoEmptyArray(ends)) {
+						content = content.replace(new RegExp(`(:?${ends.join('|')}).*`), '').trim();
+					}
 				}
 			});
 		}
@@ -391,8 +385,8 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 	// ${name}：#1# #3# #4#
 	// ${name}：1, 2, 3
 	// Zotero.ZotCard.Cards.parseCardItemValues('<p><strong>标签</strong>：<span style="background-color: #FF0000">21, 211, 3243242 3432，323</span></p><p><strong>标签</strong>：<span style="background-color: #FF0000">#1# #3# #4#</span></p><p><strong>标签</strong>：<span style="background-color: #FF0000">[1 ]] [a a13] [4]</span></p><p><strong>日期</strong>：${today}</p><p><strong>标签</strong>：<span style="background-color: #FF0000">[无]</span></p><p><strong>日期</strong>：${today}</ p>', '标签');
-	parseCardItemValues(noteHtml, names) {
-		let content = this.parseCardItemValue(noteHtml, names)
+	parseCardItemValues(noteHtml, names, ends) {
+		let content = this.parseCardItemValue(noteHtml, names, ends)
 		let reg, matchs;
 		let vals = [];
 		if (content) {
@@ -441,14 +435,14 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 	// 日期：2021-01-01或2021/01/01或2021.01.01或2021年01月01日或20210101
 	// Date：2021-01-01或2021/01/01或2021.01.01或2021年01月01日或20210101
 	parseCardDate(noteHtml) {
-		let content = this.parseCardItemValue(noteHtml, ['日期', 'date']);
+		let content = this.parseCardItemValue(noteHtml, ['日期', 'date'], ['标签', 'tag', 'tags']);
 		if (content) {
 			let dateString;
 			let match = content.match(/\d{4}[-/\u5e74.]\d{1,2}[-/\u6708.]\d{1,2}\u65e5{0,1}/g);
 			if (!match) {
 				match = content.match(/\d{8}/g);
 				if (match) {
-					dateString = `${match[0].substring(0, 1)}-${match[0].substring(4, 5)}-${match[0].substring(6, 7)}`;
+					dateString = `${match[0].substring(0, 4)}-${match[0].substring(4, 6)}-${match[0].substring(6, 8)}`;
 				}
 			} else {
 				match = match[0].match(/\d{4}[-/\u5e74.]\d{1,2}[-/\u6708.]\d{1,2}\u65e5{0,1}/g);
@@ -700,7 +694,7 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 				if (filters.tags && filters.tags.length > 0) {
 					var found = false;
 					for (let index = 0; index < filters.tags.length; index++) {
-						if (card.more.tags.find((t) => (t.type + '-' + t.tag) === filters.tags[index])) {
+						if ((filters.tags[index] === '0-' && card.more.tags.length === 0) || card.more.tags.find((t) => (t.type + '-' + t.tag) === filters.tags[index])) {
 							found = true;
 							break;
 						}
@@ -749,7 +743,7 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 				if (filters.tags && filters.tags.length > 0) {
 					var found = false;
 					for (let index = 0; index < filters.tags.length; index++) {
-						if (card.more.tags.find((t) => (t.type + '-' + t.tag) === filters.tags[index])) {
+						if ((filters.tags[index] === '0-' && card.more.tags.length === 0) || card.more.tags.find((t) => (t.type + '-' + t.tag) === filters.tags[index])) {
 							found = true;
 							break;
 						}
@@ -787,7 +781,7 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 		this.sort(cards, filters);
 	},
 
-	sort(cards, filters, defCompare) {
+	sort(cards, filters) {
 		// 'date', 'dateAdded', 'dateModified', 'title' ,'words', 'lines', 'sizes'
 		cards.sort((card1, card2) => {
 			switch (filters.orderby) {
@@ -925,43 +919,6 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 		card.note.text = Zotero.ZotCard.Notes.htmlToText(html);
 		card.note.html = html;
 		card.note.contentHtml = card.note.contentHtml.replaceAll('<img ', '<img itemID="' + item.id + '" title="' + Zotero.ZotCard.L10ns.getString('zotcard-click_to_load') + '" ');
-		// Zotero.ZotCard.Logger.log(card.note.contentHtml);
-		// let matchs = card.note.contentHtml.match(/data-attachment-key=\"(.*?)\"/g);
-		// if (matchs && matchs.length > 0) {
-		// 	for (let index = 0; index < matchs.length; index++) {
-		// 		let element = matchs[index];
-		// 		let ms = element.match(/data-attachment-key=\"(.*?)\"/);
-		// 		if (ms) {
-		// 			element = ms[1];
-		// 			setTimeout((card, item, element) => {
-		// 				Zotero.ZotCard.Logger.log(item.libraryID + ', ' + element);
-		// 				let attachment = Zotero.Items.getByLibraryAndKey(item.libraryID, element);
-		// 				if (attachment && attachment.parentID == item.id) {
-		// 					attachment.attachmentDataURI.then(dataURI => {
-		// 						card.note.contentHtml = card.note.contentHtml.replaceAll('data-attachment-key="' + element + '"', 'data-attachment-key="' + element + '" src="' + dataURI + '"');
-		// 						card.note.html = card.note.html.replaceAll('data-attachment-key="' + element + '"', 'data-attachment-key="' + element + '" src="' + dataURI + '"');
-		// 						Zotero.ZotCard.Logger.log(`attachment ${item.libraryID}, ${element} replace.`);
-		// 					});
-		// 				} else {
-		// 					Zotero.ZotCard.Logger.log(`attachment ${item.libraryID}, ${element} not exists.`);
-		// 				}
-		// 			}, 50, card, item, element);
-		// 		}
-		// 	}
-		// }
-		
-// 		`<div data-schema-version="8"><h1>E.cb01a - 条件三段论-1</h1>
-// <p> 提出者：亚里士多德</p>
-// <p> 解释：大前提的形式为“如果p，那么q”。</p>
-// <p> 描述：</p>
-// <p><img alt="" data-attachment-key="99MUNSUJ" width="248" height="111"></p>
-// <p>&nbsp;&nbsp;&nbsp; - 肯定前件：p，所以q。有效。</p>
-// <p>&nbsp;&nbsp;&nbsp; - 否定后件：非q，所以非p。有效。</p>
-// <p>&nbsp;&nbsp;&nbsp; - 肯定后件：q，所以p。无效。</p>
-// <p>&nbsp;&nbsp;&nbsp; - 否定前件：非p，非q。无效。</p>
-// <p><img alt="" data-attachment-key="99MUNSUJ" width="248" height="111"></p>
-// <p>&nbsp;</p>
-// </div>`.match(/data-attachment-key=\".*?\"/g)
 
 		let dateAdded = item.getField('dateAdded');
 		let dateModified = item.getField('dateModified');
@@ -988,7 +945,7 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 		});
 
 		if (profiles.parseTags) {
-			Zotero.ZotCard.Cards.parseCardItemValues(html, ['标签', 'tag', 'tags']).forEach(e => {
+			Zotero.ZotCard.Cards.parseCardItemValues(html, ['标签', 'tag', 'tags'], ['日期', 'date']).forEach(e => {
 				if (!tags.find(ee => ee.type === 2 && ee.tag === e)) {
 					tags.push({
 						type: 2,//自定义

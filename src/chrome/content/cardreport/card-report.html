@@ -1,0 +1,430 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title data-l10n-id="zotcard-card-report"></title>
+	<script src="chrome://zotero/content/include.js"></script>
+	<link rel="localization" href="zotcard.ftl" />
+	<link rel="localization" href="card-manager.ftl" />
+	<link rel="localization" href="card-report.ftl" />
+	<link rel="stylesheet" href="../modules/common.css" />
+	<link rel="stylesheet" href="../modules/element-plus.css" />
+	<script src="../modules/moment.min.js"></script>
+	<script src="../modules/vue.global.prod.js"></script>
+	<script src="../modules/element-plus.js"></script>
+	<script src="../modules/element-plus-zh-cn.js"></script>
+	<script src="../modules/element-plus-en.js"></script>
+	<script src="../modules/element-plus-zh-tw.js"></script>
+	<script src="../modules/element-plus-icons.js"></script>
+	<script src="../modules/zot-render-element-plus.js"></script>
+	<script src="../modules/echarts.min.js"></script>
+	<script id="jsfile"></script>
+	<script>
+		document.getElementById('jsfile').src = window.Zotero ? "card-report.js" : "card-report-dev.js"
+	</script>
+	<style>
+		@media screen {
+			body {
+				padding: 0;
+				margin: 50px 100px;
+				font-size: 12px;
+				background-color: #FFFFFF;
+			}
+		}
+
+		@media print {
+			body {
+				padding: 0;
+				margin: 0;
+			}
+		}
+
+		.title {
+			margin-bottom: 40px;
+		}
+
+		.title .el-link {
+			font-size: unset;
+		}
+
+		.haeder-tip {
+			display: flex;
+			justify-content: space-between;
+			color: var(--el-text-color-placeholder);
+		}
+
+		.section {
+			margin-bottom: 40px;
+		}
+
+		.el-statistic {
+			--el-statistic-content-font-size: 28px;
+		}
+
+		.statistic-card {
+			padding: 10px;
+			border-radius: 4px;
+			background-color: var(--el-bg-color-overlay);
+		}
+
+		.statistic-footer {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			flex-wrap: wrap;
+			font-size: 10px;
+			color: var(--el-text-color-regular);
+		}
+
+		.statistic-footer .footer-item {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.statistic-footer .footer-item span:last-child {
+			display: inline-flex;
+			align-items: center;
+			margin-left: 4px;
+		}
+		.el-space__item {
+			align-items: center;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="app">
+		<h1 class="hcenter title">
+			<span class="hcenter">
+				<el-link type="primary" @click="handleLink(renders.node.type, renders.node.id)">{{ renders.node.name }}</el-link>
+				<span data-l10n-id="zotcard-card-report">卡片报告1</span>
+			</span>
+		</h1>
+		<p class="haeder-tip">
+			<span>{{ l10n('zotcard-card-report-today', {date: renders.today.date, weekOfYear: renders.today.weekOfYear}) }}</span>
+			<span>{{ l10n('zotcard-card-report-build', {create: renders.today.create}) }}</span>
+		</p>
+		<hr />
+		<div class="section">
+			<p>{{ l10n('zotcard-card-report-since', {first: renders.polarization.date.first, fromDays: renders.today.fromDays}) }}</p>
+			<el-space>
+				<div class="statistic-card">
+					<el-statistic :value="renders.statistics.total" value-style="color: #f56c6c">
+						<template #title>
+						<div style="display: inline-flex; align-items: center">
+							<spam data-l10n-id="zotcard-card-report-total">累计卡片数1</spam>
+						</div>
+						</template>
+					</el-statistic>
+				</div>
+				<div class="statistic-card">
+					<el-statistic :value="renders.statistics.words" value-style="color: #8d4bf6">
+						<template #title>
+						<div style="display: inline-flex; align-items: center">
+							<spam data-l10n-id="zotcard-card-report-words">累计字数1</spam>
+						</div>
+						</template>
+					</el-statistic>
+				</div>
+				<div class="statistic-card">
+					<el-statistic :value="renders.statistics.avg_words" value-style="color: #e6a23c">
+						<template #title>
+						<div style="display: inline-flex; align-items: center">
+							<spam data-l10n-id="zotcard-card-report-avg_words">平均一卡字数1</spam>
+						</div>
+						</template>
+					</el-statistic>
+				</div>
+				<div class="statistic-card">
+					<el-statistic :value="renders.statistics.content_scale" value-style="color: #909399">
+						<template #title>
+						<div style="display: inline-flex; align-items: center">
+							<spam data-l10n-id="zotcard-card-report-content_scale">累计内容占比1</spam>
+						</div>
+						</template>
+						<template #suffix>
+							<span style="font-size: 12px">%</span>
+						</template>
+					</el-statistic>
+				</div>
+				<div class="statistic-card">
+					<el-statistic :value="renders.statistics.days" value-style="color: #303133">
+						<template #title>
+						<div style="display: inline-flex; align-items: center">
+							<spam data-l10n-id="zotcard-card-report-days">累计写卡天数1</spam>
+						</div>
+						</template>
+					</el-statistic>
+				</div>
+				<div class="statistic-card">
+					<el-statistic :value="renders.statistics.days_scale" value-style="color: #909399">
+						<template #title>
+						<div style="display: inline-flex; align-items: center">
+							<spam data-l10n-id="zotcard-card-report-days_scale">写卡天数占比1</spam>
+						</div>
+						</template>
+						<template #suffix>
+							<span style="font-size: 12px">%</span>
+						</template>
+					</el-statistic>
+				</div>
+				<div class="statistic-card">
+					<el-statistic :value="renders.statistics.avg_cards" value-style="color: #409eff">
+						<template #title>
+						<div style="display: inline-flex; align-items: center">
+							<spam data-l10n-id="zotcard-card-report-avg_cards">平均一天写卡1</spam>
+						</div>
+						</template>
+					</el-statistic>
+				</div>
+				<div class="statistic-card">
+					<el-statistic :value="renders.statistics.sizes" value-style="color: #303133">
+						<template #title>
+						<div style="display: inline-flex; align-items: center">
+							<spam data-l10n-id="zotcard-card-report-sizes">占空间1</spam>
+						</div>
+						</template>
+						<template #suffix>
+							<span style="font-size: 12px">{{ renders.statistics.unit }}</span>
+						</template>
+					</el-statistic>
+				</div>
+			</el-space>
+			<p>
+				<spam>{{ l10n('zotcard-card-report-last', {last: renders.polarization.date.last}) }}</spam>
+				<spam v-if="renders.today.nonCardDay === 0">{{ l10n('zotcard-card-report-todayCard') }}</spam>
+				<spam v-if="renders.today.nonCardDay > 0">{{ l10n('zotcard-card-report-nonCard', {day: renders.today.nonCardDay}) }}</spam>
+				<spam v-if="renders.today.nonCardDay < 0">{{ l10n('zotcard-card-report-advancedCard', {day: Math.abs(renders.today.nonCardDay)}) }}</spam>
+			</p>
+		</div>
+		<div class="section">
+			<h2 data-l10n-id="zotcard-card-report-cardtypes">卡片分类汇总1</h2>
+			<div id="cardtypes" style="height:220px; width: 100%;"></div>
+		</div>
+		<div class="section">
+			<h2 data-l10n-id="zotcard-card-report-cardtags">卡片标签汇总1</h2>
+			<div id="cardtags" style="height:220px; width: 100%;"></div>
+		</div>
+		<div class="section">
+			<h2 data-l10n-id="zotcard-card-report-specialcard">特殊的卡片1</h2>
+			<el-space class="el-link-text" :size="20" alignment="normal" direction="vertical">
+				<el-space>
+					<span>
+						<span data-l10n-id="zotcard-card-report-specialcard-date1">第一张卡1</span>
+						<el-popover
+							placement="bottom"
+							:title="renders.polarization.date.firstCard?.note.title"
+							:width="500"
+							trigger="hover"
+						>
+							<template #reference>
+								<el-link :underline="false" type="warning" @click="handleLink(ZotCardConsts.cardManagerType.item, renders.polarization.date.firstID)">{{ renders.polarization.date.firstNoteName || '-' }}</el-link>
+							</template>
+							<el-scrollbar height="400px">
+								<div style="font-size: 12px;" v-html="renders.polarization.date.firstCard?.note.contentHtml"></div>
+							</el-scrollbar>
+						</el-popover>
+						<span>{{ l10n('zotcard-card-report-specialcard-date-content', {date: renders.polarization.date.first}) }}</span>
+					</span>
+					<span>
+						<span data-l10n-id="zotcard-card-report-specialcard-date2">最后一张卡1</span>
+						<el-popover
+							placement="bottom"
+							:title="renders.polarization.date.lastCard?.note.title"
+							:width="500"
+							trigger="hover"
+						>
+							<template #reference>
+								<el-link :underline="false" type="warning" @click="handleLink(ZotCardConsts.cardManagerType.item, renders.polarization.date.lastID)">{{ renders.polarization.date.lastNoteName || '-' }}</el-link>
+							</template>
+							<el-scrollbar height="400px">
+								<div style="font-size: 12px;" v-html="renders.polarization.date.lastCard?.note.contentHtml"></div>
+							</el-scrollbar>
+						</el-popover>
+						<span>{{ l10n('zotcard-card-report-specialcard-date-content', {date: renders.polarization.date.last}) }}</span>
+					</span>
+				</el-space>
+				<el-space>
+					<span>
+						<span data-l10n-id="zotcard-card-report-specialcard-words1">字数最少的卡1</span>
+						<el-popover
+							placement="bottom"
+							:title="renders.polarization.words.firstCard?.note.title"
+							:width="500"
+							trigger="hover"
+						>
+							<template #reference>
+								<el-link :underline="false" type="warning" @click="handleLink(ZotCardConsts.cardManagerType.item, renders.polarization.words.firstID)">{{ renders.polarization.words.firstNoteName || '-' }}</el-link>
+							</template>
+							<el-scrollbar height="400px">
+								<div style="font-size: 12px;" v-html="renders.polarization.words.firstCard?.note.contentHtml"></div>
+							</el-scrollbar>
+						</el-popover>
+						<span>{{ l10n('zotcard-card-report-specialcard-words-content', {words: renders.polarization.words.first}) }}</span>
+					</span>
+					<span>
+						<span data-l10n-id="zotcard-card-report-specialcard-words2">字数最多的卡1</span>
+						<el-popover
+							placement="bottom"
+							:title="renders.polarization.words.lastCard?.note.title"
+							:width="500"
+							trigger="hover"
+						>
+							<template #reference>
+								<el-link :underline="false" type="warning" @click="handleLink(ZotCardConsts.cardManagerType.item, renders.polarization.words.lastID)">{{ renders.polarization.words.lastNoteName || '-' }}</el-link>
+							</template>
+							<el-scrollbar height="400px">
+								<div style="font-size: 12px;" v-html="renders.polarization.words.lastCard?.note.contentHtml"></div>
+							</el-scrollbar>
+						</el-popover>
+						<span>{{ l10n('zotcard-card-report-specialcard-words-content', {words: renders.polarization.words.last}) }}</span>
+					</span>
+				</el-space>
+				<el-space>
+					<span>
+						<span data-l10n-id="zotcard-card-report-specialcard-lines1">行数最少的卡1</span>
+						<el-popover
+							placement="bottom"
+							:title="renders.polarization.lines.firstCard?.note.title"
+							:width="500"
+							trigger="hover"
+						>
+							<template #reference>
+								<el-link :underline="false" type="warning" @click="handleLink(ZotCardConsts.cardManagerType.item, renders.polarization.lines.firstID)">{{ renders.polarization.lines.firstNoteName || '-' }}</el-link>
+							</template>
+							<el-scrollbar height="400px">
+								<div style="font-size: 12px;" v-html="renders.polarization.lines.firstCard?.note.contentHtml"></div>
+							</el-scrollbar>
+						</el-popover>
+						<span>{{ l10n('zotcard-card-report-specialcard-lines-content', {lines: renders.polarization.lines.first}) }}</span>
+					</span>
+					<span>
+						<span data-l10n-id="zotcard-card-report-specialcard-lines2">行数最多的卡1</span>
+						<el-popover
+							placement="bottom"
+							:title="renders.polarization.lines.lastCard?.note.title"
+							:width="500"
+							trigger="hover"
+						>
+							<template #reference>
+								<el-link :underline="false" type="warning" @click="handleLink(ZotCardConsts.cardManagerType.item, renders.polarization.lines.lastID)">{{ renders.polarization.lines.lastNoteName || '-' }}</el-link>
+							</template>
+							<el-scrollbar height="400px">
+								<div style="font-size: 12px;" v-html="renders.polarization.lines.lastCard?.note.contentHtml"></div>
+							</el-scrollbar>
+						</el-popover>
+						<span>{{ l10n('zotcard-card-report-specialcard-lines-content', {lines: renders.polarization.lines.last}) }}</span>
+					</span>
+				</el-space>
+				<el-space>
+					<span>
+						<span data-l10n-id="zotcard-card-report-specialcard-sizes1">占空间最少的卡1</span>
+						<el-popover
+							placement="bottom"
+							:title="renders.polarization.sizes.firstCard?.note.title"
+							:width="500"
+							trigger="hover"
+						>
+							<template #reference>
+								<el-link :underline="false" type="warning" @click="handleLink(ZotCardConsts.cardManagerType.item, renders.polarization.sizes.firstID)">{{ renders.polarization.sizes.firstNoteName || '-' }}</el-link>
+							</template>
+							<el-scrollbar height="400px">
+								<div style="font-size: 12px;" v-html="renders.polarization.sizes.firstCard?.note.contentHtml"></div>
+							</el-scrollbar>
+						</el-popover>
+						<span>{{ l10n('zotcard-card-report-specialcard-sizes-content', {sizes: renders.polarization.sizes.first}) }}</span>
+					</span>
+					<span>
+						<span data-l10n-id="zotcard-card-report-specialcard-sizes2">占空间最多的卡1</span>
+						<el-popover
+							placement="bottom"
+							:title="renders.polarization.sizes.lastCard?.note.title"
+							:width="500"
+							trigger="hover"
+						>
+							<template #reference>
+								<el-link :underline="false" type="warning" @click="handleLink(ZotCardConsts.cardManagerType.item, renders.polarization.sizes.lastID)">{{ renders.polarization.sizes.lastNoteName || '-' }}</el-link>
+							</template>
+							<el-scrollbar height="400px">
+								<div style="font-size: 12px;" v-html="renders.polarization.sizes.lastCard?.note.contentHtml"></div>
+							</el-scrollbar>
+						</el-popover>
+						<span>{{ l10n('zotcard-card-report-specialcard-sizes-content', {sizes: renders.polarization.sizes.last}) }}</span>
+					</span>
+				</el-space>
+				<el-space>
+					<span>
+						<span data-l10n-id="zotcard-card-report-specialcard-content_scales1">内容比最小的卡1</span>
+						<el-popover
+							placement="bottom"
+							:title="renders.polarization.content_scales.firstCard?.note.title"
+							:width="500"
+							trigger="hover"
+						>
+							<template #reference>
+								<el-link :underline="false" type="warning" @click="handleLink(ZotCardConsts.cardManagerType.item, renders.polarization.content_scales.firstID)">{{ renders.polarization.content_scales.firstNoteName || '-' }}</el-link>
+							</template>
+							<el-scrollbar height="400px">
+								<div style="font-size: 12px;" v-html="renders.polarization.content_scales.firstCard?.note.contentHtml"></div>
+							</el-scrollbar>
+						</el-popover>
+						<span>{{ l10n('zotcard-card-report-specialcard-content_scales-content', {content_scales: renders.polarization.content_scales.first}) }}</span>
+					</span>
+					<span> 
+						<span data-l10n-id="zotcard-card-report-specialcard-content_scales2">内容比最大的卡1</span>
+						<el-popover
+							placement="bottom"
+							:title="renders.polarization.content_scales.lastCard?.note.title"
+							:width="500"
+							trigger="hover"
+						>
+							<template #reference>
+								<el-link :underline="false" type="warning" @click="handleLink(ZotCardConsts.cardManagerType.item, renders.polarization.content_scales.lastID)">{{ renders.polarization.content_scales.lastNoteName || '-' }}</el-link>
+							</template>
+							<el-scrollbar height="400px">
+								<div style="font-size: 12px;" v-html="renders.polarization.content_scales.lastCard?.note.contentHtml"></div>
+							</el-scrollbar>
+						</el-popover>
+						<span>{{ l10n('zotcard-card-report-specialcard-content_scales-content', {content_scales: renders.polarization.content_scales.last}) }}</span>
+					</span>
+				</el-space>
+			<el-space>
+		</div>
+		<div class="section">
+			<h2 data-l10n-id="zotcard-card-report-weeks">按周汇总1</h2>
+			<div id="weeks" style="height:300px; width: 100%;"></div>
+		</div>
+		<el-row>
+			<el-col :span="12">
+				<div class="section">
+					<h2 data-l10n-id="zotcard-card-report-months">按月汇总1</h2>
+					<div id="months" style="height:300px; width: 100%;"></div>
+				</div>
+			</el-col>
+			<el-col :span="12">
+				<div class="section">
+					<h2 data-l10n-id="zotcard-card-report-years">按年汇总1</h2>
+					<div id="years" style="height:300px; width: 100%;"></div>
+				</div>
+			</el-col>
+		</el-row>
+		<div class="section" v-for="y in renders.statistics.hasYears">
+			<h2>{{ l10n('zotcard-card-report-years-detail', {year: y, days: renders.statistics.asYears[y].dayTotal, days_scale: renders.statistics.asYears[y].days_scale, words: renders.statistics.asYears[y].words, total: renders.statistics.asYears[y].total}) }}</h2>
+			<div :id="`y${y}`" style="height:100px; width: 100%;"></div>
+			<el-row class="fill">
+				<el-col :span="8">
+					<div :id="`y${y}cardtypes`" style="height:200px; width: 100%;"></div>
+				</el-col>
+				<el-col :span="8">
+					<div :id="`y${y}cardtags`" style="height:200px; width: 100%;"></div>
+				</el-col>
+				<el-col :span="8">
+					<div :id="`y${y}months`" style="height:200px; width: 100%;"></div>
+				</el-col>
+			</el-row>
+		</div>
+	</div>
+</body>
+</html>

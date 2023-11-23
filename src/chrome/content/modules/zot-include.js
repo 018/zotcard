@@ -27,6 +27,10 @@
     Zotero.ZotCard.DateTimes.init();
     Zotero.ZotCard.Logger.log("loadSubScript zot-datetimes.js");
 
+    Services.scriptloader.loadSubScript(rootURI + '/chrome/content/modules/zot-moments.js');
+    Zotero.ZotCard.Moments.init();
+    Zotero.ZotCard.Logger.log("loadSubScript zot-moments.js");
+
     Services.scriptloader.loadSubScript(rootURI + '/chrome/content/modules/zot-prefs.js');
     Zotero.ZotCard.Prefs.init();
     Zotero.ZotCard.Logger.log("loadSubScript zot-prefs.js");

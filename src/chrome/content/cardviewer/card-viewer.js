@@ -60,10 +60,16 @@ if (!io) {
             return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
           }
         });
+        let cardmgrProfiles = Zotero.ZotCard.Prefs.getJson('cardmgr.profiles', _profiles);
         const profiles = reactive({
           carouselType: _profiles.carouselType,
           titleFontSize: _profiles.titleFontSize,
           contentFontSize: _profiles.contentFontSize,
+
+          parseDate: cardmgrProfiles.parseDate,
+          parseTags: cardmgrProfiles.parseTags,
+          parseCardType: cardmgrProfiles.parseCardType,
+          parseWords: cardmgrProfiles.parseWords,
         });
         const filters = reactive({
           orderby: 'random',
@@ -184,8 +190,11 @@ if (!io) {
           Zotero.ZotCard.Logger.ding();
           
           switch (key) {
-            case 'edit':
+            case 'edit-editInWindow':
               Zotero.getMainWindow().ZoteroPane.openNoteWindow(card.id);
+              break;
+            case 'edit-cardEditor':
+              Zotero.ZotCard.Dialogs.openCardEditor(card.id);
               break;
             case 'remove':
               let index = cards.indexOf(card);

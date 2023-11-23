@@ -329,10 +329,6 @@
 					</el-link>
 					<el-link :underline="false" @click="handleTools('window')" icon="CopyDocument" data-l10n-id="zotcard-card-manager-toolbar-window-title">
 					</el-link>
-					<el-divider direction="vertical"></el-divider>
-					<!-- <el-link :underline="false" @click="handleTools('report')">
-						<el-icon><Pie-Chart /></el-icon>
-					</el-link> -->
 				</el-space>
 				<el-space>
 					<el-radio-group v-model="filters.mode" size="small" @change="handleModeChange" :disabled="total === 0">
@@ -383,8 +379,15 @@
 						<el-carousel-item>
 							<div class="card-tools">
 								<el-space wrap alignment="center">
-									<el-link :underline="false"
-										@click="handleCardTools('edit', cards[n - 1])" data-l10n-id="zotcard-card-manager-toolbar-edit-title"><el-icon><Edit-Pen /></el-icon></el-link>
+									<el-dropdown>
+										<el-icon><Edit-Pen /></el-icon>
+										<template #dropdown>
+											<el-dropdown-menu>
+												<el-dropdown-item @click="handleCardTools('edit-editInWindow', cards[n - 1])"><span data-l10n-id="zotcard-editInWindow">在独立窗口编辑1</span></el-dropdown-item>
+												<el-dropdown-item @click="handleCardTools('edit-cardEditor', cards[n - 1])"><span data-l10n-id="zotero-zotcard-card-editor-title">源代码编辑</span></el-dropdown-item>
+											</el-dropdown-menu>
+										</template>
+									</el-dropdown>
 									<el-link :underline="false"
 										@click="handleCardTools('delete', cards[n - 1])" data-l10n-id="zotcard-card-manager-toolbar-delete-title"><el-icon>
 											<Delete />
@@ -524,7 +527,7 @@
 				</el-card>
 			</el-space>
 
-			<div v-if="scroll.disabled" class="fill hcenter text-color-placeholder more">{{l10n('zotcard-card-manager-nomore', {total})}}</div>
+			<div v-if="scroll.disabled" class="fill hcenter text-color-placeholder more">{{l10n('zotcard-card-manager-nomore', {total, filter: cards.length})}}</div>
 			<div v-if="scroll.loading" class="fill hcenter text-color-placeholder more" data-l10n-id="zotcard-card-manager-loading">Loading</div>
 		</div>
 		<el-empty v-else>

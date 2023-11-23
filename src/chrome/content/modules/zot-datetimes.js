@@ -5,7 +5,7 @@ Zotero.ZotCard.DateTimes = Object.assign(Zotero.ZotCard.DateTimes, {
   yyyyMM: 'yyyy-MM',
   yyyyMMdd: 'yyyy-MM-dd',
   yyyyMMddHHmmss: 'yyyy-MM-dd HH:mm:ss',
-  yyyyMMddHHmmssSSS: 'yyyy-MM-dd HH:mm:ss.SSS',
+  yyyyMMddHHmmssS: 'yyyy-MM-dd HH:mm:ss.S',
 
 	init() {
 		Zotero.ZotCard.Logger.log('Zotero.ZotCard.DateTimes inited.');
@@ -32,9 +32,65 @@ Zotero.ZotCard.DateTimes = Object.assign(Zotero.ZotCard.DateTimes, {
     }
     return format
   },
-  
+
+  // 0: 周日开始
+  // 1: 周一开始
+  weekOfYear(date, startOfWeek) {
+    // var firstDay = new Date(date.getFullYear(), 0, 1, 0, 0, 0, 0);
+    // firstDay.setDate(1 + (7 - firstDay.getDay() + startOfWeek) % 7);
+    // dateGap = date.getTime() - firstDay.getTime();
+    // return Math.ceil(dateGap / (7 * 24 * 60 * 60 * 1000)) + 1;
+
+    var firstDay = new Date(date.getFullYear(), 0, 1, 0, 0, 0, 0);
+    // 第一周至少4天
+    switch (startOfWeek) {
+      case 0: // 周日开始
+      if (firstDay.getDay() <= 3) {
+        firstDay.setDate(firstDay.getDate() - firstDay.getDay());
+      } else {
+        firstDay.setDate(firstDay.getDate() + (7 - firstDay.getDay()));
+      }
+        break;
+      case 1: // 周一开始
+        let getDay = firstDay.getDay() || 7;
+        if (getDay <= 4) {
+          firstDay.setDate(firstDay.getDate() - (firstDay.getDay() - 1));
+        } else {
+          firstDay.setDate(firstDay.getDate() + (7 - firstDay.getDay() + 1));
+        }
+        break;
+    
+      default:
+        break;
+    }
+    firstDay.setDate(1 + (7 - firstDay.getDay() + startOfWeek) % 7);
+    dateGap = date.getTime() - firstDay.getTime();
+    return Math.ceil(dateGap / (7 * 24 * 60 * 60 * 1000));
+  },
+
+  // 0: 周日开始
+  // 1: 周一开始
+  datesByWeekOfYear(weekOfYear, startOfWeek) {
+    var firstDay = new Date(date.getFullYear(), 0, 1, 0, 0, 0, 0);
+    firstDay.setDate(1 + (7 - firstDay.getDay() + startOfWeek) % 7);
+    dateGap = date.getTime() - firstDay.getTime();
+    return Math.ceil(dateGap / (7 * 24 * 60 * 60 * 1000)) + 1;
+  },
+
+  dayOfYear(date) {
+    var firstDay = new Date(date.getFullYear(), 0, 1, 0, 0, 0, 0);
+    let dateGap = date.getTime() - firstDay.getTime() + 1;
+    return Math.ceil(dateGap / (24 * 60 * 60 * 1000));
+  },
+
+  week(date) {
+    let cn = ['日', '一', '二', '三', '四', '五', '六'][date.getDay()];
+    let en = ['Sun.', 'Mon.', 'Tues.', 'Wed.', 'Thurs.', 'Fri.', 'Sat.'][date.getDay()];
+    return {cn, en};
+  },
+
   now() {
-    return this.formatDate(new Date(), Zotero.ZotCard.DateTimes.yyyyMMddHHmmssSSS);
+    return this.formatDate(new Date(), Zotero.ZotCard.DateTimes.yyyyMMddHHmmssS);
   },
   
   sqlToDate(date, format) {

@@ -37,7 +37,6 @@
           }
         }
       });
-
       app.mount(document.getElementById('app'));
       return app;
     },

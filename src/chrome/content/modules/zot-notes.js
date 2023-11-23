@@ -385,7 +385,6 @@ Zotero.ZotCard.Notes = Object.assign(Zotero.ZotCard.Notes, {
         let men_word = content.match(/[a-z|A-Z]+/g);
         let mnum_word = content.match(/[0-9]+/g);
         let mlines = content.match(/\n/g);
-        let mblank = content.match(/ /g);
         en_words = men_word ? men_word.length : 0;
         cn_words = (mcnword1 ? mcnword1.length : 0) + (mcnword2 ? mcnword2.length : 0);
         num_words = mnum_word ? mnum_word.length : 0;
@@ -443,10 +442,11 @@ Zotero.ZotCard.Notes = Object.assign(Zotero.ZotCard.Notes, {
     } else {
       word = '0';
     }
+    let displayStore = Zotero.ZotCard.Utils.displayStore(statistics.sizes);
     return {
       text: word,
       title: Zotero.ZotCard.L10ns.getString('zotcard-words-title', word_params),
-      space: Zotero.ZotCard.Utils.displayStore(statistics.sizes) + ` (${Zotero.ZotCard.L10ns.getString('zotcard-sizes-contentscale', word_params)}${statistics.sizes > 0 ? Zotero.ZotCard.Utils.scale(statistics.words / statistics.sizes, 1) : 0}%)`
+      space: `${displayStore.text} (${Zotero.ZotCard.L10ns.getString('zotcard-sizes-contentscale', word_params)}${statistics.sizes > 0 ? Zotero.ZotCard.Utils.scale(statistics.words / statistics.sizes, 1) : 0}%)`
     };
   },
 
@@ -520,7 +520,7 @@ Zotero.ZotCard.Notes = Object.assign(Zotero.ZotCard.Notes, {
     let links = [];
     let note = Zotero.Items.get(noteID);
     if (note.parentItem) {
-      links.push(...Zotero.ZotCard.Items.links(note.parentItem.id));
+      links.push(...Zotero.ZotCard.Items.links(note.parentItemID));
     } else {
         let collectionID = note.getCollections()[0];
         links.push(...Zotero.ZotCard.Collections.links(collectionID));

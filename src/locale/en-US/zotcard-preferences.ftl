@@ -19,7 +19,6 @@ zotcard-preferences-general-other-wordCountStyle-all = ALL
 zotcard-preferences-general-other-wordCountStyle-onlyWords = Only words（Includes Chinese, English and Numbers）
 zotcard-preferences-general-other-word_count_style_message = ALL：6　㊥:1(1%) 🅰:2(2%) ➊:3(3%)<br />Only words（Includes Chinese, English and Numbers）：6
 
-
 zotcard-preferences-label = Label
 zotcard-preferences-visible = Visible
 zotcard-preferences-template = Template
