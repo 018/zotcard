@@ -6,6 +6,8 @@ zotcard-card-manager-toolbar-refresh-title =
     .title = 刷新
 zotcard-card-manager-toolbar-edit-title =
     .title = 编辑
+zotcard-card-manager-toolbar-replace-title =
+    .title = 替换
 zotcard-card-manager-toolbar-remove-title =
     .title = 移除
 zotcard-card-manager-toolbar-delete-title =
@@ -47,10 +49,11 @@ zotcard-card-manager-toolbar-onlycollapse= 仅收起
 zotcard-card-manager-toolbar-onlyselected = 仅选择
 
 zotcard-card-manager-toolbar-report = 卡片报告
-zotcard-card-manager-toolbar-copy-content = 拷贝内容
-zotcard-card-manager-toolbar-copy-text = 拷贝文本
-zotcard-card-manager-toolbar-copy-markdown = 拷贝Markdown
-zotcard-card-manager-toolbar-copy-html = 拷贝源代码
+zotcard-card-manager-toolbar-copy-content = 复制内容
+zotcard-card-manager-toolbar-copy-text = 复制文本
+zotcard-card-manager-toolbar-copy-markdown = 复制Markdown
+zotcard-card-manager-toolbar-copy-html = 复制源代码
+zotcard-card-manager-toolbar-copy-link = 复制链接
 
 zotcard-card-manager-date = 卡片日期
 zotcard-card-manager-dateAdded = 创建时间

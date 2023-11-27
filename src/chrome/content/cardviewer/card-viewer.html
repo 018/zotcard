@@ -209,10 +209,11 @@
 									<el-icon><Document-Copy /></el-icon>
 									<template #dropdown>
 										<el-dropdown-menu>
-											<el-dropdown-item @click="handleCardTools('copy-content', cards[n - 1])"><span data-l10n-id="zotcard-card-manager-toolbar-copy-content">拷贝内容1</span></el-dropdown-item>
-											<el-dropdown-item @click="handleCardTools('copy-text', cards[n - 1])"><span data-l10n-id="zotcard-card-manager-toolbar-copy-text">拷贝文本1</span></el-dropdown-item>
-											<el-dropdown-item @click="handleCardTools('copy-markdown', cards[n - 1])"><span data-l10n-id="zotcard-card-manager-toolbar-copy-markdown">拷贝Markdown1</span></el-dropdown-item>
-											<el-dropdown-item @click="handleCardTools('copy-html', cards[n - 1])"><span data-l10n-id="zotcard-card-manager-toolbar-copy-html">拷贝源代码1</span></el-dropdown-item>
+											<el-dropdown-item @click="handleCardTools('copy-content', cards[n - 1])"><span data-l10n-id="zotcard-card-manager-toolbar-copy-content">复制内容1</span></el-dropdown-item>
+											<el-dropdown-item @click="handleCardTools('copy-text', cards[n - 1])"><span data-l10n-id="zotcard-card-manager-toolbar-copy-text">复制文本1</span></el-dropdown-item>
+											<el-dropdown-item @click="handleCardTools('copy-markdown', cards[n - 1])"><span data-l10n-id="zotcard-card-manager-toolbar-copy-markdown">复制Markdown1</span></el-dropdown-item>
+											<el-dropdown-item @click="handleCardTools('copy-html', cards[n - 1])"><span data-l10n-id="zotcard-card-manager-toolbar-copy-html">复制源代码1</span></el-dropdown-item>
+											<el-dropdown-item @click="handleCardTools('copy-link', cards[n - 1])" divided><span data-l10n-id="zotcard-card-manager-toolbar-copy-link">复制链接1</span></el-dropdown-item>
 										</el-dropdown-menu>
 									</template>
 								</el-dropdown>
@@ -227,7 +228,7 @@
 								</el-link>
 							</el-space>
 						</div>
-						<div class="card-content" v-html="cards[n - 1].note.contentHtml"></div>
+						<div class="card-content" v-html="cards[n - 1].note.displayContentHtml()"></div>
 						<div class="card-footer el-link-text">
 							<el-descriptions :column="3">
 								<el-descriptions-item span="3">

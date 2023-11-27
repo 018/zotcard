@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title data-l10n-id="zotcard-card-replace"></title>
+	<script src="chrome://zotero/content/include.js"></script>
+	<link rel="localization" href="zotcard.ftl" />
+	<link rel="localization" href="card-manager.ftl" />
+	<link rel="localization" href="card-replace.ftl" />
+	<link rel="stylesheet" href="../modules/common.css" />
+	<link rel="stylesheet" href="../modules/element-plus.css" />
+	<script src="../modules/vue.global.prod.js"></script>
+	<script src="../modules/element-plus.js"></script>
+	<script src="../modules/element-plus-zh-cn.js"></script>
+	<script src="../modules/element-plus-en.js"></script>
+	<script src="../modules/element-plus-zh-tw.js"></script>
+	<script src="../modules/element-plus-icons.js"></script>
+	<script src="../modules/zot-render-element-plus.js"></script>
+	<script id="jsfile"></script>
+	<script>
+		document.getElementById('jsfile').src = window.Zotero ? "card-replace.js" : "card-replace-dev.js"
+	</script>
+	<style>
+		body {
+			padding: 0;
+			margin: 0;
+			font-size: 12px;
+			background-color: #FFFFFF;
+		}
+
+		.header {
+			height: 40px;
+			background-color: #dce8ff;
+			display: flex;
+			align-items: center;
+			padding: 0 10px;
+			justify-content: space-between;
+		}
+
+		.title p, h1, h2, h3, h4, h5 {
+			padding: 0;
+			margin: 0;
+		}
+
+		.header .el-divider--vertical {
+			border-left: 1px #c4d6ff var(--el-border-style) !important;
+		}
+
+		.main {
+			margin: 20px 10px;
+		}
+
+		.main .el-space__item {
+			max-width: 50%;
+			min-width: 300px;
+		}
+
+		.el-card__header {
+			padding: 10px !important;
+			font-size: 14px;
+		}
+
+		.el-card__body {
+			padding: 10px !important;
+		}
+
+		.card-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+
+		.card-header .el-icon {
+			font-size: 18px;
+		}
+
+		.disabled {
+			color: #c0c4cc;
+		}
+
+		.replace-src {
+			--el-tag-bg-color: var(--el-color-primary-light-9);
+			--el-tag-border-color: var(--el-color-primary-light-8);
+			--el-tag-hover-color: var(--el-color-primary);
+			--el-tag-text-color: var(--el-color-primary);
+			background-color: var(--el-tag-bg-color);
+			border-color: var(--el-tag-border-color);
+			color: var(--el-tag-text-color);
+			display: inline-flex;
+			justify-content: center;
+			align-items: center;
+			vertical-align: middle;
+			padding: 0 2px;
+			font-size: var(--el-tag-font-size);
+			border-width: 1px;
+			border-style: solid;
+			border-radius: var(--el-tag-border-radius);
+			box-sizing: border-box;
+			white-space: nowrap;
+			--el-icon-size: 14px;
+		}
+
+		.replace-target {
+			--el-tag-bg-color: var(--el-color-success-light-9);
+			--el-tag-border-color: var(--el-color-success-light-8);
+			--el-tag-hover-color: var(--el-color-success);
+			--el-tag-text-color: var(--el-color-success);
+			background-color: var(--el-tag-bg-color);
+			border-color: var(--el-tag-border-color);
+			color: var(--el-tag-text-color);
+			display: inline-flex;
+			justify-content: center;
+			align-items: center;
+			vertical-align: middle;
+			padding: 0 2px;
+			font-size: var(--el-tag-font-size);
+			border-width: 1px;
+			border-style: solid;
+			border-radius: var(--el-tag-border-radius);
+			box-sizing: border-box;
+			white-space: nowrap;
+			--el-icon-size: 14px;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="app">
+		<!-- header -->
+		<el-affix :offset="0">
+			<div class="header">
+				<el-space wrap>
+					<el-space :size="5" class="hcenter">
+						<label data-l10n-id="zotcard-card-replace-mode">显示1</label>
+						<el-radio-group v-model="renders.mode">
+							<el-radio-button label="html"><span data-l10n-id="zotcard-card-replace-mode-html">Html1</span></el-radio-button>
+							<el-radio-button label="text"><span data-l10n-id="zotcard-card-replace-mode-text">文本1</span></el-radio-button>
+						</el-radio-group>
+					</el-space>
+					<el-divider direction="vertical"></el-divider>
+					<el-space :size="5" class="hcenter">
+						<label data-l10n-id="zotcard-card-replace-scope">范围1</label>
+						<el-radio-group v-model="renders.scope" @change="handleChange('scope')">
+							<el-radio-button label="all"><span data-l10n-id="zotcard-card-replace-scope-all">所有</span></el-radio-button>
+							<el-radio-button label="title"><span data-l10n-id="zotcard-card-replace-scope-title">仅标题</span></el-radio-button>
+							<el-radio-button label="content"><span data-l10n-id="zotcard-card-replace-scope-content">仅内容</span></el-radio-button>
+						</el-radio-group>
+					</el-space>
+					<el-space :size="5" class="hcenter">
+						<el-input v-model="renders.src" @input="handleInput('src')">
+							<template #prepend>
+								<el-select v-model="renders.src_mode" @change="handleChange('src_mode')" style="width: 100px;">
+									<el-option value="text" :label="l10n('zotcard-card-replace-src_mode-text')"></el-option>
+									<el-option value="regular" :label="l10n('zotcard-card-replace-src_mode-regular')"></el-option>
+								</el-select>
+							</template>
+						</el-input>
+						<span data-l10n-id="zotcard-card-replace-to">替换成</span>
+						<el-input v-model="renders.target" @input="handleInput('target')"></el-input>
+					</el-space>
+				</el-space>
+
+				<el-space>
+					<span>{{ l10n('zotcard-card-replace-message', {total: cards.length, filters: renders.filters, selecteds: renders.selecteds}) }}</span>
+					<el-popconfirm :title="l10n('zotcard-card-replace-confirm')" @confirm="handleReplace">
+						<template #reference>
+							<el-button type="success" :disabled="renders.selecteds === 0" plain data-l10n-id="zotcard-card-replace-ok">替换1</el-button>
+						</template>
+					  </el-popconfirm>
+				</el-space>
+			</div>
+		</el-affix>
+
+		<!-- cards -->
+		<div class="main">
+			<div v-for="(card, index) in cards">
+				<el-space spacer="➜">
+					<el-card :class="!card.isFound ? 'disabled' : ''">
+						<template #header>
+							<strong class="title fill single-line" :title="card.note.title">
+								<span v-if="renders.mode === 'text'" v-html="card.note.titleHtml2 || card.note.titleHtml"></span>
+								<span v-if="renders.mode === 'html'">{{ card.note.titleHtml }}</span>
+							</strong>
+						</template>
+						<div class="card-content" v-if="renders.mode === 'text'" v-html="card.note.contentHtml2 || card.note.displayContentHtml()"></div>
+						<div class="card-content" v-if="renders.mode === 'html'">{{ card.note.displayContentHtml() }}</div>
+					</el-card>
+					<el-card v-if="card.isFound">
+						<template #header>
+							<div class="card-header">
+								<strong :class="renders.scope === 'content' ? 'title fill single-line disabled' : 'title fill single-line'" :title="card.to.title">
+									<span v-if="renders.mode === 'text'" v-html="card.to.titleHtml2"></span>
+									<span v-if="renders.mode === 'html'">{{card.to.titleHtml}}</span>
+								</strong>
+								<el-link :type="card.isSelected ? 'success' : 'info'" :icon="card.isSelected ? 'CircleCheckFilled' : 'CircleCheck'" :underline="false" @click="handleCardTools('selected', card)" data-l10n-id="zotcard-card-manager-toolbar-selectedorunselected-title"></el-link>
+							</div>
+						</template>
+						<div :class="renders.scope === 'title' ? 'card-content disabled' : 'card-content'" v-if="renders.mode === 'text'" v-html="card.to.contentHtml2"></div>
+						<div :class="renders.scope === 'title' ? 'card-content disabled' : 'card-content'" v-if="renders.mode === 'html'">{{card.to.contentHtml}}</div>
+					</el-card>
+				</el-space>
+				<el-divider v-if="index < cards.length - 1" />
+			</div>
+		</div>
+
+		<el-backtop :right="50" :bottom="50" />
+	</div>
+</body>
+</html>

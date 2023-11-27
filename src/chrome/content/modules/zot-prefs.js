@@ -14,7 +14,11 @@ Zotero.ZotCard.Prefs = Object.assign(Zotero.ZotCard.Prefs, {
 	},
 
 	set(pref, val) {
-		Zotero.Prefs.set(`${Zotero.ZotCard.Selfs.name}.${pref}`, val);
+		if (val) {
+			Zotero.Prefs.set(`${Zotero.ZotCard.Selfs.name}.${pref}`, val);
+		} else {
+			this.clear(pref);
+		}
 	},
 
 	clear(pref) {
@@ -23,8 +27,12 @@ Zotero.ZotCard.Prefs = Object.assign(Zotero.ZotCard.Prefs, {
 
 	getJson(pref, def) {
 		let val = Zotero.Prefs.get(`${Zotero.ZotCard.Selfs.name}.${pref}`);
-		// Zotero.ZotCard.Logger.log(`${pref} = ${val} `);
-		return val !== undefined ? JSON.parse(val) : def;
+		try {
+			return val !== undefined ? JSON.parse(val) : def;
+		} catch(e) {
+			Zotero.ZotCard.Logger.log(e);
+			return def;
+		}
 	},
 
 	getJsonValue(pref, key, def) {
@@ -33,7 +41,11 @@ Zotero.ZotCard.Prefs = Object.assign(Zotero.ZotCard.Prefs, {
 	},
 
 	setJson(pref, val) {
-		Zotero.Prefs.set(`${Zotero.ZotCard.Selfs.name}.${pref}`, JSON.stringify(val));
+		if (val) {
+			Zotero.Prefs.set(`${Zotero.ZotCard.Selfs.name}.${pref}`, JSON.stringify(val));
+		} else {
+			this.clear(pref);
+		}
 	},
 
 	setJsonValue(pref, key, val) {
@@ -41,7 +53,11 @@ Zotero.ZotCard.Prefs = Object.assign(Zotero.ZotCard.Prefs, {
 		if (!json) {
 			json = {};
 		}
-		json[key] = val;
+		if (val) {
+			json[key] = val;
+		} else {
+			delete json[key];
+		}
 		this.setJson(pref, json);
 	},
 });

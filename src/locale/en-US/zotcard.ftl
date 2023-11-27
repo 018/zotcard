@@ -1,17 +1,23 @@
 zotero-zotcard =
     .label = ZotCard
-zotero-zotcard-card-manager =
-    .label = Card Manager
 zotero-zotcard-card-manager-title = Card Manager
-zotero-zotcard-card-viewer =
-    .label = Card Viewer
 zotero-zotcard-card-viewer-title = Card Viewer
-zotero-zotcard-card-editor =
-    .label = Source Code Editor
 zotero-zotcard-card-editor-title = Source Card Editor
-zotero-zotcard-card-report =
-    .label = Card Report
 zotero-zotcard-card-report-title = Card Report
+zotero-zotcard-card-replace-title = Card Replace
+zotero-zotcard-card-image-compression-title = Card Image Compression
+
+zotero-zotcard-card-print-title = Card Print
+zotero-zotcard-card-edit-title = Edit in a Separate Window
+zotero-zotcard-card-copy-title = Card Copy
+zotero-zotcard-card-copy-content-title = Copy content
+zotero-zotcard-card-copy-text-title = Copy text
+zotero-zotcard-card-copy-markdown-title = Copy Markdown
+zotero-zotcard-card-copy-html-title = Copy html
+zotero-zotcard-card-copy-link-title = Copy link
+
+zotero-zotcard-card-move-title = Card Move
+zotero-zotcard-card-move-recently-title = Nearest move
 
 zotcard-quotescard = Quotes Card
 zotcard-conceptcard = Concept Card

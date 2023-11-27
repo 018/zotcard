@@ -129,7 +129,7 @@ Zotero.ZotCard.Logger = Object.assign(Zotero.ZotCard.Logger, {
   },
 
   _outPrefix() {
-    let now = moment().format('YYYY-MM-DD hh:mm:ss.SSS');
+    let now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
     return `${Zotero.isMac ? '🤪' : '^-^'}${now} - ${Zotero.ZotCard.Selfs.id}(${Zotero.ZotCard.Selfs.version})`;
   },
 });

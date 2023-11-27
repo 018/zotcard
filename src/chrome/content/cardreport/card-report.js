@@ -245,7 +245,7 @@ if (!ZotElementPlus.isZoteroDev && Zotero.ZotCard.Objects.isEmptyArray(dataIn) |
           let _cardtypes = {};
           let days = [];
           let sizes = 0;
-          Zotero.ZotCard.Cards.load(window, allCards, filters.parentIDs, profiles, (card) => {
+          Zotero.ZotCard.Cards.load(window, undefined, allCards, filters.parentIDs, profiles, true, (card) => {
             _captureTag(_tags, card.more.tags);
             _captureCardTypes(_cardtypes, card.more.cardtype);
 

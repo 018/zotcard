@@ -5,22 +5,6 @@ var io = {dataIn:{type:1}};
 const parentIDs = [];
 parentIDs.push(['library-1']);
 
-const _profiles = {
-  excludeTitle: '',
-  excludeCollectionOrItemKeys: [],
-
-  titleFontSize: 15,
-  contentFontSize: 12,
-  columns: 5,
-  height: 300,
-  parseDate: true,
-  parseTags: true,
-  parseCardType: true,
-  parseWords: true,
-};
-
-var activate = true;
-
 window.onload = async function () {
   const _pagesize = 5;
 
@@ -67,20 +51,10 @@ window.onload = async function () {
       });
       const cards = reactive([]);
       const renders = reactive({
-        drawer: false,
-        innerHeight: window.innerHeight,
-        currentIndex: 0,
-        total: 0,
-        loads: 0,
-        isOrderbyDesc: (f) => {
-          return filters.orderby === f && filters.desc;
-        },
-        formatTime: (time) => {
-          let s = parseInt(time % 60);
-          let m = parseInt(time % (60 * 60) / 60);
-          let h = parseInt(time % (60 * 60 * 60) / (60 * 60));
-          return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        }
+        scope: 'all',
+        mode: 'text',
+        src: '',
+        target: ''
       });
       const profiles = reactive({
         carouselDirection: 'horizontal',
@@ -107,6 +81,7 @@ window.onload = async function () {
               isFull: false,
               isExpand: true,
               isSelected: false,
+              isFound: true,
               isShow: true,
               note: {},
               more: {},
@@ -118,13 +93,28 @@ window.onload = async function () {
             };
 
             card.note.title = '肩颈拉伸';
-            card.note.contentHtml = `<div data-schema-version="8">
+            card.note.titleHtml = '<p>偏头理气拉伸动作可以缓解肩部的紧张状态，改善肩部的血液循环。对于手麻、肩痛有很好的缓解效果。</p>';
+            card.note.contentHtml = `
             <p>偏头理气拉伸动作可以缓解肩部的紧张状态，改善肩部的血液循环。对于手麻、肩痛有很好的缓解效果。</p>
             <p><span style="color: var(--t1)">要领：</span></p>
             <p><span style="color: var(--t1)">1、身体采取自然站姿或坐姿，保持上身正直。左手护头，右手自然下垂。<br>2、吸气的同时将头缓缓向左侧倾斜，直到有轻微的拉伸感。呼气，同时将头缓慢向左倾斜，直到拉伸感由右侧到右后侧。保持5-10秒后自然呼吸还远原。放松后做另外一侧。</span></p>
             <p>日期：2022-10-30</p>
             <p>出处：<a href="https://view.inews.qq.com/k/20220413A08T1A00?web_channel=wap&amp;openApp=false" rel="noopener noreferrer nofollow">https://view.inews.qq.com/k/20220413A08T1A00?web_channel=wap&amp;openApp=false</a></p>
-            </div>`;
+            `;
+            
+            card.note.displayTitle = function () {
+              return this.title;
+            }.bind(card.note);
+            card.note.displayTitle2 = function () {
+              return this.title;
+            }.bind(card.note);
+            
+            card.note.displayContentHtmlEx = function () {
+              return this.contentHtml.replaceAll('<img ', '<img itemID="1" title="111" ');
+            }.bind(card.note);
+            card.note.displayContentHtml2 = function () {
+              return this.contentHtml.replaceAll('<img ', '<img itemID="1" title="111" ');
+            }.bind(card.note);
             card.note.text = '';
             card.note.html = '';
             card.note.dateAdded = '2023-11-07 21:38:00';
@@ -147,10 +137,6 @@ window.onload = async function () {
           renders.loads = _pagesize;
           loading.close();
         }, 50);
-
-        setInterval(() => {
-          cards[renders.currentIndex].extras.time ++;
-        }, 1000);
       }
 
       function handleCarouselChange(index) {
@@ -193,6 +179,10 @@ window.onload = async function () {
         }
       }
 
+      function l10n(key, params) {
+        return key;
+      }
+
       _init();
 
       return {
@@ -204,6 +194,7 @@ window.onload = async function () {
         handleTools,
         handleUIChange,
         handleCarouselChange,
+        l10n
       }
     }
   });

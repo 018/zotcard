@@ -1,17 +1,24 @@
 zotero-zotcard =
     .label = ZotCard
-zotero-zotcard-card-manager =
-    .label = 卡片管理器
 zotero-zotcard-card-manager-title = 卡片管理器
-zotero-zotcard-card-viewer =
-    .label = 读卡
 zotero-zotcard-card-viewer-title = 读卡
-zotero-zotcard-card-editor =
-    .label = 源代码编辑
 zotero-zotcard-card-editor-title = 源代码编辑
-zotero-zotcard-card-report =
-    .label = 卡片报告
 zotero-zotcard-card-report-title = 卡片报告
+zotero-zotcard-card-replace-title = 卡片替换
+zotero-zotcard-card-image-compression-title = 卡片图片压缩
+
+zotero-zotcard-card-print-title = 卡片打印
+zotero-zotcard-card-edit-title = 独立窗口编辑
+zotero-zotcard-card-copy-title = 卡片复制
+zotero-zotcard-card-copy-content-title = 复制内容
+zotero-zotcard-card-copy-text-title = 复制文本
+zotero-zotcard-card-copy-markdown-title = 复制Markdown
+zotero-zotcard-card-copy-html-title = 复制源代码
+zotero-zotcard-card-copy-link-title = 复制链接
+
+zotero-zotcard-card-move-title = 卡片移动
+zotero-zotcard-card-move-recently-title = 最近移动
+zotero-zotcard-card-move-message = 卡片已移动到 { $collectionName }，是否立即跳转到{ $collectionName }查看？
 
 zotcard-quotescard = 金句卡
 zotcard-conceptcard = 概念卡

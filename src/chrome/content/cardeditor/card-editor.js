@@ -47,7 +47,7 @@ if (!io || !io.noteID) {
 					emojis: false,
 					fields: false
 				});
-				const note = Zotero.Items.get(noteID);
+				let note = Zotero.Items.get(noteID);
 				document.title = note.getNoteTitle();
 				const searchField = ref('');
 				const html = ref(note.getNote());
@@ -61,6 +61,31 @@ if (!io || !io.noteID) {
 				});
 
 				const _init = async () => {
+					notifierID = Zotero.Notifier.registerObserver({
+					  notify: function (event, type, ids, extraData) {
+						// 新增
+						Zotero.ZotCard.Logger.log(`event:${event}, type:${type}, ids:${JSON.stringify(ids)}`);
+						if (ids.includes(note.id)) {
+							switch (type) {
+								case 'item':
+								  switch (event) {
+									case 'modify':
+										let note = Zotero.Items.get(noteID);
+										document.title = note.getNoteTitle();
+										html.value = note.getNote();
+									  	break;
+									case 'trash':
+										window.close();
+										break;
+								  }
+								  break;
+							  
+								default:
+								  break;
+							  }
+						}
+					  },
+					}, ['item'], 'zotcard');
 					loading.close();
 				}
 
@@ -642,4 +667,12 @@ if (!io || !io.noteID) {
 			}
 		});
 	}
+}
+
+window.onclose = function() {
+  Zotero.ZotCard.Logger.log('onclose');
+  
+  if (notifierID > 0) {
+    Zotero.Notifier.unregisterObserver(this.notifierID);
+  }
 }

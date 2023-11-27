@@ -12,6 +12,8 @@ zotcard-preferences-general-report-startOfWeek-Sat = 周一
 
 zotcard-preferences-general-other = 其他设置
 zotcard-preferences-general-other-recently_move_collection_quantity = 最近移动分类个数
+zotcard-preferences-general-other-imagemgr_tinify_api_key = Tinify Api Key
+zotcard-preferences-general-other-imagemgr_tinify_api_key_message = 请前往 https://tinify.cn/developers 申请。
 zotcard-preferences-general-other-enable_word_count = 开启卡片字数统计
 zotcard-preferences-general-other-enable_word_count_message = 字数 = ㊥中文 + 🅰英文 + ➊数字，占比 = 中文或英文或数字字数 / 卡片内容长度，内容比 = 字数 / 占空间大小。<br />卡片内容长度：卡片的内容的长度，包括中文、英文、数字、标点符号等。<br />占空间大小：卡片存储到zotero的实际空间大小。
 zotcard-preferences-general-other-word_count_style = 卡片字数统计样式

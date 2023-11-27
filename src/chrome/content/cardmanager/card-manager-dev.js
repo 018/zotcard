@@ -539,7 +539,7 @@ window.onload = async function () {
         Zotero.getMainWindow().focus();
       }
 
-      function handelCardViewerPopoverChagne() {
+      function handleCardViewerPopoverChagne() {
         switch (renders.cardViewerPopover.selected) {
           case 'all':
             renders.cardViewerPopover.total = cards.length;
@@ -584,7 +584,7 @@ window.onload = async function () {
         handleTools,
         handleTitle,
         handleCardTools,
-        handelCardViewerPopoverChagne
+        handleCardViewerPopoverChagne
       }
     }
   });

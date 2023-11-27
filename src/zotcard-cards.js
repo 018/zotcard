@@ -544,7 +544,7 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 		return parentIDs;
 	},
 
-	async load(window, allCards, parentIDs, profiles, process, complete) {
+	async load(window, createCard, allCards, parentIDs, profiles, loadMore, process, complete) {
 		allCards.splice(0);
 		for (let index = 0; index < parentIDs.length; index++) {
 			const element = parentIDs[index];
@@ -564,7 +564,7 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 					}
 					excludeCollectionKeys = this._excludeCollectionKeys(library.id, profiles);
 					searchResultIDs = await Zotero.ZotCard.Notes.search(id, undefined, undefined, excludeCollectionKeys);
-					this._loadSearchResultIDs(allCards, searchResultIDs, profiles);
+					this._loadSearchResultIDs(createCard, allCards, searchResultIDs, profiles);
 					Zotero.ZotCard.Logger.log('library: ' + library.name + ', searchResultIDs: ' + searchResultIDs.length + ', allCards: ' + allCards.length);
 					break;
 				case Zotero.ZotCard.Consts.cardManagerType.collection:
@@ -576,7 +576,7 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 					}
 					excludeCollectionKeys = this._excludeCollectionKeys(collection.libraryID, profiles);
 					searchResultIDs = await Zotero.ZotCard.Notes.search(collection.libraryID, collection.key, undefined, excludeCollectionKeys);
-					this._loadSearchResultIDs(allCards, searchResultIDs, profiles);
+					this._loadSearchResultIDs(createCard, allCards, searchResultIDs, profiles);
 					Zotero.ZotCard.Logger.log('collection: ' + collection.name + ', searchResultIDs: ' + searchResultIDs.length + ', allCards: ' + allCards.length);
 					break;
 				case Zotero.ZotCard.Consts.cardManagerType.search:
@@ -588,7 +588,7 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 					}
 					excludeCollectionKeys = this._excludeCollectionKeys(search.libraryID, profiles);
 					searchResultIDs = await Zotero.ZotCard.Notes.search(search.libraryID, undefined, search.key, excludeCollectionKeys);
-					this._loadSearchResultIDs(allCards, searchResultIDs, profiles);
+					this._loadSearchResultIDs(createCard, allCards, searchResultIDs, profiles);
 					Zotero.ZotCard.Logger.log('search: ' + search.name + ', searchResultIDs: ' + searchResultIDs.length + ', allCards: ' + allCards.length);
 					break;
 				case Zotero.ZotCard.Consts.cardManagerType.item:
@@ -599,7 +599,7 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 						return;
 					}
 					let notes = item.getNotes();
-					this._loadSearchResultIDs(allCards, notes, profiles);
+					this._loadSearchResultIDs(createCard, allCards, notes, profiles);
 					Zotero.ZotCard.Logger.log('item: ' + item.getDisplayTitle() + ', notes: ' + notes.length + ', allCards: ' + allCards.length);
 					break;
 				case Zotero.ZotCard.Consts.cardManagerType.note:
@@ -609,21 +609,23 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 						Zotero.ZotCard.Messages.warning(window, `The noteID ${id} is incorrect.`);
 						return;
 					}
-					this._loadSearchResultIDs(allCards, [note.id], profiles);
+					this._loadSearchResultIDs(createCard, allCards, [note.id], profiles);
 					Zotero.ZotCard.Logger.log('note: ' + note.getDisplayTitle() + ', allCards: ' + allCards.length);
 					break;
 			}
 		};
 
-		setTimeout(async () => {
-            for (let index = 0; index < allCards.length; index++) {
-              const card = allCards[index];
-              this.loadCardMore(card, card.id, profiles);
-
-			  process && process(card);
-            }
-            complete && complete(allCards);
-		}, 50);
+		if (loadMore) {
+			setTimeout(async () => {
+				for (let index = 0; index < allCards.length; index++) {
+				  const card = allCards[index];
+				  this.loadCardMore(card, card.id, profiles);
+	
+				  process && process(card);
+				}
+				complete && complete(allCards);
+			}, 50);
+		}
 
 		Zotero.ZotCard.Logger.log('loaded: ' + allCards.length);
 	},
@@ -805,9 +807,11 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 		Zotero.ZotCard.Logger.log('filtered: ' + cards.length);
 	},
 
-	_loadSearchResultIDs(allCards, searchResultIDs, profiles) {
+	_loadSearchResultIDs(createCard, allCards, searchResultIDs, profiles) {
 		searchResultIDs.forEach(id => {
 			const item = Zotero.Items.get(id);
+			Zotero.ZotCard.Logger.log(item);
+			
 			let title = item.getDisplayTitle();
 			if (!item) {
 				Zotero.ZotCard.Logger.log(`The itemID ${id} is incorrect.`);
@@ -855,16 +859,18 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 					}
 				}
 
-				let card = {
+				let card = {};
+				if (createCard) {
+					card = createCard() || {};
+				}
+
+				Object.assign(card, {
 					id: id,
-					isExpand: true,
-					isSelected: false,
-					isShow: true,
-					note: {},
-					more: {},
+					note: Object.assign({}, card.note),
+					more: Object.assign({}, card.more),
 					noteLoaded: false,
 					moreLoaded: false
-				};
+				});
 				this.loadCardNote(card, item);
 				allCards.push(card);
 			} else {
@@ -915,10 +921,13 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 		item = Zotero.ZotCard.Objects.isNumber(item) ? Zotero.Items.get(item) : item;
 		let html = item.getNote();
 		card.note.title = item.getNoteTitle();
-		card.note.contentHtml = Zotero.ZotCard.Notes.noteToContent(html);
-		card.note.text = Zotero.ZotCard.Notes.htmlToText(html);
+		card.note.titleHtml = Zotero.ZotCard.Notes.grabNoteTitleHtml(html);
+		card.note.contentHtml = Zotero.ZotCard.Notes.grabNoteContentHtml(html);
+		card.note.displayContentHtml = function () {
+			return this.contentHtml.replace(/data-attachment-key="(.*?)"/g, 'data-attachment-key="$1" src="zotero://attachment/library/items/$1"');
+		}.bind(card.note);
 		card.note.html = html;
-		card.note.contentHtml = card.note.contentHtml.replaceAll('<img ', '<img itemID="' + item.id + '" title="' + Zotero.ZotCard.L10ns.getString('zotcard-click_to_load') + '" ');
+		card.note.text = Zotero.ZotCard.Notes.htmlToText(html);
 
 		let dateAdded = item.getField('dateAdded');
 		let dateModified = item.getField('dateModified');

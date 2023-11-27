@@ -112,6 +112,9 @@ if (!io) {
                         renders.loads = Math.min(renders.loads, renders.total);
                         renders.currentIndex = Math.min(renders.currentIndex, renders.total - 1);
                       });
+                      if (renders.total === 0) {
+                        window.close();
+                      }
                       break;
                   }
                   break;
@@ -147,7 +150,7 @@ if (!io) {
           if (Zotero.ZotCard.Objects.isNoEmptyArray(parentIDs)) {
             let allCards = [];
             
-            await Zotero.ZotCard.Cards.load(window, allCards, parentIDs, {
+            await Zotero.ZotCard.Cards.load(window, undefined, allCards, parentIDs, {
               excludeTitle: '',
               excludeCollectionOrItemKeys: [],
       
@@ -155,7 +158,7 @@ if (!io) {
               parseTags: true,
               parseCardType: true,
               parseWords: true,
-            }, (card) => {
+            }, true, (card) => {
             }, (allCards) => {
               cards.push(...allCards);
               Zotero.ZotCard.Logger.trace('cards', cards.length);
@@ -222,8 +225,12 @@ if (!io) {
             case 'copy-html':
               Zotero.ZotCard.Clipboards.copyTextToClipboard(card.note.html);
               break;
+            case 'copy-link':
+              let item = Zotero.Items.get(card.id);
+              Zotero.ZotCard.Clipboards.copyTextToClipboard(Zotero.ZotCard.Items.getZoteroUrl(item.key));
+              break;
             case 'print':
-              Zotero.ZotCard.Dialogs.openPrintCard([card.id]);
+              Zotero.ZotCard.Dialogs.openCardPrint([card.id]);
               break;
             case 'zotero':
               handleLink(Zotero.ZotCard.Consts.cardManagerType.item, card.id);
@@ -348,8 +355,6 @@ if (!io) {
       }
     } else if (event.originalTarget.localName == 'img') {
       let src = event.originalTarget.getAttribute('src');
-      let itemID = event.originalTarget.getAttribute('itemID');
-      let key = event.originalTarget.getAttribute('data-attachment-key');
       if (src) {
         Zotero.ZotCard.Logger.log('click img but the loaded.');
         let width = event.originalTarget.getAttribute('width');
@@ -367,19 +372,6 @@ if (!io) {
           event.originalTarget.setAttribute('width', '100%');
           event.originalTarget.setAttribute('height', '100%');
         }
-      } else if (itemID && key) {
-        let item = Zotero.Items.get(itemID);
-        let attachment = Zotero.Items.getByLibraryAndKey(item.libraryID, key);
-        if (attachment && attachment.parentID == item.id) {
-          attachment.attachmentDataURI.then(dataURI => {
-            event.originalTarget.setAttribute('src', dataURI);
-            Zotero.ZotCard.Logger.log(`attachment ${item.libraryID}, ${key} replace.`);
-          });
-        } else {
-          Zotero.ZotCard.Logger.log(`attachment ${item.libraryID}, ${key} not exists.`);
-        }
-      } else {
-        Zotero.ZotCard.Logger.log('click img but the itemID or key is null.');
       }
     }
   }, false);

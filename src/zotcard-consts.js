@@ -5,7 +5,7 @@ Zotero.ZotCard.Consts = Object.assign(Zotero.ZotCard.Consts, {
 	defCardTypes: ['abstract', 'quotes', 'concept', 'character', 'not_commonsense', 'skill', 'structure', 'general'],
 	card_quantity: 3,
 	// startOfWeek: 0,
-	// recently_move_collection_quantity: 5,
+	recently_move_collection_quantity: 5,
 	// enable_word_count: true,
 	// note_background_color: '',
 	

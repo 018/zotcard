@@ -235,6 +235,8 @@
 						@click="handleTools('refresh')" data-l10n-id="zotcard-card-manager-toolbar-refresh-title"><el-icon><Refresh /></el-icon></el-link>
 					<el-link :disabled="total === 0" :underline="false"
 						@click="handleTools('edit')" data-l10n-id="zotcard-card-manager-toolbar-edit-title"><el-icon><Edit-Pen /></el-icon></el-link>
+						<el-link :disabled="total === 0" :underline="false"
+							@click="handleTools('replace')" data-l10n-id="zotcard-card-manager-toolbar-replace-title"><el-icon><Files /></el-icon></el-link>
 					<el-link :disabled="total === 0" :underline="false" @click="handleTools('delete')" data-l10n-id="zotcard-card-manager-toolbar-delete-title"><el-icon>
 							<Delete />
 						</el-icon></el-link>
@@ -242,10 +244,10 @@
 						<el-icon><Document-Copy /></el-icon>
 						<template #dropdown>
 							<el-dropdown-menu>
-								<el-dropdown-item @click="handleTools('copy-content')"><span data-l10n-id="zotcard-card-manager-toolbar-copy-content">拷贝内容1</span></el-dropdown-item>
-								<el-dropdown-item @click="handleTools('copy-text')"><span data-l10n-id="zotcard-card-manager-toolbar-copy-text">拷贝文本1</span></el-dropdown-item>
-								<el-dropdown-item @click="handleTools('copy-markdown')"><span data-l10n-id="zotcard-card-manager-toolbar-copy-markdown">拷贝Markdown1</span></el-dropdown-item>
-								<el-dropdown-item @click="handleTools('copy-html')"><span data-l10n-id="zotcard-card-manager-toolbar-copy-html">拷贝源代码1</span></el-dropdown-item>
+								<el-dropdown-item @click="handleTools('copy-content')"><span data-l10n-id="zotcard-card-manager-toolbar-copy-content">复制内容1</span></el-dropdown-item>
+								<el-dropdown-item @click="handleTools('copy-text')"><span data-l10n-id="zotcard-card-manager-toolbar-copy-text">复制文本1</span></el-dropdown-item>
+								<el-dropdown-item @click="handleTools('copy-markdown')"><span data-l10n-id="zotcard-card-manager-toolbar-copy-markdown">复制Markdown1</span></el-dropdown-item>
+								<el-dropdown-item @click="handleTools('copy-html')"><span data-l10n-id="zotcard-card-manager-toolbar-copy-html">复制源代码1</span></el-dropdown-item>
 							</el-dropdown-menu>
 						</template>
 					</el-dropdown>
@@ -308,7 +310,7 @@
 								<span v-if="filters.mode === ZotCardConsts.modeProps.only_collapse" data-l10n-id="zotcard-card-manager-toolbar-onlycollapse">仅收起1</span>
 								<span v-if="filters.mode === ZotCardConsts.modeProps.only_selected" data-l10n-id="zotcard-card-manager-toolbar-onlyselected">仅选择1</span>
 								<span data-l10n-id="zotcard-card-manager-show_card_viewer-in_the2">中1</span>
-								<el-select v-model="renders.cardViewerPopover.selected" @change="handelCardViewerPopoverChagne" style="width: 90px;">
+								<el-select v-model="renders.cardViewerPopover.selected" @change="handleCardViewerPopoverChagne" style="width: 90px;">
 									<el-option value="all" :label="l10n('zotcard-card-manager-show_card_viewer-all')"></el-option>
 									<el-option value="random" :label="l10n('zotcard-card-manager-show_card_viewer-random')"></el-option>
 									<el-option value="selectbefore" :label="l10n('zotcard-card-manager-show_card_viewer-selectbefore')"></el-option>
@@ -396,10 +398,11 @@
 										<el-icon><Document-Copy /></el-icon>
 										<template #dropdown>
 											<el-dropdown-menu>
-												<el-dropdown-item @click="handleCardTools('copy-content', cards[n - 1])"><span data-l10n-id="zotcard-card-manager-toolbar-copy-content">拷贝内容1</span></el-dropdown-item>
-												<el-dropdown-item @click="handleCardTools('copy-text', cards[n - 1])"><span data-l10n-id="zotcard-card-manager-toolbar-copy-text">拷贝文本1</span></el-dropdown-item>
-												<el-dropdown-item @click="handleCardTools('copy-markdown', cards[n - 1])"><span data-l10n-id="zotcard-card-manager-toolbar-copy-markdown">拷贝Markdown1</span></el-dropdown-item>
-												<el-dropdown-item @click="handleCardTools('copy-html', cards[n - 1])"><span data-l10n-id="zotcard-card-manager-toolbar-copy-html">拷贝源代码1</span></el-dropdown-item>
+												<el-dropdown-item @click="handleCardTools('copy-content', cards[n - 1])"><span data-l10n-id="zotcard-card-manager-toolbar-copy-content">复制内容1</span></el-dropdown-item>
+												<el-dropdown-item @click="handleCardTools('copy-text', cards[n - 1])"><span data-l10n-id="zotcard-card-manager-toolbar-copy-text">复制文本1</span></el-dropdown-item>
+												<el-dropdown-item @click="handleCardTools('copy-markdown', cards[n - 1])"><span data-l10n-id="zotcard-card-manager-toolbar-copy-markdown">复制Markdown1</span></el-dropdown-item>
+												<el-dropdown-item @click="handleCardTools('copy-html', cards[n - 1])"><span data-l10n-id="zotcard-card-manager-toolbar-copy-html">复制源代码1</span></el-dropdown-item>
+												<el-dropdown-item @click="handleCardTools('copy-link', cards[n - 1])" divided><span data-l10n-id="zotcard-card-manager-toolbar-copy-link">复制链接1</span></el-dropdown-item>
 											</el-dropdown-menu>
 										</template>
 									</el-dropdown>
@@ -440,7 +443,7 @@
 								</el-space>
 							</div>
 							<el-scrollbar>
-								<div v-html="cards[n - 1].note.contentHtml"></div>
+								<div v-html="cards[n - 1].note.displayContentHtml()"></div>
 							</el-scrollbar>
 						</el-carousel-item>
 						<!-- card info -->

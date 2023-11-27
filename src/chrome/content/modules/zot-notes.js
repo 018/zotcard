@@ -475,9 +475,20 @@ Zotero.ZotCard.Notes = Object.assign(Zotero.ZotCard.Notes, {
   //   content = Zotero.Utilities.unescapeHTML(content);
   //   return content;
   // },
+
+  // 抓取除去内容的标题HTML
+  grabNoteTitleHtml(text) {
+    text = text.replace(/(<\/(h\d|p|div)+>)/g, '$1\n');
+    text = text.replace(/<br\s*\/?>/g, ' ');
+    let matchs = text.match(/(<(h\d|p|div)+>.*?<\/(h\d|p|div)+>)\n/);
+    if (matchs) {
+      return matchs[1];
+    }
+    return text;
+  },
   
-  // 抓取除去标题的内容
-  noteToContent(html) {
+  // 抓取除去标题的内容HTML
+  grabNoteContentHtml(html) {
     let title = Zotero.Utilities.Item.noteToTitle(html);
     if (title) {
       let reg = '.*?' + title.match(/[\u4e00-\u9fa5|0-9|a-z|A-Z]/g).join('.*?') + '.*?\\n';

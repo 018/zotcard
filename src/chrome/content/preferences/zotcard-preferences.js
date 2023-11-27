@@ -65,8 +65,9 @@ window.onload = function() {
 				note_background_color: ZotElementPlus.isZoteroDev ? '' : Zotero.ZotCard.Notes.getNoteBGColor(),
 				startOfWeek: ZotElementPlus.isZoteroDev ? 0 : Zotero.ZotCard.Prefs.get('startOfWeek', Zotero.ZotCard.Consts.startOfWeek.sunday),
 				word_count_style: ZotElementPlus.isZoteroDev ? 1 : Zotero.ZotCard.Prefs.get('word_count_style', Zotero.ZotCard.Consts.wordCountStyle.all),
-				recently_move_collection_quantity: ZotElementPlus.isZoteroDev ? 0 : Zotero.ZotCard.Prefs.get('config.recently_move_collection_quantity', 5),
+				recently_move_collection_quantity: ZotElementPlus.isZoteroDev ? 0 : Zotero.ZotCard.Prefs.get('movemgr.recently_move_collection_quantity', 5),
 				enable_word_count: ZotElementPlus.isZoteroDev ? 0 : Zotero.ZotCard.Prefs.get('enable_word_count', true),
+				imagemgr_tinify_api_key: ZotElementPlus.isZoteroDev ? 0 : Zotero.ZotCard.Prefs.get('imagemgr.tinify_api_key'),
 			})
 			const preview = ref('');
 			const position = ref(-1);
@@ -202,7 +203,7 @@ window.onload = function() {
 			};
 
 			const handleResetDefault = async () => {
-				if (Zotero.ZotCard.Messages.confirm(undefined, _l10n.formatValueSync('zotcard-reset-default'))) {
+				if (Zotero.ZotCard.Messages.confirm(window, _l10n.formatValueSync('zotcard-reset-default'))) {
 					var template;
 					if (Object.hasOwnProperty.call(Zotero.ZotCard.Cards, datas[position.value].type)) {
 						template = Zotero.ZotCard.Cards[datas[position.value].type].default;

@@ -6,6 +6,8 @@ zotcard-card-manager-toolbar-refresh-title =
     .title = Refresh
 zotcard-card-manager-toolbar-edit-title =
     .title = Edit
+zotcard-card-manager-toolbar-replace-title =
+    .title = Replace
 zotcard-card-manager-toolbar-remove-title =
     .title = Remove
 zotcard-card-manager-toolbar-delete-title =
@@ -51,6 +53,7 @@ zotcard-card-manager-toolbar-copy-content = Copy content
 zotcard-card-manager-toolbar-copy-text = Copy text
 zotcard-card-manager-toolbar-copy-markdown = Copy Markdown
 zotcard-card-manager-toolbar-copy-html = Copy html
+zotcard-card-manager-toolbar-copy-link = Copy link
 
 zotcard-card-manager-date = Date
 zotcard-card-manager-dateAdded = DateAdded

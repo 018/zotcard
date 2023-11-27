@@ -88,7 +88,7 @@
 								<template #label>
 									<label data-l10n-id="zotcard-preferences-general-card-card_quantity">卡片数量</label>
 								</template>
-								<el-input size="small" v-model="prefs.card_quantity" @input="handlePrefsInput('card_quantity', prefs.card_quantity)" />
+								<el-input-number v-model="prefs.card_quantity" @change="handlePrefsInput('card_quantity', prefs.card_quantity)" />
 							</el-form-item>
 							<el-form-item>
 								<template #label>
@@ -134,9 +134,18 @@
 							</el-form-item>
 							<el-form-item>
 								<template #label>
+									<label data-l10n-id="zotcard-preferences-general-other-imagemgr_tinify_api_key">Tinify Api Key</label>
+								</template>
+								<el-space direction="vertical" alignment="normal" class="fill">
+									<el-input size="small" v-model="prefs.imagemgr_tinify_api_key" @input="handlePrefsInput('imagemgr.tinify_api_key', prefs.imagemgr_tinify_api_key)"></el-input>
+									<span class="text-color-placeholder" data-l10n-id="zotcard-preferences-general-other-imagemgr_tinify_api_key_message">设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后...</span>
+								</el-space>
+							</el-form-item>
+							<el-form-item>
+								<template #label>
 									<label data-l10n-id="zotcard-preferences-general-other-recently_move_collection_quantity">最近移动分类个数</label>
 								</template>
-								<el-input size="small" v-model="prefs.recently_move_collection_quantity" @input="handlePrefsInput('.config.recently_move_collection_quantity', prefs.recently_move_collection_quantity)" />
+								<el-input size="small" v-model="prefs.recently_move_collection_quantity" @input="handlePrefsInput('movemgr.recently_move_collection_quantity', prefs.recently_move_collection_quantity)"></el-input>
 							</el-form-item>
 						</el-form>
 					</div>

@@ -223,7 +223,7 @@
 								<el-link :underline="false" type="warning" @click="handleLink(ZotCardConsts.cardManagerType.item, renders.polarization.date.firstID)">{{ renders.polarization.date.firstNoteName || '-' }}</el-link>
 							</template>
 							<el-scrollbar height="400px">
-								<div style="font-size: 12px;" v-html="renders.polarization.date.firstCard?.note.contentHtml"></div>
+								<div style="font-size: 12px;" v-html="renders.polarization.date.firstCard?.note.displayContentHtml()"></div>
 							</el-scrollbar>
 						</el-popover>
 						<span>{{ l10n('zotcard-card-report-specialcard-date-content', {date: renders.polarization.date.first}) }}</span>
@@ -240,7 +240,7 @@
 								<el-link :underline="false" type="warning" @click="handleLink(ZotCardConsts.cardManagerType.item, renders.polarization.date.lastID)">{{ renders.polarization.date.lastNoteName || '-' }}</el-link>
 							</template>
 							<el-scrollbar height="400px">
-								<div style="font-size: 12px;" v-html="renders.polarization.date.lastCard?.note.contentHtml"></div>
+								<div style="font-size: 12px;" v-html="renders.polarization.date.lastCard?.note.displayContentHtml()"></div>
 							</el-scrollbar>
 						</el-popover>
 						<span>{{ l10n('zotcard-card-report-specialcard-date-content', {date: renders.polarization.date.last}) }}</span>
@@ -259,7 +259,7 @@
 								<el-link :underline="false" type="warning" @click="handleLink(ZotCardConsts.cardManagerType.item, renders.polarization.words.firstID)">{{ renders.polarization.words.firstNoteName || '-' }}</el-link>
 							</template>
 							<el-scrollbar height="400px">
-								<div style="font-size: 12px;" v-html="renders.polarization.words.firstCard?.note.contentHtml"></div>
+								<div style="font-size: 12px;" v-html="renders.polarization.words.firstCard?.note.displayContentHtml()"></div>
 							</el-scrollbar>
 						</el-popover>
 						<span>{{ l10n('zotcard-card-report-specialcard-words-content', {words: renders.polarization.words.first}) }}</span>
@@ -276,7 +276,7 @@
 								<el-link :underline="false" type="warning" @click="handleLink(ZotCardConsts.cardManagerType.item, renders.polarization.words.lastID)">{{ renders.polarization.words.lastNoteName || '-' }}</el-link>
 							</template>
 							<el-scrollbar height="400px">
-								<div style="font-size: 12px;" v-html="renders.polarization.words.lastCard?.note.contentHtml"></div>
+								<div style="font-size: 12px;" v-html="renders.polarization.words.lastCard?.note.displayContentHtml()"></div>
 							</el-scrollbar>
 						</el-popover>
 						<span>{{ l10n('zotcard-card-report-specialcard-words-content', {words: renders.polarization.words.last}) }}</span>
@@ -295,7 +295,7 @@
 								<el-link :underline="false" type="warning" @click="handleLink(ZotCardConsts.cardManagerType.item, renders.polarization.lines.firstID)">{{ renders.polarization.lines.firstNoteName || '-' }}</el-link>
 							</template>
 							<el-scrollbar height="400px">
-								<div style="font-size: 12px;" v-html="renders.polarization.lines.firstCard?.note.contentHtml"></div>
+								<div style="font-size: 12px;" v-html="renders.polarization.lines.firstCard?.note.displayContentHtml()"></div>
 							</el-scrollbar>
 						</el-popover>
 						<span>{{ l10n('zotcard-card-report-specialcard-lines-content', {lines: renders.polarization.lines.first}) }}</span>
@@ -312,7 +312,7 @@
 								<el-link :underline="false" type="warning" @click="handleLink(ZotCardConsts.cardManagerType.item, renders.polarization.lines.lastID)">{{ renders.polarization.lines.lastNoteName || '-' }}</el-link>
 							</template>
 							<el-scrollbar height="400px">
-								<div style="font-size: 12px;" v-html="renders.polarization.lines.lastCard?.note.contentHtml"></div>
+								<div style="font-size: 12px;" v-html="renders.polarization.lines.lastCard?.note.displayContentHtml()"></div>
 							</el-scrollbar>
 						</el-popover>
 						<span>{{ l10n('zotcard-card-report-specialcard-lines-content', {lines: renders.polarization.lines.last}) }}</span>
@@ -331,7 +331,7 @@
 								<el-link :underline="false" type="warning" @click="handleLink(ZotCardConsts.cardManagerType.item, renders.polarization.sizes.firstID)">{{ renders.polarization.sizes.firstNoteName || '-' }}</el-link>
 							</template>
 							<el-scrollbar height="400px">
-								<div style="font-size: 12px;" v-html="renders.polarization.sizes.firstCard?.note.contentHtml"></div>
+								<div style="font-size: 12px;" v-html="renders.polarization.sizes.firstCard?.note.displayContentHtml()"></div>
 							</el-scrollbar>
 						</el-popover>
 						<span>{{ l10n('zotcard-card-report-specialcard-sizes-content', {sizes: renders.polarization.sizes.first}) }}</span>
@@ -348,7 +348,7 @@
 								<el-link :underline="false" type="warning" @click="handleLink(ZotCardConsts.cardManagerType.item, renders.polarization.sizes.lastID)">{{ renders.polarization.sizes.lastNoteName || '-' }}</el-link>
 							</template>
 							<el-scrollbar height="400px">
-								<div style="font-size: 12px;" v-html="renders.polarization.sizes.lastCard?.note.contentHtml"></div>
+								<div style="font-size: 12px;" v-html="renders.polarization.sizes.lastCard?.note.displayContentHtml()"></div>
 							</el-scrollbar>
 						</el-popover>
 						<span>{{ l10n('zotcard-card-report-specialcard-sizes-content', {sizes: renders.polarization.sizes.last}) }}</span>
@@ -367,7 +367,7 @@
 								<el-link :underline="false" type="warning" @click="handleLink(ZotCardConsts.cardManagerType.item, renders.polarization.content_scales.firstID)">{{ renders.polarization.content_scales.firstNoteName || '-' }}</el-link>
 							</template>
 							<el-scrollbar height="400px">
-								<div style="font-size: 12px;" v-html="renders.polarization.content_scales.firstCard?.note.contentHtml"></div>
+								<div style="font-size: 12px;" v-html="renders.polarization.content_scales.firstCard?.note.displayContentHtml()"></div>
 							</el-scrollbar>
 						</el-popover>
 						<span>{{ l10n('zotcard-card-report-specialcard-content_scales-content', {content_scales: renders.polarization.content_scales.first}) }}</span>
@@ -384,7 +384,7 @@
 								<el-link :underline="false" type="warning" @click="handleLink(ZotCardConsts.cardManagerType.item, renders.polarization.content_scales.lastID)">{{ renders.polarization.content_scales.lastNoteName || '-' }}</el-link>
 							</template>
 							<el-scrollbar height="400px">
-								<div style="font-size: 12px;" v-html="renders.polarization.content_scales.lastCard?.note.contentHtml"></div>
+								<div style="font-size: 12px;" v-html="renders.polarization.content_scales.lastCard?.note.displayContentHtml()"></div>
 							</el-scrollbar>
 						</el-popover>
 						<span>{{ l10n('zotcard-card-report-specialcard-content_scales-content', {content_scales: renders.polarization.content_scales.last}) }}</span>

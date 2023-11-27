@@ -9,3 +9,12 @@ zotero-zotcard-preferences-site = Site
 
 zotero-zotcard-preferences-more = Open ZotCard Settings
 
+zotero-zotcard-preferences-backup = Backup ZotCard Settings
+zotero-zotcard-preferences-backup-successful = Backup Successful.
+zotero-zotcard-preferences-restore = Restore ZotCard Settings
+zotero-zotcard-preferences-restore-error-file = Wrong backup file.
+zotero-zotcard-preferences-restore-successful = Successfully restore to: { $last_updated }
+zotero-zotcard-preferences-reset = Rest ZotCard Settings
+zotero-zotcard-preferences-reset-confirm = Note that continuing will cause all configurations to be reset, including custom cards. Are you sure to reset ZotCard Settings?
+zotero-zotcard-preferences-reset-successful = Reset Successful.
+

@@ -12,6 +12,8 @@ zotcard-preferences-general-report-startOfWeek-Sat = Monday
 
 zotcard-preferences-general-other = Other Settings
 zotcard-preferences-general-other-recently_move_collection_quantity = Number of classes moved recently
+zotcard-preferences-general-other-imagemgr_tinify_api_key = Tinify Api Key
+zotcard-preferences-general-other-imagemgr_tinify_api_key_message = Please go to https://tinify.cn/developers to apply.
 zotcard-preferences-general-other-enable_word_count= Enable card word count
 zotcard-preferences-general-other-enable_word_count_message = Words = ㊥Chinese + 🅰English + ➊Numbers），Scale = Chinese, English or Numbers / Card content length，Content scale = Words / Size。<br />Card content length：The length of the content of the card, including Chinese, English, numbers, punctuation, etc.<br />Size：The actual amount of space that the card is stored in zotero.
 zotcard-preferences-general-other-word_count_style = Card word count style

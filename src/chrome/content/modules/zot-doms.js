@@ -51,19 +51,19 @@ Zotero.ZotCard.Doms = Object.assign(Zotero.ZotCard.Doms, {
     return element;
   },
 
-  createMainWindowXULElement(tag, { id, attrs, props, parent, childs, command, onclick }) {
-    return this.createXULElement(Zotero.getMainWindow().document, tag, { id, attrs, props, parent, childs, command, onclick });;
+  createMainWindowXULElement(tag, { id, attrs, props, parent, after, before, childs, command, onclick }) {
+    return this.createXULElement(Zotero.getMainWindow().document, tag, { id, attrs, props, parent, after, before, childs, command, onclick });;
   },
 
-  createMainWindowXULMenuSeparator({ id, attrs, props, parent, childs, command, onclick }) {
-    return this.createMainWindowXULElement('menuseparator', { id, attrs, props, parent, childs, command, onclick });
+  createMainWindowXULMenuSeparator({ id, attrs, props, parent, after, before, childs, command, onclick }) {
+    return this.createMainWindowXULElement('menuseparator', { id, attrs, props, parent, after, before, childs, command, onclick });
   },
 
   getMainWindowElementById(id) {
     return Zotero.getMainWindow().document.getElementById(id);
   },
 
-  getMainWindowquerySelector(selector) {
+  getMainWindowQuerySelector(selector) {
     return Zotero.getMainWindow().document.querySelector(selector);
   },
 

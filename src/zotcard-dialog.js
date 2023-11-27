@@ -11,7 +11,7 @@ Zotero.ZotCard.Dialogs = Object.assign(Zotero.ZotCard.Dialogs, {
 			dataIn: items,
 			filters: filters
 		}
-		let win = Zotero.getMainWindow().openDialog('chrome://zotcard/content/cardmanager/card-manager.html', 'card-manager', 'chrome,menubar=no,toolbar=no,dialog=no,centerscreen,height=' + Zotero.getMainWindow().screen.availHeight + ',width=' + Zotero.getMainWindow().screen.availWidth, io);
+		let win = Zotero.getMainWindow().openDialog('chrome://zotcard/content/cardmanager/card-manager.html', 'card-manager', 'chrome,menubar=no,toolbar=no,dialog=no,resizable,centerscreen,height=' + Zotero.getMainWindow().screen.availHeight + ',width=' + Zotero.getMainWindow().screen.availWidth, io);
 		win.focus();
 	},
 
@@ -94,7 +94,7 @@ Zotero.ZotCard.Dialogs = Object.assign(Zotero.ZotCard.Dialogs, {
 		win.focus();
 	},
 
-	openPrintCard(noteIDs) {
+	openCardPrint(noteIDs) {
 		Zotero.openInViewer('chrome://zotcard/content/printcard/print-card.html?ids=' + noteIDs.join(','));
 	},
 
@@ -102,7 +102,7 @@ Zotero.ZotCard.Dialogs = Object.assign(Zotero.ZotCard.Dialogs, {
 		let io = {
 			dataIn: items
 		}
-		let windowCardViewer = Zotero.getMainWindow().openDialog('chrome://zotcard/content/cardviewer/card-viewer.html', 'card-viewer', 'chrome,menubar=no,toolbar=no,dialog=no,centerscreen,height=' + Zotero.getMainWindow().screen.availHeight + ',width=' + Zotero.getMainWindow().screen.availWidth, io);
+		let windowCardViewer = Zotero.getMainWindow().openDialog('chrome://zotcard/content/cardviewer/card-viewer.html', 'card-viewer', 'chrome,menubar=no,toolbar=no,dialog=no,resizable,centerscreen,height=' + Zotero.getMainWindow().screen.availHeight + ',width=' + Zotero.getMainWindow().screen.availWidth, io);
 		windowCardViewer.focus();
 
 		this._handleCardViewerWindowEvent(windowCardViewer);
@@ -153,7 +153,7 @@ Zotero.ZotCard.Dialogs = Object.assign(Zotero.ZotCard.Dialogs, {
 		let io = {
 			cards: cards
 		}
-		let windowCardViewer = Zotero.getMainWindow().openDialog('chrome://zotcard/content/cardviewer/card-viewer.html', 'card-viewer', 'chrome,menubar=no,toolbar=no,dialog=no,centerscreen,height=' + Zotero.getMainWindow().screen.availHeight + ',width=' + Zotero.getMainWindow().screen.availWidth, io);
+		let windowCardViewer = Zotero.getMainWindow().openDialog('chrome://zotcard/content/cardviewer/card-viewer.html', 'card-viewer', 'chrome,menubar=no,toolbar=no,dialog=no,resizable,centerscreen,height=' + Zotero.getMainWindow().screen.availHeight + ',width=' + Zotero.getMainWindow().screen.availWidth, io);
 		windowCardViewer.focus();
 
 		this._handleCardViewerWindowEvent(windowCardViewer);
@@ -201,71 +201,22 @@ Zotero.ZotCard.Dialogs = Object.assign(Zotero.ZotCard.Dialogs, {
 			noteID: noteID
 		}
 		Zotero.getMainWindow().openDialog('chrome://zotcard/content/cardeditor/card-editor.html', 'card-editor', 'chrome,menubar=no,toolbar=no,dialog=no,resizable,left=' + Zotero.getMainWindow().ZoteroPane.itemsView.domEl.screenX + ',top=' + Zotero.getMainWindow().ZoteroPane.itemsView.domEl.screenY + ',height=' + Zotero.getMainWindow().ZoteroPane.itemsView.domEl.clientHeight + ',width=' + Zotero.getMainWindow().ZoteroPane.itemsView.domEl.clientWidth, io);
-		return;
+	},
 
-		if (!this.findZoteroNoteWindow(noteID)) {
-			Zotero.getMainWindow().ZoteroPane.openNoteWindow(noteID);
+	openCardReplace(items, cards) {
+		let io = {
+			dataIn: items,
+			cards: cards
 		}
-		var interval1 = setInterval(() => {
-			let windowNote = this.findZoteroNoteWindow(noteID);
-			if (windowNote) {
-				clearInterval(interval1);
+		let win = Zotero.getMainWindow().openDialog('chrome://zotcard/content/cardreplace/card-replace.html', 'card-replace', 'chrome,menubar=no,toolbar=no,dialog=no,resizable,centerscreen,height=' + Zotero.getMainWindow().screen.availHeight + ',width=' + Zotero.getMainWindow().screen.availWidth, io);
+		win.focus();
+	},
 
-				let x1 = windowNote.screenLeft;
-				let y1 = windowNote.screenTop;
-	
-				Zotero.ZotCard.Logger.log(windowNote.outerHeight);
-				
-				let windowCardEditor = Zotero.getMainWindow().openDialog('chrome://zotcard/content/cardeditor/card-editor.html', 'card-editor', 'chrome,menubar=no,toolbar=no,dialog=no,resizable,left=' + (windowNote.screenLeft + windowNote.outerWidth + 3) + ',top=' + windowNote.screenTop + ',height=' + windowNote.outerHeight + ',width=800', io);
-				
-				Zotero.ZotCard.Logger.log('x1: ' + (x1 + windowNote.outerWidth) + ', y1: ' + y1);
-				
-				windowCardEditor.moveTo(x1 + windowNote.outerWidth, y1);
-				windowCardEditor.resizeTo(windowCardEditor.outerWidth, windowNote.outerHeight);
-				windowCardEditor.focus();
-				let x2 = windowCardEditor.screenLeft;
-				let y2 = windowCardEditor.screenTop;
-				
-				var interval2 = setInterval(() => {
-					try {
-						if (x1 !== windowNote.screenLeft || y1 !==  windowNote.screenTop) {
-							// windowNote move
-							windowCardEditor.moveTo(windowNote.screenLeft + windowNote.outerWidth + 3, windowNote.screenTop);
-							windowCardEditor.resizeTo(windowCardEditor.outerWidth, windowNote.outerHeight);
-
-							x1 = windowNote.screenLeft;
-							y1 = windowNote.screenTop;
-						} else if (x2 !== windowCardEditor.screenLeft || y2 !==  windowCardEditor.screenTop) {
-							// windowCardEditor move
-							windowNote.moveTo(windowCardEditor.screenLeft - windowNote.outerWidth - 3, windowCardEditor.screenTop);
-
-							x2 = windowCardEditor.screenLeft;
-							y2 = windowCardEditor.screenTop;
-						}
-					} catch (error) {
-						clearInterval(interval2);
-					}
-				}, 500);
-
-				windowNote.onresize = function() {
-					windowCardEditor.resizeTo(windowCardEditor.outerWidth, windowNote.outerHeight);
-					windowCardEditor.moveTo(windowNote.screenLeft + windowNote.outerWidth + 3, windowNote.screenTop);
-				}
-				windowCardEditor.onresize = function() {
-					windowNote.resizeTo(windowNote.outerWidth, windowCardEditor.outerHeight);
-					windowNote.moveTo(windowCardEditor.screenLeft - windowNote.outerWidth - 3, windowCardEditor.screenTop);
-				}
-
-				windowNote.onclose = function() {
-					windowCardEditor.close();
-					clearInterval(interval2);
-				}
-				windowCardEditor.onclose = function() {
-					windowNote.close();
-					clearInterval(interval2);
-				}
-			}
-		}, 300);
-
+	openCardImageCompression(items) {
+		let io = {
+			dataIn: items
+		}
+		let windowCardViewer = Zotero.getMainWindow().openDialog('chrome://zotcard/content/cardimagecompression/card-image-compression.html', 'card-image-compression', 'chrome,menubar=no,toolbar=no,dialog=no,resizable,centerscreen,height=' + Zotero.getMainWindow().screen.availHeight + ',width=' + Zotero.getMainWindow().screen.availWidth, io);
+		windowCardViewer.focus();
 	},
 });

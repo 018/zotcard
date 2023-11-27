@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title data-l10n-id="zotcard-card-image-compression"></title>
+	<script src="chrome://zotero/content/include.js"></script>
+	<link rel="localization" href="zotcard.ftl" />
+	<link rel="localization" href="card-manager.ftl" />
+	<link rel="localization" href="card-image-compression.ftl" />
+	<link rel="stylesheet" href="../modules/common.css" />
+	<link rel="stylesheet" href="../modules/element-plus.css" />
+	<script src="../modules/vue.global.prod.js"></script>
+	<script src="../modules/element-plus.js"></script>
+	<script src="../modules/element-plus-zh-cn.js"></script>
+	<script src="../modules/element-plus-en.js"></script>
+	<script src="../modules/element-plus-zh-tw.js"></script>
+	<script src="../modules/element-plus-icons.js"></script>
+	<script src="../modules/zot-render-element-plus.js"></script>
+	<script id="jsfile"></script>
+	<script>
+		document.getElementById('jsfile').src = window.Zotero ? "card-image-compression.js" : "card-image-compression-dev.js"
+	</script>
+	<style>
+		body {
+			padding: 0;
+			margin: 0;
+			font-size: 12px;
+			background-color: #D3D8E1;
+		}
+
+		.main {
+			margin: 10px 10px;
+			text-align: center;
+		}
+
+		.bottom {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			margin: 5px;
+		}
+
+		.tools {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			margin: 30px;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="app">
+		<el-progress v-if="renders.percentage < 100" :percentage="renders.percentage" :show-text="false" :stroke-width="3"></el-progress>
+		<!-- cards -->
+		<div class="main">
+			<el-space wrap :size="20">
+				<el-card v-for="(img, index) in images" :body-style="{ padding: '0px' }">
+					<el-image
+						style="width: 400px; height: 400px"
+						:src="img.url"
+						:zoom-rate="1.2"
+						:max-scale="7"
+						:min-scale="0.2"
+						:preview-src-list="images.map(e => e.url)"
+						:initial-index="index"
+						fit="cover"
+					></el-image>
+					<div class="bottom">
+						<span v-if="img.status === 1" class="fill single-line" style="color: var(--el-text-color-placeholder);">{{ img.message }}</span>
+						<span v-else-if="img.status === 2" class="fill single-line" style="color: var(--el-color-success);">{{ img.message }}</span>
+						<span v-else-if="img.status === -1" class="fill single-line" style="color: var(--el-color-danger);">{{ img.message }}</span>
+						<span v-else class="fill single-line">{{ img.message }}</span>
+						<el-link :type="img.isSelected ? 'success' : 'info'" :icon="img.isSelected ? 'CircleCheckFilled' : 'CircleCheck'" :underline="false" @click="handleSelected(img)" data-l10n-id="zotcard-card-manager-toolbar-selectedorunselected-title"></el-link>
+					</div>
+				</el-card>
+			</el-space>
+			<el-affix v-if="images.length > 0" position="bottom" :offset="40">
+				<div class="tools">
+					<el-button plain icon="Setting" data-l10n-id="zotcard-card-image-compression-setting" @click="handleSetting">设置1</el-button>
+					<el-button v-loading="renders.doing" :disabled="renders.doing" type="primary" plain @click="handleCompression" data-l10n-id="zotcard-card-image-compression-submit">开始压缩1</el-button>
+				</div>
+			</el-affix>
+		</div>
+	</div>
+</body>
+</html>

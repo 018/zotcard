@@ -100,7 +100,7 @@
 		<div id="cards" :style="{lineHeight: profiles.lineSpacing * 0.1}">
 			<div class="card" v-for="card in cards" :key="card.id" style="page-break-after: always;">
 				<p :style="{fontSize: profiles.titleFontSize + 'px', lineHeight: profiles.titleLineSpacing * 0.1}"><b>{{ card.note.title }}</b></p>
-				<div v-html="card.note.contentHtml" :style="{fontSize: profiles.fontSize + 'px'}"></div>
+				<div v-html="card.note.displayContentHtml()" :style="{fontSize: profiles.fontSize + 'px'}"></div>
 				<hr style="height: 1px; border: none; background-color: #f0f0f0;" />
 			</div>
 		</div>
