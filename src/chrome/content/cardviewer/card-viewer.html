@@ -240,7 +240,7 @@
 									<el-space v-else-if="cards[n - 1].more.collections.length > 0">
 										<div v-for="c in cards[n - 1].more.collections" :key="c.id">
 											<el-link :underline="false" @click="handleLink(ZotCardConsts.cardManagerType.collection, c.id)">
-												<img :src="`chrome://zotero/skin/treesource-collection@2x.png`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
+												<img :src="c.treeViewImage" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
 												<span>{{ c.title }}</span>
 											</el-link>
 										</div>

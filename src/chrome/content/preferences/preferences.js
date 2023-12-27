@@ -14,7 +14,7 @@ Zotero.ZotCard.Preferences = {
 		fp.appendFilter('ZotCard Backup', '*.zotcard');
 		fp.defaultString = now;
 		fp.open(function (returnConstant) {
-			if (returnConstant === 0) {
+            if (returnConstant === 0 || returnConstant === 2) {
 				let file = fp.file;
 				file.QueryInterface(Ci.nsIFile);
 				let backup = {

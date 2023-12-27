@@ -32,7 +32,7 @@ Zotero.ZotCard.Dialogs = Object.assign(Zotero.ZotCard.Dialogs, {
 	openCardManagerTab(items, filters) {
 		let { id, container } = Zotero.getMainWindow().Zotero_Tabs.add({
 			id: 'card-manager-' + Zotero.Utilities.randomString(),
-			type: 'zotero-pane',
+			type: 'library',
 			title: Zotero.ZotCard.L10ns.getString('zotero-zotcard-card-manager-title'),
 			index: Zotero.getMainWindow().Zotero_Tabs._tabs.length,
 			data: {

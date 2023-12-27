@@ -178,7 +178,9 @@ window.onload = function() {
 
 			const handleTemplateInput = ZotElementPlus.debounce(async () => {
 				let template = datas[position.value].card.card;
-				template = template.replace(/(<\/(h\d|p|div)+>)\n*/g, '$1\n');
+				Zotero.ZotCard.Logger.log(template);
+				template = template.replace(/(\<\/(:?h\d|p|div)\>)([^\n])/g, '$1\n$3');
+				Zotero.ZotCard.Logger.log(template);
 				datas[position.value].card.card = template;
 				preview.value = await _buildPreview(template);
 				Zotero.Prefs.set(`zotcard.${datas[position.value].type}`, template);

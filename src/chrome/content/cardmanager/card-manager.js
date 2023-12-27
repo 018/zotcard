@@ -10,7 +10,7 @@ let io;
 let tabID = Zotero.getMainWindow().Zotero_Tabs.selectedID;
 if (tabID) {
   let tab = Zotero.getMainWindow().Zotero_Tabs._getTab(tabID);
-  if (tab && tab.tab && tab.tab.type === 'zotero-pane' && tab.tab.id.startsWith('card-manager-')) {
+  if (tab && tab.tab && tab.tab.type === 'library' && tab.tab.id.startsWith('card-manager-')) {
     dataIn = tab.tab.data ? tab.tab.data.dataIn : undefined;
     _filters = tab.tab.data ? tab.tab.data.filters : undefined;
 
@@ -73,7 +73,7 @@ window.onload = async function () {
           lazy: true,
           multiple: true,
           checkStrictly: true,
-          lazyLoad(node, resolve) {
+          async lazyLoad(node, resolve) {
             const { level, data } = node;
             let nodes = [];
             if (level === 0) {
@@ -116,7 +116,7 @@ window.onload = async function () {
                       extras: {
                         id: c.id,
                         type: Zotero.ZotCard.Consts.cardManagerType.collection,
-                        treeViewImage: 'chrome://zotero/skin/treesource-collection@2x.png'
+                        treeViewImage: c.treeViewImage
                       }
                     }
                   }));
@@ -136,6 +136,20 @@ window.onload = async function () {
                   }));
 
                   // load items
+                  let rets = await Zotero.Items.getAll(data.extras.id, true, false).filter(e => (e.isRegularItem() || e.isNote()) && e.getCollections().length === 0);
+                  nodes.push(...rets.map(i => {
+                    return {
+                      label: i.getDisplayTitle(),
+                      value: (i.isRegularItem() ? Zotero.ZotCard.Consts.cardManagerType.item : i.itemType) + '-' + i.id,
+                      leaf: true,
+                      extras: {
+                        id: i.id,
+                        type: i.itemType,
+                        treeViewImage: `chrome://zotero/skin/treeitem-${i.itemType}@2x.png`
+                      }
+                    }
+                  }));
+
                   break;
                 case Zotero.ZotCard.Consts.cardManagerType.collection:
                   collections = Zotero.Collections.getByParent(data.extras.id);
@@ -147,7 +161,7 @@ window.onload = async function () {
                       extras: {
                         id: c.id,
                         type: Zotero.ZotCard.Consts.cardManagerType.collection,
-                        treeViewImage: 'chrome://zotero/skin/treesource-collection@2x.png'
+                        treeViewImage: c.treeViewImage
                       }
                     }
                   }));
@@ -164,7 +178,7 @@ window.onload = async function () {
                           type: i.itemType,
                           treeViewImage: `chrome://zotero/skin/treeitem-${i.itemType}@2x.png`
                         }
-                      })
+                      });
                     }
                   });
                   
@@ -199,7 +213,7 @@ window.onload = async function () {
           lazy: true,
           multiple: true,
           checkStrictly: true,
-          lazyLoad(node, resolve) {
+          async lazyLoad(node, resolve) {
             const { level, data } = node;
             let nodes = [];
             if (level === 0) {
@@ -242,12 +256,25 @@ window.onload = async function () {
                       extras: {
                         id: c.id,
                         type: Zotero.ZotCard.Consts.cardManagerType.collection,
-                        treeViewImage: 'chrome://zotero/skin/treesource-collection@2x.png'
+                        treeViewImage: c.treeViewImage
                       }
                     }
                   }));
 
                   // load items
+                  let rets = await Zotero.Items.getAll(data.extras.id, true, false).filter(e => (e.isRegularItem() || e.isNote()) && e.getCollections().length === 0);
+                  nodes.push(...rets.map(i => {
+                    return {
+                      label: i.getDisplayTitle(),
+                      value: (i.isRegularItem() ? Zotero.ZotCard.Consts.cardManagerType.item : i.itemType) + '-' + i.id,
+                      leaf: true,
+                      extras: {
+                        id: i.id,
+                        type: i.itemType,
+                        treeViewImage: `chrome://zotero/skin/treeitem-${i.itemType}@2x.png`
+                      }
+                    }
+                  }));
                   break;
                 case Zotero.ZotCard.Consts.cardManagerType.collection:
                   collections = Zotero.Collections.getByParent(data.extras.id);
@@ -260,7 +287,7 @@ window.onload = async function () {
                       extras: {
                         id: c.id,
                         type: Zotero.ZotCard.Consts.cardManagerType.collection,
-                        treeViewImage: 'chrome://zotero/skin/treesource-collection@2x.png'
+                        treeViewImage: c.treeViewImage
                       }
                     }
                   }));

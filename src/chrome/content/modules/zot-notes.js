@@ -491,10 +491,17 @@ Zotero.ZotCard.Notes = Object.assign(Zotero.ZotCard.Notes, {
   grabNoteContentHtml(html) {
     let title = Zotero.Utilities.Item.noteToTitle(html);
     if (title) {
-      let reg = '.*?' + title.match(/[\u4e00-\u9fa5|0-9|a-z|A-Z]/g).join('.*?') + '.*?\\n';
-      let text = html.replace(/(<\/(h\d|p|div)+>)/g, '$1\n');
+      let matchs = title.match(/./g);
+      Zotero.ZotCard.Logger.log(matchs);
       
-      return text.replace(new RegExp(reg), '');
+      if (matchs && matchs.length > 0) {
+        let reg = '.*?' + matchs.join('.*?') + '.*?\\n';
+        let text = html.replace(/(<\/(h\d|p|div)+>)/g, '$1\n');
+        
+        return text.replace(new RegExp(reg), '');
+      } else {
+        return html;
+      }
     } else {
       return html;
     }

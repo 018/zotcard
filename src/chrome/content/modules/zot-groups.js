@@ -6,7 +6,7 @@ Zotero.ZotCard.Groups = Object.assign(Zotero.ZotCard.Groups, {
 		Zotero.ZotCard.Logger.log('Zotero.ZotCard.Groups inited.');
 	},
 
-  getZoteroUrl(key) {
+  getZoteroItemUrl(key) {
     var groupID = this.getGroupIDByKey(key);
     return `zotero://select/groups/${groupID}/items/${key}`;
   },

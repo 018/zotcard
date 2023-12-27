@@ -34,15 +34,17 @@
 		<html:div>
 			<p><html:a href="javascript:void(0)" onclick="Zotero.launchURL('https://github.com/018/zotcard')" target="_blank">https://github.com/018/zotcard</html:a></p>
 			<html:img src="https://img.shields.io/github/stars/018/zotcard?label=Stars"></html:img>　
-			<html:img src="https://img.shields.io/github/downloads/018/zotcard/v2.8/total?label=Downloads"></html:img>
+			<html:img src="https://img.shields.io/github/downloads/018/zotcard/total?label=Downloads"></html:img>
 		</html:div>
 	</groupbox>
+	
+	<groupbox class="main-section">
+		<button data-l10n-id="zotero-zotcard-preferences-more" oncommand="Zotero.openInViewer('chrome://zotcard/content/preferences/zotcard-preferences.html');"></button>
 
-	<button data-l10n-id="zotero-zotcard-preferences-more" oncommand="Zotero.openInViewer('chrome://zotcard/content/preferences/zotcard-preferences.html');"></button>
-
-	<hbox>
-		<button data-l10n-id="zotero-zotcard-preferences-backup" oncommand="Zotero.ZotCard.Preferences.backup();"></button>
-		<button data-l10n-id="zotero-zotcard-preferences-restore" oncommand="Zotero.ZotCard.Preferences.restore();"></button>
-		<button data-l10n-id="zotero-zotcard-preferences-reset" oncommand="Zotero.ZotCard.Preferences.reset();"></button>
-	</hbox>
+		<hbox>
+			<button data-l10n-id="zotero-zotcard-preferences-backup" oncommand="Zotero.ZotCard.Preferences.backup();"></button>
+			<button data-l10n-id="zotero-zotcard-preferences-restore" oncommand="Zotero.ZotCard.Preferences.restore();"></button>
+			<button data-l10n-id="zotero-zotcard-preferences-reset" oncommand="Zotero.ZotCard.Preferences.reset();"></button>
+		</hbox>
+	</groupbox>
 </vbox>

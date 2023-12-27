@@ -984,7 +984,8 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 			return {
 				id: c,
 				key: collection.key,
-				title: collection.name
+				title: collection.name,
+				treeViewImage: collection.treeViewImage
 			}
 		});
 		let relations = [];

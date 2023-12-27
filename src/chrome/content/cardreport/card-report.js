@@ -535,7 +535,7 @@ if (!ZotElementPlus.isZoteroDev && Zotero.ZotCard.Objects.isEmptyArray(dataIn) |
                   week += 1;
                 }
                 current = `${year}.${week.toString().padStart(2, '0')}`;
-                Zotero.ZotCard.Logger.log({current});
+                Zotero.ZotCard.Logger.log({current, max});
               }
             }
             var weeks = echarts.init(document.getElementById('weeks'));
