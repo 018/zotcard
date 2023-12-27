@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "ZotCard",
-	"version": "3.0.8",
+	"version": "3.0.9",
 	"description": "Writing card is more smooth, reading card is more smooth.",
 	"homepage_url": "https://github.com/018/zotcard",
 	"author": "018",

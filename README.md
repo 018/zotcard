@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="320" src="https://raw.githubusercontent.com/018/zotcard/main/image/zotcard.png">
+  <img src="https://raw.githubusercontent.com/018/zotcard/main/image/zotcard.png">
 </p>
 <p align="center">
   <a href="https://www.zotero.org">
@@ -12,6 +12,7 @@
     <img src="https://img.shields.io/github/downloads/018/zotcard/total?label=Downloads" alt="element-ui">
   </a>
 </p>
+
 
 English | [简体中文](https://github.com/018/zotcard/blob/main/README_CN.md)
 
@@ -33,7 +34,9 @@ ZotCard is a plug-in for Zotero, which is a card note-taking enhancement tool. I
 
   <img src="https://raw.githubusercontent.com/018/zotcard/main/image/setting_en.png" width="600"/>
 
-- Card management: Basic card operation, batch operation edit, copy, delete, move, print.
+- Card management: Basic card operation, batch operation edit, copy, delete, move, print  and so on.
+
+  <img src="https://raw.githubusercontent.com/018/zotcard/main/image/card_en.png" width="600"/>
 
   <img src="https://raw.githubusercontent.com/018/zotcard/main/image/edit_en.png" width="600"/>
 

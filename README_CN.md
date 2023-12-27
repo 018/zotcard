@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="320" src="https://raw.githubusercontent.com/018/zotcard/main/image/zotcard.png">
+  <img src="https://raw.githubusercontent.com/018/zotcard/main/image/zotcard.png">
 </p>
 <p align="center">
   <a href="https://www.zotero.org">
@@ -32,7 +32,9 @@ zotcard是Zotero的一个插件，它是卡片法笔记的提效工具。它提�
 
   <img src="https://raw.githubusercontent.com/018/zotcard/main/image/setting.png" alt="配置" width="600"/>
 
-- 卡片管理: 卡片的基本操作，批量操作编辑、替换、复制、删除、移动、打印。
+- 卡片管理: 卡片的基本操作，批量操作编辑、替换、复制、删除、移动、打印等等。
+
+  <img src="https://raw.githubusercontent.com/018/zotcard/main/image/card.png" alt="操作" width="600"/>
 
   <img src="https://raw.githubusercontent.com/018/zotcard/main/image/edit.png" alt="操作" width="600"/>
 
