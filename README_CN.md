@@ -12,7 +12,7 @@
     <img src="https://img.shields.io/github/downloads/018/zotcard/total?label=Downloads" alt="element-ui">
   </a>
 </p>
-[English](./README.md) | 简体中文
+[English](https://github.com/018/zotcard) | 简体中文
 
 ## 介绍
 zotcard是Zotero的一个插件，它是卡片法笔记的提效工具。它提供了卡片模版（如默认有概念卡、人物卡、金句卡等，支持自定义其他卡片模版），可以让你快速写卡。除此之外，还帮助你卡片分类以及统一卡片的标准格式。
