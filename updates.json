@@ -4,7 +4,7 @@
       "updates": [
         {
           "version": "3.0.9",
-          "update_link": "https://github.com/018/zotcard/releases/latest/download/zotcard-3.0.1.xpi",
+          "update_link": "https://github.com/018/zotcard/releases/latest/download/zotcard-3.0.9.xpi",
           "update_hash": "sha256:e38aa31a868d217c7332dab532115af0ba57a9912cff48113d988464eb10096a",
           "applications": {
             "zotero": {
