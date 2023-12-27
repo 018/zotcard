@@ -12,6 +12,7 @@
     <img src="https://img.shields.io/github/downloads/018/zotcard/total?label=Downloads" alt="element-ui">
   </a>
 </p>
+
 English | [简体中文](https://github.com/018/zotcard/blob/main/README_CN.md)
 
 ## Introduction
