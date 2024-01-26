@@ -505,6 +505,7 @@ if (!ZotElementPlus.isZoteroDev && Zotero.ZotCard.Objects.isEmptyArray(dataIn) |
               ws.push(...renders.statistics.weeks);
             } else {
               let weekss = Object.keys(renders.statistics.weeks);
+              Zotero.ZotCard.Logger.log({weekss});
               let min = weekss.reduce((pre, cur, index, arr) => {
                 if(pre < cur) {
                   return pre;

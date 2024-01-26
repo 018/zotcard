@@ -92,7 +92,7 @@ zotcard给你提供更多的自定义卡片空间，但需要你懂一点点[HTM
 
 [MIT](./LICENSE)
 
-Copyright (c) 2020-2023 018
+Copyright (c) 2020-2024 018
 
 
 

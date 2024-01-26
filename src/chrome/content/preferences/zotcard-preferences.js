@@ -62,7 +62,7 @@ window.onload = function() {
 			const datas = reactive([]);
 			const prefs = reactive({
 				card_quantity: ZotElementPlus.isZoteroDev ? 0 : Zotero.ZotCard.Prefs.get('card_quantity', Zotero.ZotCard.Consts.card_quantity),
-				note_background_color: ZotElementPlus.isZoteroDev ? '' : Zotero.ZotCard.Notes.getNoteBGColor(),
+				// note_background_color: ZotElementPlus.isZoteroDev ? '' : Zotero.ZotCard.Notes.getNoteBGColor(),
 				startOfWeek: ZotElementPlus.isZoteroDev ? 0 : Zotero.ZotCard.Prefs.get('startOfWeek', Zotero.ZotCard.Consts.startOfWeek.sunday),
 				word_count_style: ZotElementPlus.isZoteroDev ? 1 : Zotero.ZotCard.Prefs.get('word_count_style', Zotero.ZotCard.Consts.wordCountStyle.all),
 				recently_move_collection_quantity: ZotElementPlus.isZoteroDev ? 0 : Zotero.ZotCard.Prefs.get('movemgr.recently_move_collection_quantity', 5),
@@ -157,10 +157,10 @@ window.onload = function() {
 					case 'enable_word_count':
 							
 						break;
-					case 'note_background_color':
-						goon = false;
-						Zotero.ZotCard.Notes.noteBGColor(value);
-						break;
+					// case 'note_background_color':
+					// 	goon = false;
+					// 	Zotero.ZotCard.Notes.noteBGColor(value);
+					// 	break;
 				
 					default:
 						break;
@@ -173,7 +173,7 @@ window.onload = function() {
 
 			const handleNoteBackgroundColorResetDefault = () => {
 				Zotero.ZotCard.Notes.noteBGColor();
-				prefs.note_background_color = '';
+				// prefs.note_background_color = '';
 			}
 
 			const handleTemplateInput = ZotElementPlus.debounce(async () => {

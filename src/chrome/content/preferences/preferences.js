@@ -31,7 +31,7 @@ Zotero.ZotCard.Preferences = {
 					imagemgr_tinify_api_key: Zotero.ZotCard.Prefs.get('imagemgr.tinify_api_key'),
 					meditmgr: Zotero.ZotCard.Prefs.getJson('meditmgr'),
 					printcard: Zotero.ZotCard.Prefs.getJson('printcard'),
-					noteBGColor: Zotero.ZotCard.Notes.getNoteBGColor()
+					// noteBGColor: Zotero.ZotCard.Notes.getNoteBGColor()
 				};
 
 				Zotero.ZotCard.Consts.defCardTypes.forEach(type => {

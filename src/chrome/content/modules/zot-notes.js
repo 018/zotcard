@@ -498,7 +498,12 @@ Zotero.ZotCard.Notes = Object.assign(Zotero.ZotCard.Notes, {
         let reg = '.*?' + matchs.join('.*?') + '.*?\\n';
         let text = html.replace(/(<\/(h\d|p|div)+>)/g, '$1\n');
         
-        return text.replace(new RegExp(reg), '');
+        try {
+          return text.replace(new RegExp(reg), '');
+        } catch (error) {
+          Zotero.ZotCard.Logger.log(error);
+          return html;
+        }
       } else {
         return html;
       }
