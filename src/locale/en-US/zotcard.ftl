@@ -3,6 +3,7 @@ zotero-zotcard =
 zotero-zotcard-card-manager-title = Card Manager
 zotero-zotcard-card-viewer-title = Card Viewer
 zotero-zotcard-card-editor-title = Source Card Editor
+zotero-zotcard-card-statistics-title = Word count
 zotero-zotcard-card-report-title = Card Report
 zotero-zotcard-card-replace-title = Card Replace
 zotero-zotcard-card-image-compression-title = Card Image Compression
@@ -29,6 +30,7 @@ zotcard-abstractcard = Abstract Card
 zotcard-generalcard = General Card
 
 
+zotcard-statistics = Word count
 zotcard-words = Words:
 zotcard-words-title ={ $words }，中文{ $cn_words }(Scale{ $cn_scale })、English{ $en_words }(Scale{ $en_scale })、Numbers{ $num_words }(Scale{ $num_scale })、Other{ $other_words }(占{ $other_scale })。
 zotcard-lines = Lines:

@@ -27,8 +27,8 @@ Zotero.ZotCard.Events = Object.assign(Zotero.ZotCard.Events, {
 			Zotero.ZotCard.Logger.log('itemsViewOnSelect registered.');
 		}.bind(this));
 
-		Zotero.getMainWindow().document.getElementById('zotero-items-tree').addEventListener('select', this.itemsViewOnSelect.bind(this), false);
-		Zotero.ZotCard.Logger.log('itemsViewOnSelect registered.');
+		// Zotero.getMainWindow().document.getElementById('zotero-items-tree').addEventListener('select', this.itemsViewOnSelect.bind(this), false);
+		// Zotero.ZotCard.Logger.log('itemsViewOnSelect registered.');
 		Zotero.getMainWindow().document.getElementById('zotero-note-editor').addEventListener('keyup', this.noteEditorKeyup, false);
 		Zotero.ZotCard.Logger.log('noteEditorKeyup registered.');
 		Zotero.getMainWindow().document.getElementById('zotero-collectionmenu').addEventListener('popupshowing', this.refreshCollectionMenuPopup, false);

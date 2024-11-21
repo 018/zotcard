@@ -40,7 +40,6 @@ window.onload = function () {
         var h = 0;
         while (enumerator.hasMoreElements()) {
           var win = enumerator.getNext();
-          Zotero.ZotCard.Logger.log(win.noteEditor.item.getDisplayTitle());
           
           win.outerWidth = width;
           win.outerHeight = height;

@@ -3,6 +3,7 @@ zotero-zotcard =
 zotero-zotcard-card-manager-title = 卡片管理器
 zotero-zotcard-card-viewer-title = 读卡
 zotero-zotcard-card-editor-title = 源代码编辑
+zotero-zotcard-card-statistics-title = 字数统计
 zotero-zotcard-card-report-title = 卡片报告
 zotero-zotcard-card-replace-title = 卡片替换
 zotero-zotcard-card-image-compression-title = 卡片图片压缩
@@ -30,6 +31,7 @@ zotcard-abstractcard = 摘要卡
 zotcard-generalcard = 短文卡
 
 
+zotcard-statistics = 字数统计
 zotcard-words = 字数：
 zotcard-words-title ={ $words }，其中中文{ $cn_words }(占{ $cn_scale })、英文{ $en_words }(占{ $en_scale })、数字{ $num_words }(占{ $num_scale })、其他{ $other_words }(占{ $other_scale })。
 zotcard-lines = 行数：

@@ -52,3 +52,5 @@ zotcard-preferences-itemLink = 条目连接
 zotcard-preferences-collectionLink = 分类连接
 zotcard-preferences-year = 年份
 zotcard-preferences-tags = 标签
+zotcard-preferences-dateAdded = 添加时间
+zotcard-preferences-dateModified = 修改时间

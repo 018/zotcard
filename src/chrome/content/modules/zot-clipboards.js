@@ -44,8 +44,8 @@ Zotero.ZotCard.Clipboards = Object.assign(Zotero.ZotCard.Clipboards, {
     // Add Text
     let str = Components.classes['@mozilla.org/supports-string;1'].createInstance(Components.interfaces.nsISupportsString);
     str.data = text;
-    transferable.addDataFlavor('text/unicode');
-    transferable.setTransferData('text/unicode', str, text.length * 2);
+    transferable.addDataFlavor('text/plain');
+    transferable.setTransferData('text/plain', str, text.length * 2);
 
     // Add HTML
     str = Components.classes['@mozilla.org/supports-string;1'] .createInstance(Components.interfaces.nsISupportsString);
@@ -67,8 +67,8 @@ Zotero.ZotCard.Clipboards = Object.assign(Zotero.ZotCard.Clipboards, {
     // Add Text
     let str = Components.classes['@mozilla.org/supports-string;1'].createInstance(Components.interfaces.nsISupportsString);
     str.data = text;
-    transferable.addDataFlavor('text/unicode');
-    transferable.setTransferData('text/unicode', str, text.length * 2);
+    transferable.addDataFlavor('text/plain');
+    transferable.setTransferData('text/plain', str, text.length * 2);
 
     clipboardService.setData(
       transferable, null, Components.interfaces.nsIClipboard.kGlobalClipboard

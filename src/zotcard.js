@@ -458,6 +458,17 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		}
 
 
+		// card-statistics
+		let cardStatisticsMenu = Zotero.ZotCard.Doms.createMainWindowXULElement('menuitem', {
+			id: `${root}-zotcard-card-statistics-menuitem`,
+			command: this.itemCardStatistics,
+			parent: mnupopupZotCard
+		});
+		cardStatisticsMenu.label = Zotero.ZotCard.L10ns.getString('zotero-zotcard-card-statistics-title');
+		cardStatisticsMenu.hidden = !(onlySimple && onlyNote);
+		if (!cardStatisticsMenu.hidden) {
+			zotcardMenu.disabled = false;
+		}
 
 
 		// Viewer
@@ -681,99 +692,109 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 
 		Zotero.ZotCard.Logger.log(`en_words:${en_words}, cn_words:${cn_words}, num_words:${num_words}, length:${length}, lines:${lines}, sizes:${sizes}`);
 
-		let links_box = doc.querySelector('#links-box>div');
-		if (links_box) {
-			links_box.style.flex = 1;
-		}
+		// let links_box = doc.querySelector('#links-box>div');
+		// if (links_box) {
+		// 	links_box.style.flex = 1;
+		// }
 		
-		let links_box_grid = doc.querySelector('#links-box div.grid');
-		let div1 = Zotero.ZotCard.Doms.createMainWindowXULElement('div', {
-			id: prefix + '-zotero-note-links-box-separator1',
-			attrs: {
-				'style': 'height: 8px; border-bottom: 1px Solid #D9D9D9;',
-				'class': 'label',
-			},
-			parent: links_box_grid
-		});
-		this.storeAddedWordElement(div1);
-		let div2 = Zotero.ZotCard.Doms.createMainWindowXULElement('div', {
-			id: prefix + '-zotero-note-links-box-separator2',
-			attrs: {
-				'style': 'height: 8px; border-bottom: 1px Solid #D9D9D9;',
-				'class': 'value'
-			},
-			parent: links_box_grid
-		});
-		this.storeAddedWordElement(div2);
+		// let links_box_grid = doc.querySelector('#links-box div.grid');
 
-		let lablel = Zotero.ZotCard.Doms.createMainWindowXULElement('div', {
-			id: prefix + '-words-label',
-			attrs: {
-				'class': 'label',
-				'data-l10n-id': 'zotcard-words',
-			},
-			parent: links_box_grid
-		});
-		this.storeAddedWordElement(lablel);
-
-		let value = Zotero.ZotCard.Doms.createMainWindowXULElement('div', {
-			id: prefix + '-words-value',
-			attrs: {
-				'class': 'value'
-			},
-			parent: links_box_grid
-		});
-		let {text, title, space} = Zotero.ZotCard.Notes.statisticsToText({words, en_words, cn_words, num_words, length, lines, sizes});
+		this.statisticsProgressWindow.changeHeadline(Zotero.ZotCard.L10ns.getString('zotcard-statistics'));
+		this.statisticsProgressWindow.show()
+		let text_
 		if (Zotero.ZotCard.Prefs.get('word_count_style', Zotero.ZotCard.Consts.wordCountStyle.all) === Zotero.ZotCard.Consts.wordCountStyle.onlyWords) {
-			text = words.toString();
+			text_ = words.toString();
+		} else {
+			let {text, title, space} = Zotero.ZotCard.Notes.statisticsToText({words, en_words, cn_words, num_words, length, lines, sizes});
+			text_ = text
 		}
-		value.textContent = text;
-		value.setAttribute('title', title);
-		value.setAttribute('text', text);
-		value.onclick = (e) => {
-			let text = e.target.getAttribute('text');
-			let title = e.target.getAttribute('title');
-			e.target.textContent = e.target.textContent === text ? title : text;
-		}
-		this.storeAddedWordElement(value);
+		this.statisticsProgressItemProgress.setText(text_)
+		this.statisticsProgressWindow.startCloseTimer()
 
-		lablel = Zotero.ZotCard.Doms.createMainWindowXULElement('div', {
-			id: prefix + '-lines-label',
-			attrs: {
-				'class': 'label',
-				'data-l10n-id': 'zotcard-lines',
-			},
-			parent: links_box_grid
-		});
-		this.storeAddedWordElement(lablel);
-		value = Zotero.ZotCard.Doms.createMainWindowXULElement('div', {
-			id: prefix + '-lines-value',
-			attrs: {
-				'class': 'value'
-			},
-			parent: links_box_grid
-		});
-		value.textContent = lines;
-		this.storeAddedWordElement(value);
+		// let links_box = doc.querySelector('#links-box');
+		// let div1 = Zotero.ZotCard.Doms.createMainWindowXULElement('div', {
+		// 	id: prefix + '-zotero-note-links-box-separator1',
+		// 	attrs: {
+		// 		'style': 'height: 8px; border-bottom: 1px Solid #D9D9D9;',
+		// 		'class': 'label',
+		// 	},
+		// 	parent: links_box
+		// });
+		// this.storeAddedWordElement(div1);
+		// let div2 = Zotero.ZotCard.Doms.createMainWindowXULElement('div', {
+		// 	id: prefix + '-zotero-note-links-box-separator2',
+		// 	attrs: {
+		// 		'style': 'height: 8px; border-bottom: 1px Solid #D9D9D9;',
+		// 		'class': 'value'
+		// 	},
+		// 	parent: links_box
+		// });
+		// this.storeAddedWordElement(div2);
 
-		lablel = Zotero.ZotCard.Doms.createMainWindowXULElement('div', {
-			id: prefix + '-sizes-label',
-			attrs: {
-				'class': 'label',
-				'data-l10n-id': 'zotcard-sizes',
-			},
-			parent: links_box_grid
-		});
-		this.storeAddedWordElement(lablel);
-		value = Zotero.ZotCard.Doms.createMainWindowXULElement('div', {
-			id: prefix + '-sizes-value',
-			attrs: {
-				'class': 'value'
-			},
-			parent: links_box_grid
-		});
-		value.textContent = space;
-		this.storeAddedWordElement(value);
+		// let lablel = Zotero.ZotCard.Doms.createMainWindowXULElement('div', {
+		// 	id: prefix + '-words-label',
+		// 	attrs: {
+		// 		'class': 'label',
+		// 		'data-l10n-id': 'zotcard-words',
+		// 	},
+		// 	parent: links_box
+		// });
+		// this.storeAddedWordElement(lablel);
+		
+		// let value = Zotero.ZotCard.Doms.createMainWindowXULElement('div', {
+		// 	id: prefix + '-words-value',
+		// 	attrs: {
+		// 		'class': 'value'
+		// 	},
+		// 	parent: links_box
+		// });
+		// value.textContent = text;
+		// value.setAttribute('title', title);
+		// value.setAttribute('text', text);
+		// value.onclick = (e) => {
+		// 	let text = e.target.getAttribute('text');
+		// 	let title = e.target.getAttribute('title');
+		// 	e.target.textContent = e.target.textContent === text ? title : text;
+		// }
+		// this.storeAddedWordElement(value);
+
+		// lablel = Zotero.ZotCard.Doms.createMainWindowXULElement('div', {
+		// 	id: prefix + '-lines-label',
+		// 	attrs: {
+		// 		'class': 'label',
+		// 		'data-l10n-id': 'zotcard-lines',
+		// 	},
+		// 	parent: links_box
+		// });
+		// this.storeAddedWordElement(lablel);
+		// value = Zotero.ZotCard.Doms.createMainWindowXULElement('div', {
+		// 	id: prefix + '-lines-value',
+		// 	attrs: {
+		// 		'class': 'value'
+		// 	},
+		// 	parent: links_box
+		// });
+		// value.textContent = lines;
+		// this.storeAddedWordElement(value);
+
+		// lablel = Zotero.ZotCard.Doms.createMainWindowXULElement('div', {
+		// 	id: prefix + '-sizes-label',
+		// 	attrs: {
+		// 		'class': 'label',
+		// 		'data-l10n-id': 'zotcard-sizes',
+		// 	},
+		// 	parent: links_box
+		// });
+		// this.storeAddedWordElement(lablel);
+		// value = Zotero.ZotCard.Doms.createMainWindowXULElement('div', {
+		// 	id: prefix + '-sizes-value',
+		// 	attrs: {
+		// 		'class': 'value'
+		// 	},
+		// 	parent: links_box
+		// });
+		// value.textContent = space;
+		// this.storeAddedWordElement(value);
 	}),
 
 	createPaneNoteStatistics(id) {
@@ -829,25 +850,25 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 			this.createStandaloneMenu();
 		}.bind(this));
 
-		Zotero.Prefs.registerObserver('zotcard.enable_word_count', function () {
-			var enable_word_count = Zotero.ZotCard.Prefs.get('enable_word_count', true);
-			if (enable_word_count) {
-				if (Zotero.getMainWindow().Zotero_Tabs.selectedID !== Zotero.ZotCard.Zoteros.mainTabID) {
-					this.createPaneNoteStatistics(Zotero.getMainWindow().Zotero_Tabs.selectedID);
-				}
+		// Zotero.Prefs.registerObserver('zotcard.enable_word_count', function () {
+		// 	var enable_word_count = Zotero.ZotCard.Prefs.get('enable_word_count', true);
+		// 	if (enable_word_count) {
+		// 		if (Zotero.getMainWindow().Zotero_Tabs.selectedID !== Zotero.ZotCard.Zoteros.mainTabID) {
+		// 			this.createPaneNoteStatistics(Zotero.getMainWindow().Zotero_Tabs.selectedID);
+		// 		}
 
-				var selectedItems = Zotero.getMainWindow().ZoteroPane.getSelectedItems();
-				if (selectedItems.length === 1) {
-					let item = selectedItems[0];
-					if (item.isNote()) {
-						this.createNoteStatistics(Zotero.getMainWindow().document, 'main', item.getNote());
-					}
-				}
-			} else {
-				this._clearTabTimedRun();
-				this.removeAddedWordElement();
-			}
-		}.bind(this));
+		// 		var selectedItems = Zotero.getMainWindow().ZoteroPane.getSelectedItems();
+		// 		if (selectedItems.length === 1) {
+		// 			let item = selectedItems[0];
+		// 			if (item.isNote()) {
+		// 				this.createNoteStatistics(Zotero.getMainWindow().document, 'main', item.getNote());
+		// 			}
+		// 		}
+		// 	} else {
+		// 		this._clearTabTimedRun();
+		// 		this.removeAddedWordElement();
+		// 	}
+		// }.bind(this));
 
 		
 	},
@@ -1209,6 +1230,30 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		}
 	},
 
+	itemCardStatistics() {
+		let selectedItems = Zotero.ZotCard.Items.getSelectedItems();
+		if (selectedItems.length > 0) {
+			let {words, en_words, cn_words, num_words, length, lines, sizes} = Zotero.ZotCard.Notes.statistics(selectedItems[0].getNote());
+	
+			Zotero.ZotCard.Logger.log(`en_words:${en_words}, cn_words:${cn_words}, num_words:${num_words}, length:${length}, lines:${lines}, sizes:${sizes}`);
+	
+			let pw = new Zotero.ProgressWindow();
+			pw.changeHeadline(selectedItems[0].getNoteTitle() + ' ' + Zotero.ZotCard.L10ns.getString('zotcard-statistics'));
+			pw.show()
+			// let pp = new pw.ItemProgress(null, null);
+			let text_
+			if (Zotero.ZotCard.Prefs.get('word_count_style', Zotero.ZotCard.Consts.wordCountStyle.all) === Zotero.ZotCard.Consts.wordCountStyle.onlyWords) {
+				text_ = words.toString();
+			} else {
+				let {text, title, space} = Zotero.ZotCard.Notes.statisticsToText({words, en_words, cn_words, num_words, length, lines, sizes});
+				text_ = text
+			}
+			// pp.setText(text_)
+			pw.addDescription(text_)
+			pw.startCloseTimer(5000)
+		}
+	},
+	
 	async itemMoveCollection(collectionid) {
 		let items = Zotero.Items.keepTopLevel(Zotero.getMainWindow().ZoteroPane.getSelectedItems());
 		for (let index = 0; index < items.length; index++) {
@@ -1259,7 +1304,7 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		} else if(id.startsWith('card-manager-')) {
 
 		} else {
-			Zotero.ZotCard.createPaneNoteStatistics(id);
+			// Zotero.ZotCard.createPaneNoteStatistics(id);
 		}
 	}, 1000),
 
@@ -1290,15 +1335,15 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 
 	itemsViewOnSelect() {
 		Zotero.ZotCard.Logger.ding();
-		if (Zotero.ZotCard.Prefs.get('enable_word_count', true)) {
-			var selectedItems = Zotero.getMainWindow().ZoteroPane.getSelectedItems();
-			if (selectedItems.length === 1) {
-				let item = selectedItems[0];
-				if (item.isNote()) {
-					this.createNoteStatistics(Zotero.getMainWindow().document, 'main', item.getNote());
-				}
-			}
-		}
+		// if (Zotero.ZotCard.Prefs.get('enable_word_count', true)) {
+		// 	var selectedItems = Zotero.getMainWindow().ZoteroPane.getSelectedItems();
+		// 	if (selectedItems.length === 1) {
+		// 		let item = selectedItems[0];
+		// 		if (item.isNote()) {
+		// 			this.createNoteStatistics(Zotero.getMainWindow().document, 'main', item.getNote());
+		// 		}
+		// 	}
+		// }
 	},
 
 	noteEditorKeyup(e) {

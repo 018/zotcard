@@ -375,7 +375,7 @@
 							</el-space>
 						</div>
 					</template>
-					<el-carousel style="height: 100%;" v-if="cards[n - 1].isExpand" :autoplay="false" :loop="false"
+					<el-carousel style="height: 100%;" v-if="cards[n - 1].isExpand" :autoplay="false" :loop="false" :pause-on-hover="false"
 						@change="(idx) => handleCarouselChange(idx, cards[n - 1])">
 						<!-- card content -->
 						<el-carousel-item>

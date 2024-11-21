@@ -587,6 +587,8 @@ window.onload = function() {
 							name: 'Zotero',
 							values: [
 								...itemFields,
+								{value: '${dateModified}', name: ZotElementPlus.isZoteroDev ? 'dateModified' : (_l10n.formatValueSync('zotcard-preferences-dateModified') + `(dateModified)`)},
+								{value: '${dateAdded}', name: ZotElementPlus.isZoteroDev ? 'dateAdded' : (_l10n.formatValueSync('zotcard-preferences-dateAdded') + `(dateAdded)`)},
 								...creatorTypes
 							]
 						});
