@@ -172,7 +172,7 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		}
 		let pref = Zotero.ZotCard.Cards.initPrefs(type);
 		menuitem.setAttribute('label', `${pref.card ? pref.label : '-'}`);
-		menuitem.hidden = !pref.visible || !onlyRegular || !onlySimple;
+		menuitem.hidden = !pref.visible || !onlyRegular;
 		return menuitem;
 	},
 
@@ -279,7 +279,7 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 			parent: mnupopupZotCard
 		});
 		menuitem.setAttribute('label', Zotero.ZotCard.L10ns.getString('zotcard-newitem-batch'));
-		menuitem.hidden = !onlyRegular || !onlySimple;
+		menuitem.hidden = !onlyRegular;
 		if (!menuitem.hidden) {
 			zotcardMenu.disabled = false;
 		}
@@ -934,22 +934,23 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 			Zotero.ZotCard.Messages.warning(undefined, Zotero.ZotCard.L10ns.getString('zotcard-unsupported_entries'));
 			return
 		}
-		if (items.length !== 1) {
-			Zotero.ZotCard.Messages.warning(undefined, Zotero.ZotCard.L10ns.getString('zotcard-only_one'));
-			return
+		// if (items.length !== 1) {
+		// 	Zotero.ZotCard.Messages.warning(undefined, Zotero.ZotCard.L10ns.getString('zotcard-only_one'));
+		// 	return
+		// }
+		for (let index = 0; index < items.length; index++) {
+			const item = items[index];
+			let collection = Zotero.getMainWindow().ZoteroPane.getSelectedCollection();
+			let note = new Zotero.Item('note');
+			note.parentKey = item.getField('key');
+			note.libraryID = Zotero.getMainWindow().ZoteroPane.getSelectedLibraryID();
+			let noteContent =  Zotero.ZotCard.Cards.newCard(Zotero.getMainWindow(), collection, item, type, undefined);
+			note.setNote(noteContent || '');
+			let itemID = await note.saveTx();
+			Zotero.getMainWindow().ZoteroPane.selectItem(itemID);
+			Zotero.getMainWindow().document.getElementById('zotero-note-editor').focus();
+			
 		}
-		let item = items[0];
-
-		let collection = Zotero.getMainWindow().ZoteroPane.getSelectedCollection();
-		let note = new Zotero.Item('note');
-		note.parentKey = item.getField('key');
-		note.libraryID = Zotero.getMainWindow().ZoteroPane.getSelectedLibraryID();
-		let noteContent =  Zotero.ZotCard.Cards.newCard(Zotero.getMainWindow(), collection, item, type, undefined);
-		note.setNote(noteContent || '');
-		let itemID = await note.saveTx();
-		Zotero.getMainWindow().ZoteroPane.selectItem(itemID);
-		Zotero.getMainWindow().document.getElementById('zotero-note-editor').focus();
-		return itemID;
 	},
 
 	async newCardByCollection(type) {
