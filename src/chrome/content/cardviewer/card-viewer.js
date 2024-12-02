@@ -25,7 +25,7 @@ if (!io) {
   Zotero.ZotCard.Logger.trace('parentIDs', parentIDs);
 
   var _profiles = {
-    carouselType: 'card',
+    carouselType: '',
     titleFontSize: 15,
     contentFontSize: 12,
   };
@@ -54,10 +54,14 @@ if (!io) {
             return filters.orderby === f && filters.desc;
           },
           formatTime: (time) => {
-            let s = parseInt(time % 60);
-            let m = parseInt(time % (60 * 60) / 60);
-            let h = parseInt(time % (60 * 60 * 60) / (60 * 60));
-            return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            if (time) {
+              let s = parseInt(time % 60);
+              let m = parseInt(time % (60 * 60) / 60);
+              let h = parseInt(time % (60 * 60 * 60) / (60 * 60));
+              return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            } else {
+              return ''
+            }
           }
         });
         let cardmgrProfiles = Zotero.ZotCard.Prefs.getJson('cardmgr.profiles', _profiles);
@@ -252,23 +256,16 @@ if (!io) {
 
         function handleUIChange(field) {
           Zotero.ZotCard.Logger.log(`${field} >>> ${profiles[field]}`);
-          Zotero.ZotCard.Prefs.setJsonValue(pref, field, profiles[field]);
           switch (field) {
-            case 'titleFontSize':
-              break;
-            case 'contentFontSize':
-              break;
-            case 'carouselDirection':
             case 'carouselType':
-              if (profiles.carouselDirection === 'vertical') {
-                profiles.carouselType = 'card';
-                Zotero.ZotCard.Prefs.setJsonValue(pref, 'carouselType', profiles.carouselType);
-              }
+              Zotero.ZotCard.Prefs.setJsonValue(pref, 'carouselType', profiles.carouselType);
               Zotero.ZotCard.Logger.log(cards);
+              Zotero.ZotCard.Logger.log(profiles);
               
               Zotero.ZotCard.Dialogs.openCardViewerWithCards(cards);
               break;
             default:
+              Zotero.ZotCard.Prefs.setJsonValue(pref, field, profiles[field]);
               break;
           }
         }

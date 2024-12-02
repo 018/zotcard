@@ -29,6 +29,9 @@ ZotCard is a plug-in for Zotero, which is a card note-taking enhancement tool. I
 
   <img src="https://raw.githubusercontent.com/018/zotcard/main/image/newcard1_en.gif" width="600"/>
 
+## Video
+- [bilibili](https://space.bilibili.com/404131635)
+
 ## Features
 - Fast card building: Preset card template, support custom card module.
 

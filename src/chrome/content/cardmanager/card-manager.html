@@ -205,6 +205,9 @@
 		.cascader-popper .el-cascader-panel,.el-cascader-menu__wrap.el-scrollbar__wrap {
 			height: 100%;
 		}
+		.el-cascader-menu {
+			max-width: 300px;
+		}
 		.more {
 			height: 80px;
 			font-size: 11px;
@@ -327,7 +330,7 @@
 					</el-popover>
 					<el-divider direction="vertical"></el-divider>
 					<el-link :underline="false" @click="handleTools('zotero')" data-l10n-id="zotcard-card-manager-toolbar-zotero-title">
-						<img src="chrome://zotero/skin/zotero-new-z-48px.png" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
+						<img src="chrome://zotero/skin/z.svg" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
 					</el-link>
 					<el-link :underline="false" @click="handleTools('window')" icon="CopyDocument" data-l10n-id="zotcard-card-manager-toolbar-window-title">
 					</el-link>
@@ -438,7 +441,7 @@
 									<el-divider direction="vertical"></el-divider>
 									<!-- <el-link :underline="false"><el-icon><img src="chrome://zotcard/content/images/zotero32.png" style="object-fit: fill;"><img></el-icon></el-link> -->
 									<el-link :underline="false" @click="handleCardTools('zotero', cards[n - 1])" data-l10n-id="zotcard-card-manager-toolbar-zotero-title">
-										<img src="chrome://zotero/skin/zotero-new-z-48px.png" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
+										<img src="chrome://zotero/skin/z.svg" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
 									</el-link>
 								</el-space>
 							</div>
@@ -454,7 +457,7 @@
 										<span class="label" data-l10n-id="zotcard-card-manager-collections">卡片所属1</span>
 										<span class="value">
 											<el-link :underline="false" v-if="!!cards[n - 1].more.parentItem" @click="handleLink(ZotCardConsts.cardManagerType.item, cards[n - 1].more.parentItem.id)">
-												<img :src="`chrome://zotero/skin/treeitem-${cards[n - 1].more.parentItem.itemType}@2x.png`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
+												<img :src="`chrome://zotero/skin/item-type/16/light/${cards[n - 1].more.parentItem.itemType.replace(/([A-Z])/g, '-$1').toLowerCase()}@2x.svg`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
 												<span>{{ cards[n - 1].more.parentItem.title }}</span>
 											</el-link>
 											<el-space v-else-if="cards[n - 1].more.collections.length > 0">
@@ -474,7 +477,7 @@
 											<el-space v-if="cards[n - 1].more.relations.length > 0">
 												<div v-for="r in cards[n - 1].more.relations" :key="r.id">
 													<el-link :underline="false" @click="handleLink(ZotCardConsts.cardManagerType.item, r.id)">
-														<img :src="`chrome://zotero/skin/treeitem-${r.itemType}@2x.png`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
+														<img :src="`chrome://zotero/skin/item-type/16/light/${r.itemType.replace(/([A-Z])/g, '-$1').toLowerCase()}@2x.svg`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
 														<span>{{ r.title }}</span>
 													</el-link>
 												</div>
@@ -489,7 +492,7 @@
 										<span class="label" data-l10n-id="zotcard-card-manager-tags">卡片标签1</span><span class="value el-link-text">
 											<el-space v-if="cards[n - 1].more.tags.length > 0">
 												<div v-for="t in cards[n - 1].more.tags" :key="t.tag">
-													<img v-if="t.type === ZotCardConsts.tagType.zotero" :src="`chrome://zotero/skin/tag@2x.png`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
+													<img v-if="t.type === ZotCardConsts.tagType.zotero" :src="`chrome://zotero/skin/16/universal/tag.svg`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
 													<span :style="{color: t.color}">{{ t.tag }}</span>
 												</div>
 											</el-space>
@@ -625,7 +628,7 @@
 										  :key="item.type + '-' + item.tag"
 										  :label="item.tag"
 										  :value="item.type + '-' + item.tag">
-											<img v-if="item.type === ZotCardConsts.tagType.zotero" :src="`chrome://zotero/skin/tag@2x.png`" onerror="this.src='chrome://zotero/skin/treeitem@2x.png'" class="el-icon"><img>
+											<img v-if="item.type === ZotCardConsts.tagType.zotero" :src="`chrome://zotero/skin/16/universal/tag.svg`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
 											<span :style="{color: item.color}">{{ item.tag }}</span>
 										</el-option>
 									</el-select>
@@ -756,7 +759,7 @@
 										<el-cascader class="fill" v-model="profiles.excludeCollectionOrItemKeys" :props="renders.excludeCollectionOrItemKeysItemProps" @change="handleExcludeChange('excludeCollectionOrItemKeys')" :show-all-levels="false">
 											<template #default="{ node, data }">
 												<el-space>
-													<img :src="data.extras.treeViewImage" onerror="this.src='chrome://zotero/skin/treeitem@2x.png'" class="el-icon"></img>
+													<img :src="data.extras.treeViewImage" onerror="this.src='../images/zotero32.png'" class="el-icon"></img>
 													<span>{{ data.label }}</span>
 												</el-space>
 											</template>

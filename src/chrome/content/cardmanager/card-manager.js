@@ -130,7 +130,7 @@ window.onload = async function () {
                       extras: {
                         id: s.id,
                         type: 'search',
-                        treeViewImage: Zotero.isMac ? 'chrome://zotero-platform/content/treesource-search@2x.png' : 'chrome://zotero/skin/treesource-search@2x.png'
+                        treeViewImage: 'chrome://zotero/skin/collection-tree/16/light/search.svg'
                       }
                     }
                   }));
@@ -145,7 +145,7 @@ window.onload = async function () {
                       extras: {
                         id: i.id,
                         type: i.itemType,
-                        treeViewImage: `chrome://zotero/skin/treeitem-${i.itemType}@2x.png`
+                        treeViewImage: `chrome://zotero/skin/item-type/16/light/${i.itemType.replace(/([A-Z])/g, '-$1').toLowerCase()}@2x.svg`
                       }
                     }
                   }));
@@ -176,7 +176,7 @@ window.onload = async function () {
                         extras: {
                           id: i.id,
                           type: i.itemType,
-                          treeViewImage: `chrome://zotero/skin/treeitem-${i.itemType}@2x.png`
+                          treeViewImage: `chrome://zotero/skin/item-type/16/light/${i.itemType.replace(/([A-Z])/g, '-$1').toLowerCase()}@2x.svg`
                         }
                       });
                     }
@@ -194,7 +194,7 @@ window.onload = async function () {
                       extras: {
                         id: note.id,
                         type: 'note',
-                        treeViewImage: `chrome://zotero/skin/treeitem-note@2x.png`
+                        treeViewImage: `chrome://zotero/skin/item-type/16/light/note@2x.svg`
                       }
                     })
                   });
@@ -271,7 +271,7 @@ window.onload = async function () {
                       extras: {
                         id: i.id,
                         type: i.itemType,
-                        treeViewImage: `chrome://zotero/skin/treeitem-${i.itemType}@2x.png`
+                        treeViewImage: `chrome://zotero/skin/item-type/16/light/${i.itemType.replace(/([A-Z])/g, '-$1').toLowerCase()}@2x.svg`
                       }
                     }
                   }));
@@ -303,7 +303,7 @@ window.onload = async function () {
                         extras: {
                           id: i.id,
                           type: i.itemType,
-                          treeViewImage: `chrome://zotero/skin/treeitem-${i.itemType}@2x.png`
+                          treeViewImage: `chrome://zotero/skin/item-type/16/light/${i.itemType.replace(/([A-Z])/g, '-$1').toLowerCase()}@2x.svg`
                         }
                       })
                     }
@@ -539,8 +539,8 @@ window.onload = async function () {
             }
 
             if (Zotero.ZotCard.Messages.confirm(window, Zotero.ZotCard.L10ns.getString('zotcard-trash'))) {
-              selecteds.forEach(id => {
-                Zotero.Items.trashTx(id);
+              selecteds.forEach(card => {
+                Zotero.Items.trashTx(card.id);
               });
             }
             break;
@@ -564,6 +564,9 @@ window.onload = async function () {
               }
               texts += card.note.text;
             });
+
+            Zotero.ZotCard.Logger.log('htmls: ' + htmls);
+            Zotero.ZotCard.Logger.log('texts: ' + texts);
             Zotero.ZotCard.Clipboards.copyHtmlTextToClipboard(htmls, texts);
             break;
           case 'copy-text':
@@ -1108,7 +1111,7 @@ window.onload = async function () {
             }
             break;
           case 'selectafter':
-            for (let index = Math.max(0, cards.length - renders.cardViewerPopover.total - 1); index < cards.length; index++) {
+            for (let index = Math.max(0, cards.length - renders.cardViewerPopover.total); index < cards.length; index++) {
               _cards.push(cards[index]);
             }
             break;

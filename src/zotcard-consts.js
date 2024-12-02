@@ -6,7 +6,6 @@ Zotero.ZotCard.Consts = Object.assign(Zotero.ZotCard.Consts, {
 	card_quantity: 3,
 	// startOfWeek: 0,
 	recently_move_collection_quantity: 5,
-	// enable_word_count: true,
 	// note_background_color: '',
 	
 	startOfWeek: {

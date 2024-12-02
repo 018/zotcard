@@ -147,6 +147,8 @@ if (!io) {
                   card.to.html2 = _replace(card.note.html, `<span class="replace-target">${renders.target}</span>`);
                   card.to.titleHtml2 = Zotero.ZotCard.Notes.grabNoteTitleHtml(card.to.html2);
                   card.to.contentHtml2 = Zotero.ZotCard.Notes.grabNoteContentHtml(card.to.html2).replace(/data-attachment-key="(.*?)"/g, 'data-attachment-key="$1" src="zotero://attachment/library/items/$1"');
+
+                  Zotero.ZotCard.Logger.trace('card', card);
                 }
                 break;
               case 'title':

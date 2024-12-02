@@ -491,7 +491,7 @@ Zotero.ZotCard.Notes = Object.assign(Zotero.ZotCard.Notes, {
   grabNoteContentHtml(html) {
     let title = Zotero.Utilities.Item.noteToTitle(html);
     if (title) {
-      let matchs = title.match(/./g);
+      let matchs = title.replace(/[<>  ]/g, '').match(/./g);
       Zotero.ZotCard.Logger.log(matchs);
       
       if (matchs && matchs.length > 0) {

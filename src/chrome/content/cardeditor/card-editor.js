@@ -216,17 +216,17 @@ if (!io || !io.noteID) {
 						popover.emojis = false;
 						if (chars.length === 0) {
 							chars.push({
-								name: '<', value: '&amp;lt;'
+								name: '<', value: '&lt;'
 							}, {
-								name: '>', value: '&amp;gt;'
+								name: '>', value: '&gt;'
 							}, {
-								name: '<space>', value: '&amp;nbsp;'
+								name: '<space>', value: '&nbsp;'
 							}, {
-								name: '&', value: '&amp;amp;'
+								name: '&', value: '&amp;'
 							}, {
-								name: '"', value: '&amp;quot;'
+								name: '"', value: '&quot;'
 							}, {
-								name: '\'', value: '&amp;apos;'
+								name: '\'', value: '&apos;'
 							}, {
 								name: ZotElementPlus.isZoteroDev ? '换行' : _l10n.formatValueSync('zotcard-preferences-line'), value: '<br/>'
 							}, {
@@ -438,6 +438,9 @@ if (!io || !io.noteID) {
 						popover.chars = false;
 
 						if (fields.length === 0) {
+							let itemFields = [];
+							let item = note.parentItem || note;
+
 							var nowDate = new Date();
 							let startOfWeek = Zotero.ZotCard.Prefs.get('startOfWeek', Zotero.ZotCard.Consts.startOfWeek.sunday);
 							let w = Zotero.ZotCard.DateTimes.week(nowDate);
@@ -446,6 +449,7 @@ if (!io || !io.noteID) {
 							let zotCards = {
 								name: 'ZotCard',
 								values: [
+									{ value: () => item.getID(), name: ZotElementPlus.isZoteroDev ? 'id' : _l10n.formatValueSync('zotcard-preferences-id') },
 									{ value: () => Zotero.ZotCard.Clipboards.getClipboard(), name: ZotElementPlus.isZoteroDev ? 'clipboardText' : _l10n.formatValueSync('zotcard-preferences-clipboardText') },
 									{ value: Zotero.ZotCard.DateTimes.formatDate(nowDate, Zotero.ZotCard.DateTimes.yyyyMMdd), name: ZotElementPlus.isZoteroDev ? 'today' : _l10n.formatValueSync('zotcard-preferences-today') },
 									{ value: Zotero.ZotCard.DateTimes.formatDate(nowDate, Zotero.ZotCard.DateTimes.yyyyMM), name: ZotElementPlus.isZoteroDev ? 'month' : _l10n.formatValueSync('zotcard-preferences-month') },
@@ -460,8 +464,6 @@ if (!io || !io.noteID) {
 							fields.push(zotCards);
 
 
-							let itemFields = [];
-							let item = note.parentItem || note;
 							
 							item.getCollections().forEach(collectionID => {
 								let c = Zotero.Collections.get(collectionID);

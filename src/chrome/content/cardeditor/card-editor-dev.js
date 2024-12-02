@@ -39,7 +39,6 @@ window.onload = async function () {
         card_quantity: 3,
         startOfWeek: 0,
         recently_move_collection_quantity: 5,
-        enable_word_count: true,
         note_background_color: '',
       
         cardManagerType: {
@@ -228,17 +227,17 @@ window.onload = async function () {
 					popover.emojis = false;
 					if(chars.length === 0){
 						chars.push({
-							name: '<', value: '&amp;lt;'
+							name: '<', value: '&lt;'
 						}, {
-							name: '>', value: '&amp;gt;'
+							name: '>', value: '&gt;'
 						}, {
-							name: '<space>', value: '&amp;nbsp;'
+							name: '<space>', value: '&nbsp;'
 						}, {
-							name: '&', value: '&amp;amp;'
+							name: '&', value: '&amp;'
 						}, {
-							name: '"', value: '&amp;quot;'
+							name: '"', value: '&quot;'
 						}, {
-							name: '\'', value: '&amp;apos;'
+							name: '\'', value: '&apos;'
 						}, {
 							name: ZotElementPlus.isZoteroDev ? '换行' : _l10n.formatValueSync('zotcard-preferences-line'), value: '<br/>'
 						}, {

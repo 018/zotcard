@@ -66,7 +66,6 @@ window.onload = function() {
 				startOfWeek: ZotElementPlus.isZoteroDev ? 0 : Zotero.ZotCard.Prefs.get('startOfWeek', Zotero.ZotCard.Consts.startOfWeek.sunday),
 				word_count_style: ZotElementPlus.isZoteroDev ? 1 : Zotero.ZotCard.Prefs.get('word_count_style', Zotero.ZotCard.Consts.wordCountStyle.all),
 				recently_move_collection_quantity: ZotElementPlus.isZoteroDev ? 0 : Zotero.ZotCard.Prefs.get('movemgr.recently_move_collection_quantity', 5),
-				enable_word_count: ZotElementPlus.isZoteroDev ? 0 : Zotero.ZotCard.Prefs.get('enable_word_count', true),
 				imagemgr_tinify_api_key: ZotElementPlus.isZoteroDev ? 0 : Zotero.ZotCard.Prefs.get('imagemgr.tinify_api_key'),
 			})
 			const preview = ref('');
@@ -335,17 +334,17 @@ window.onload = function() {
 					popover.emojis = false;
 					if(chars.length === 0){
 						chars.push({
-							name: '<', value: '&amp;lt;'
+							name: '<', value: '&lt;'
 						}, {
-							name: '>', value: '&amp;gt;'
+							name: '>', value: '&gt;'
 						}, {
-							name: '<space>', value: '&amp;nbsp;'
+							name: '<space>', value: '&nbsp;'
 						}, {
-							name: '&', value: '&amp;amp;'
+							name: '&', value: '&amp;'
 						}, {
-							name: '"', value: '&amp;quot;'
+							name: '"', value: '&quot;'
 						}, {
-							name: '\'', value: '&amp;apos;'
+							name: '\'', value: '&apos;'
 						}, {
 							name: ZotElementPlus.isZoteroDev ? '换行' : _l10n.formatValueSync('zotcard-preferences-line'), value: '<br/>'
 						}, {
@@ -558,6 +557,7 @@ window.onload = function() {
 						fields.push({
 							name: 'ZotCard',
 							values: [
+								{value: '${id}', name: ZotElementPlus.isZoteroDev ? 'id' : _l10n.formatValueSync('zotcard-preferences-id')},
 								{value: '${clipboardText}', name: ZotElementPlus.isZoteroDev ? 'clipboardText' : _l10n.formatValueSync('zotcard-preferences-clipboardText')},
 								{value: '${today}', name: ZotElementPlus.isZoteroDev ? 'today' : _l10n.formatValueSync('zotcard-preferences-today')},
 								{value: '${month}', name: ZotElementPlus.isZoteroDev ? 'month' : _l10n.formatValueSync('zotcard-preferences-month')},

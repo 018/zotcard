@@ -152,7 +152,7 @@
 							<template #prepend>
 								<el-select v-model="renders.src_mode" @change="handleChange('src_mode')" style="width: 100px;">
 									<el-option value="text" :label="l10n('zotcard-card-replace-src_mode-text')"></el-option>
-									<el-option value="regular" :label="l10n('zotcard-card-replace-src_mode-regular')"></el-option>
+									<el-option :disabled="renders.mode === 'text'" value="regular" :label="l10n('zotcard-card-replace-src_mode-regular')"></el-option>
 								</el-select>
 							</template>
 						</el-input>

@@ -113,15 +113,6 @@
 							<h1 data-l10n-id="zotcard-preferences-general-other">其他</h1>
 							<el-form-item>
 								<template #label>
-									<label data-l10n-id="zotcard-preferences-general-other-enable_word_count">开启卡片字数统计1</label>
-								</template>
-								<el-space direction="vertical" alignment="normal">
-									<el-switch size="small" v-model="prefs.enable_word_count" @change="handlePrefsInput('enable_word_count', prefs.enable_word_count)"></el-switch>
-									<span class="text-color-placeholder" data-l10n-id="zotcard-preferences-general-other-enable_word_count_message">设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后...</span>
-								</el-space>
-							</el-form-item>
-							<el-form-item>
-								<template #label>
 									<label data-l10n-id="zotcard-preferences-general-other-word_count_style">卡片字数统计样式1</label>
 								</template>
 								<el-space direction="vertical" alignment="normal">
@@ -129,6 +120,7 @@
 										<el-option :value="ZotCardConsts.wordCountStyle.all" :label="l10n('zotcard-preferences-general-other-wordCountStyle-all')"></el-option>
 										<el-option :value="ZotCardConsts.wordCountStyle.onlyWords" :label="l10n('zotcard-preferences-general-other-wordCountStyle-onlyWords')"></el-option>
 									</el-select>
+									<span class="text-color-placeholder" data-l10n-id="zotcard-preferences-general-other-enable_word_count_message">设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后...</span>
 									<span class="text-color-placeholder" data-l10n-id="zotcard-preferences-general-other-word_count_style_message">设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后设置之后...</span>
 								</el-space>
 							</el-form-item>

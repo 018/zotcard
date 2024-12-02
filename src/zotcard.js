@@ -171,7 +171,8 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 			});
 		}
 		let pref = Zotero.ZotCard.Cards.initPrefs(type);
-		menuitem.setAttribute('label', `${pref.card ? pref.label : '-'}`);
+		menuitem.setAttribute('label', pref.label);
+		menuitem.disabled = !pref.card;
 		menuitem.hidden = !pref.visible || !onlyRegular;
 		return menuitem;
 	},
@@ -505,7 +506,9 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 			after: menuseparator
 		});
 		menuitem.setAttribute('label', pref.label);
+		
 		menuitem.hidden = !pref.visible;
+		menuitem.disabled = !pref.card;
 		return menuitem;
 	},
 
@@ -617,6 +620,7 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		});
 		menuitem.setAttribute('label', Zotero.ZotCard.L10ns.getString('zotcard-newstandalone', {type:  pref.label}));
 		menuitem.hidden = !pref.visible;
+		menuitem.disabled = !pref.card;
 		return menuitem;
 	},
 
@@ -797,35 +801,36 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		// this.storeAddedWordElement(value);
 	}),
 
-	createPaneNoteStatistics(id) {
-		Zotero.ZotCard.Utils.afterRun(() => {
-			this._clearTabTimedRun();
-			let interval = Zotero.ZotCard.Utils.TimedRun(() => {
-				Zotero.ZotCard.Logger.log(`TimedRun(${interval}): ${id}`);
-				if (Zotero.getMainWindow().Zotero_Tabs.selectedType === 'reader') {
-					let tab = Zotero.Reader.getByTabID(Zotero.getMainWindow().Zotero_Tabs.selectedID);
-					let activeEditor = tab._window.ZoteroContextPane.getActiveEditor();
-					if (activeEditor) {
-						let note = Zotero.Items.get(activeEditor.item.id);
-						this.createNoteStatistics(activeEditor, 'tab-' + id, note.getNote());
+	// 过期
+	// createPaneNoteStatistics(id) {
+	// 	Zotero.ZotCard.Utils.afterRun(() => {
+	// 		this._clearTabTimedRun();
+	// 		let interval = Zotero.ZotCard.Utils.TimedRun(() => {
+	// 			Zotero.ZotCard.Logger.log(`TimedRun(${interval}): ${id}`);
+	// 			if (Zotero.getMainWindow().Zotero_Tabs.selectedType === 'reader') {
+	// 				let tab = Zotero.Reader.getByTabID(Zotero.getMainWindow().Zotero_Tabs.selectedID);
+	// 				let activeEditor = tab._window.ZoteroContextPane.getActiveEditor();
+	// 				if (activeEditor) {
+	// 					let note = Zotero.Items.get(activeEditor.item.id);
+	// 					this.createNoteStatistics(activeEditor, 'tab-' + id, note.getNote());
 	
-						let onkeypress = () => {
-							if (Zotero.ZotCard.Prefs.get('enable_word_count', true)) {
-								this.createNoteStatistics(activeEditor, 'tab-' + id, activeEditor.querySelector('iframe').contentDocument.querySelector('.editor .ProseMirror').innerHTML);
-							}
-						};
-						activeEditor.removeEventListener('keypress', onkeypress);
-						activeEditor.addEventListener('keypress', onkeypress);
-					}
-				} else {
-					this._clearTabTimedRun();
-				}
-			}, 5000);
-			this._clearTabTimedRun();
-			this._tab_timed_interval = interval;
-			Zotero.ZotCard.Logger.log('create timedrun ' + this._tab_timed_interval);
-		}, 1000);
-	},
+	// 					let onkeypress = () => {
+	// 						if (Zotero.ZotCard.Prefs.get('enable_word_count', true)) {
+	// 							this.createNoteStatistics(activeEditor, 'tab-' + id, activeEditor.querySelector('iframe').contentDocument.querySelector('.editor .ProseMirror').innerHTML);
+	// 						}
+	// 					};
+	// 					activeEditor.removeEventListener('keypress', onkeypress);
+	// 					activeEditor.addEventListener('keypress', onkeypress);
+	// 				}
+	// 			} else {
+	// 				this._clearTabTimedRun();
+	// 			}
+	// 		}, 5000);
+	// 		this._clearTabTimedRun();
+	// 		this._tab_timed_interval = interval;
+	// 		Zotero.ZotCard.Logger.log('create timedrun ' + this._tab_timed_interval);
+	// 	}, 1000);
+	// },
 
 	registerEvent() {
 		this._notifierID = Zotero.Notifier.registerObserver(this, ['tab'], 'zotcard');
@@ -1164,6 +1169,8 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 			  }
 			  texts += Zotero.ZotCard.Notes.htmlToText(item.getNote());
 			});
+            Zotero.ZotCard.Logger.log('htmls: ' + htmls);
+            Zotero.ZotCard.Logger.log('texts: ' + texts);
 			Zotero.ZotCard.Clipboards.copyHtmlTextToClipboard(htmls, texts);
 		}
 	},
@@ -1465,137 +1472,6 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 	},
 
 	// #####################
-
-	// deprecated
-	async compressimg() {
-		// downloadFile(url, path)
-		//Zotero.Attachments.getStorageDirectoryByLibraryAndKey(1, 'L93X9AG9')
-		// Zotero.Items.getByLibraryAndKey(1, 'L93X9AG9').getFilePath()//.attachmentLinkMode = 4
-		var zitems = Zotero.ZotCard.Items.getSelectedItems(['note'])
-		if (!zitems || zitems.length <= 0) {
-			Zotero.ZotCard.Messages.error(undefined, Utils.getString('zotcard.only_note'))
-			return
-		}
-		if (zitems.length !== 1) {
-			Zotero.ZotCard.Messages.error(undefined, Utils.getString('zotcard.only_note'))
-			return
-		}
-
-		let tinifyApiKey = Zotero.ZotCard.Prefs.get('config.tinify_api_key')
-		if (!tinifyApiKey) {
-			Zotero.Prefs.set('zotcard.config.tinify_api_key', '')
-			Zotero.ZotCard.Messages.warning(undefined, Utils.getString('zotcard.configuretinypng'))
-			Zotero.openInViewer(`about:config?filter=zotero.zotcard.config.tinify_api_key`)
-			return
-		}
-		let compressWithWidthAndHeight = Zotero.ZotCard.Prefs.get('config.compress_with_width_and_height', false);
-
-		let pw = new Zotero.ProgressWindow()
-		pw.changeHeadline(Utils.getString('zotcard.compression'))
-		pw.addDescription(Utils.getString('zotcard.choose', zitems.length))
-		pw.show()
-		var zitem = zitems[0]
-		let note = zitem.getNote()
-		let matchImages = zitem.getNote().match(/<img.*?src="data:.*?;base64,.*?".*?\/>/g)
-		if (matchImages) {
-			pw.addLines(`${zitem.getNoteTitle()}: ${Utils.getString('zotcard.includesimages', matchImages.length)}`, `chrome://zotero/skin/tick${Zotero.hiDPISuffix}.png`)
-			for (let index = 0; index < matchImages.length; index++) {
-				let itemProgress = new pw.ItemProgress(
-					`chrome://zotero/skin/spinner-16px${Zotero.hiDPISuffix}.png`,
-					Utils.getString('zotcard.imagecompressed', index + 1)
-				)
-				itemProgress.setProgress(50)
-				let matchImageSrcs = matchImages[index].match(/src="data:.*?;base64,.*?"/g)
-				const element = matchImageSrcs[0]
-				let width
-				let height
-				let matchImageWidths = matchImages[index].match(/width=".*?"/g)
-				if (matchImageWidths) {
-					width = matchImageWidths[0].replace('width=', '').replace(/"/g, '')
-				}
-				let matchImageHeights = matchImages[index].match(/height=".*?"/g)
-				if (matchImageHeights) {
-					height = matchImageHeights[0].replace('height=', '').replace(/"/g, '')
-				}
-				let content = element.replace('src="', '').replace('"', '')
-				let authorization = 'Basic ' + Zotero.Utilities.Internal.Base64.encode('api:' + tinifyApiKey)
-				try {
-					let request = await Zotero.HTTP.request('POST', 'https://api.tinify.com/shrink',
-						{
-							body: Zotero.ZotCard.Utils.dataURItoBlob(content),
-							headers: {
-								'Content-Type': 'application/x-www-form-urlencoded',
-								'Authorization': authorization
-							}
-						})
-					if (request.status === 200 || request.status === 201) {
-						let res = JSON.parse(request.responseText)
-						if (res.error) {
-							itemProgress.setIcon(`chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
-							itemProgress.setText(Utils.getString('zotcard.imagecompressionfailed', index + 1) + `${res.error} - ${res.message}`)
-							itemProgress.setProgress(100)
-						} else {
-							let image
-							if (!compressWithWidthAndHeight || (!width && !height)) {
-								image = await Zotero.HTTP.request('GET', res.output.url,
-									{
-										responseType: 'blob',
-										followRedirects: false
-									})
-							} else {
-								Zotero.debug(`zotcard@width: ${width}, height: ${height}`)
-								image = await Zotero.HTTP.request('POST', res.output.url,
-									{
-										body: JSON.stringify({ resize: { method: 'fit', width: width ? parseInt(width) : 0, height: height ? parseInt(height) : 0 } }),
-										headers: {
-											'Content-Type': 'application/json',
-											'Authorization': authorization
-										},
-										responseType: 'blob',
-										followRedirects: false
-									})
-							}
-
-							if (image.status === 200 || image.status === 201) {
-								Zotero.ZotCard.Utils.blobToDataURI(image.response, function (base64) {
-									note = note.replace(content, base64)
-									zitem.setNote(note)
-									zitem.saveTx()
-									itemProgress.setIcon(`chrome://zotero/skin/tick${Zotero.hiDPISuffix}.png`)
-									itemProgress.setText(Utils.getString('zotcard.imagesize', index + 1) + ` ${res.input.size}${compressWithWidthAndHeight && (width || height) ? ('(' + (width || '') + ',' + (height || '') + ')') : ''}, 压缩成 ${compressWithWidthAndHeight && (width || height) ? image.response.size : res.output.size}, 压缩率: ${res.output.ratio}。`)
-									itemProgress.setProgress(100)
-								})
-							} else if (image.status === 0) {
-								itemProgress.setIcon(`chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
-								itemProgress.setText(Utils.getString('zotcard.imagefailed', index + 1) + ` - Net Error。`)
-								itemProgress.setProgress(100)
-							} else {
-								itemProgress.setIcon(`chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
-								itemProgress.setText(Utils.getString('zotcard.imagefailed', index + 1) + `，${image.status} - ${image.statusText}`)
-								itemProgress.setProgress(100)
-							}
-						}
-					} else if (request.status === 0) {
-						itemProgress.setIcon(`chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
-						itemProgress.setText(Utils.getString('zotcard.imagefailed', index + 1) + ` - Net Error。`)
-						itemProgress.setProgress(100)
-					} else {
-						itemProgress.setIcon(`chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
-						itemProgress.setText(Utils.getString('zotcard.imagefailed', index + 1) + `，${image.status} - ${image.statusText}`)
-						itemProgress.setProgress(100)
-					}
-				} catch (e) {
-					Zotero.debug(e)
-					itemProgress.setIcon(`chrome://zotero/skin/cross${Zotero.hiDPISuffix}.png`)
-					itemProgress.setText(Utils.getString('zotcard.imagecompressionfailed', index + 1) + e)
-					itemProgress.setProgress(100)
-				}
-			}
-		} else {
-			pw.addLines(`${zitem.getNoteTitle()} ${Utils.getString('zotcard.noimagesincluded')}`, `chrome://zotero/skin/warning${Zotero.hiDPISuffix}.png`)
-		}
-		pw.addDescription(Utils.getString('uread.click_on_close'))
-	},
 
 	addToWindow(window) {
 	},

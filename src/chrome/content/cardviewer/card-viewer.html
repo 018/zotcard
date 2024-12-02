@@ -118,7 +118,7 @@
 		<div class="header">
 			<el-space wrap>
 				<el-link :underline="false" @click="handleTools('zotero')" data-l10n-id="zotcard-card-manager-toolbar-zotero-title">
-					<img src="chrome://zotero/skin/zotero-new-z-48px.png" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
+					<img src="chrome://zotero/skin/z.svg" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
 				</el-link>
 				<el-divider direction="vertical"></el-divider>
 				<el-space :size="5">
@@ -172,7 +172,7 @@
 
 		<!-- cards -->
 		<div class="main">
-			<el-carousel :initial-index="renders.currentIndex" :indicator-position="profiles.carouselDirection === 'vertical' ? 'outside' : 'none'" arrow="always" :direction="profiles.carouselDirection" :type="profiles.carouselType" :height="(renders.innerHeight - 120) + 'px'" @change="handleCarouselChange" :loop="false" :autoplay="false">
+			<el-carousel :initial-index="renders.currentIndex" indicator-position="none" arrow="always" :type="profiles.carouselType" :height="(renders.innerHeight - 120) + 'px'" @change="handleCarouselChange" :loop="false" :autoplay="false">
 				<el-carousel-item v-for="n in renders.loads" :key="n">
 					<el-card :body-style="{ fontSize: profiles.contentFontSize + 'px' }">
 						<template #header>
@@ -224,7 +224,7 @@
 									</el-icon></el-link>
 								<el-divider direction="vertical"></el-divider>
 								<el-link :underline="false" @click="handleCardTools('zotero', cards[n - 1])" data-l10n-id="zotcard-card-manager-toolbar-zotero-title">
-									<img src="chrome://zotero/skin/zotero-new-z-48px.png" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
+									<img src="chrome://zotero/skin/z.svg" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
 								</el-link>
 							</el-space>
 						</div>
@@ -234,7 +234,7 @@
 								<el-descriptions-item span="3">
 									<template #label><span data-l10n-id="zotcard-card-manager-collections">卡片所属1</span></template>
 									<el-link v-if="!!cards[n - 1].more.parentItem" @click="handleLink(ZotCardConsts.cardManagerType.item, cards[n - 1].more.parentItem.id)" :underline="false" >
-										<img :src="`chrome://zotero/skin/treeitem-${cards[n - 1].more.parentItem.itemType}@2x.png`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
+										<img :src="`chrome://zotero/skin/item-type/16/light/${cards[n - 1].more.parentItem.itemType.replace(/([A-Z])/g, '-$1').toLowerCase()}@2x.svg`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
 										<span>{{ cards[n - 1].more.parentItem.title }}</span>
 									</el-link>
 									<el-space v-else-if="cards[n - 1].more.collections.length > 0">
@@ -252,7 +252,7 @@
 									<el-space v-if="cards[n - 1].more.relations.length > 0">
 										<div v-for="r in cards[n - 1].more.relations" :key="r.id">
 											<el-link :underline="false" @click="handleLink(ZotCardConsts.cardManagerType.item, r.id)">
-												<img :src="`chrome://zotero/skin/treeitem-${r.itemType}@2x.png`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
+												<img :src="`chrome://zotero/skin/item-type/16/light/${r.itemType.replace(/([A-Z])/g, '-$1').toLowerCase()}@2x.svg`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
 												<span>{{ r.title }}</span>
 											</el-link>
 										</div>
@@ -267,7 +267,7 @@
 									<template #label><span data-l10n-id="zotcard-card-manager-tags">卡片标签1</span><span class="el-link-text"></template>
 									<el-space v-if="cards[n - 1].more.tags.length > 0">
 										<div v-for="t in cards[n - 1].more.tags" :key="t.tag">
-											<img v-if="t.type === ZotCardConsts.tagType.zotero" :src="`chrome://zotero/skin/tag@2x.png`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
+											<img v-if="t.type === ZotCardConsts.tagType.zotero" :src="`chrome://zotero/skin/tag.svg`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
 											<span :style="{color: t.color}">{{ t.tag }}</span>
 										</div>
 									</el-space>

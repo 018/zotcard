@@ -69,7 +69,7 @@ if (!ZotElementPlus.isZoteroDev && Zotero.ZotCard.Objects.isEmptyArray(dataIn) |
             id: _id
           },
           today: {
-            date: now.format(Zotero.ZotCard.Moments.YYYYMM),
+            date: now.format(Zotero.ZotCard.Moments.YYYYMMDD),
             weekOfYear: weekOfYear,
             dayOfYear: dayOfYear,
             create: now.format(Zotero.ZotCard.Moments.YYYYMMDDHHmmss),

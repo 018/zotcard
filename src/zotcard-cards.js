@@ -188,6 +188,7 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 			year = item ? item.getField('year') : undefined;
 
 			var itemLink = item ? Zotero.ZotCard.Items.getZoteroUrl(item.key) : '';
+			var id = item ? item.getID() : undefined;
 			var collectionLink = collection ? Zotero.ZotCard.Collections.getZoteroUrl(collection.key) : '';
 			var json = item ? item.toJSON() : {};
 			var itemFields = Zotero.ItemFields.getAll().map(e => e.name);
@@ -213,6 +214,7 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 			var dateModified = '';
 			var accessDate = '';
 			let econtent = '(() => {\n' +
+				'var id = "' + id + '";\n' +
 				'var clipboardText = "' + (clipboardText || '').replace(/\n/g, '\\n').replace(/"/g, '\\"') + '";\n' +
 				'var now = "' + now + '";\n' +
 				'var today = "' + today + '";\n' +

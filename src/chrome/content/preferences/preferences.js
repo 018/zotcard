@@ -21,7 +21,6 @@ Zotero.ZotCard.Preferences = {
 					last_updated: now,
 					card_quantity: Zotero.ZotCard.Prefs.get('card_quantity'),
 					word_count_style: Zotero.ZotCard.Prefs.get('word_count_style'),
-					enable_word_count: Zotero.ZotCard.Prefs.get('enable_word_count'),
 					startOfWeek: Zotero.ZotCard.Prefs.get('startOfWeek'),
 					cardmgr_profiles: Zotero.ZotCard.Prefs.getJson('cardmgr.profiles'),
 					cardmgr_savefilters: Zotero.ZotCard.Prefs.getJson('cardmgr.savefilters'),
@@ -73,11 +72,6 @@ Zotero.ZotCard.Preferences = {
 								Zotero.ZotCard.Prefs.set('word_count_style', backup.word_count_style);
 							} else {
 								Zotero.ZotCard.Prefs.clear('word_count_style');
-							}
-							if (backup.enable_word_count) {
-								Zotero.ZotCard.Prefs.set('enable_word_count', backup.enable_word_count);
-							} else {
-								Zotero.ZotCard.Prefs.clear('enable_word_count');
 							}
 							if (backup.startOfWeek) {
 								Zotero.ZotCard.Prefs.set('startOfWeek', backup.startOfWeek);

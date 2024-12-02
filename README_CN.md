@@ -27,6 +27,9 @@ zotcard是Zotero的一个插件，它是卡片法笔记的提效工具。它提�
 
   <img src="https://raw.githubusercontent.com/018/zotcard/main/image/newcard1.gif" width="600"/>
 
+## 视频
+- [bilibili](https://space.bilibili.com/404131635)
+
 ## 特性
 - 快速建卡: 预置卡片模板，支持自定义卡片模块。
 

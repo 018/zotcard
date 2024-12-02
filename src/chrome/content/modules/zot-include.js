@@ -64,7 +64,7 @@
     Zotero.ZotCard.Logger.log("loadSubScript zot-groups.js");
 
     Services.scriptloader.loadSubScript(rootURI + '/chrome/content/modules/zot-readers.js');
-    Zotero.ZotCard.Readers.init();
+    Zotero.ZotCard.Readers.init({ id, version, rootURI });
     Zotero.ZotCard.Logger.log("loadSubScript zot-readers.js");
 
     Services.scriptloader.loadSubScript(rootURI + '/chrome/content/modules/zot-clipboards.js');
