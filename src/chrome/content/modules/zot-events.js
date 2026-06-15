@@ -53,8 +53,15 @@ Zotero.ZotCard.Events = Object.assign(Zotero.ZotCard.Events, {
 		this._addListener('zotero-collectionmenu', 'popupshowing', this.refreshCollectionMenuPopup);
 		this._addListener('zotero-itemmenu', 'popupshowing', this.refreshItemMenuPopup);
 		this._addListener('zotero-tb-note-add', 'popupshowing', this.refreshStandaloneMenuPopup);
-		// Zotero 9 中该元素疑似改名/移除，留待后续定位新的注入点。
-		this._addListener('context-pane-add-child-note-button-popup', 'popupshowing', this.refreshPaneItemMenuPopup);
+		// Zotero 9：笔记面板的“新建子笔记”弹出菜单由 id 改为 class，且惰性创建、可能多实例。
+		// 改用 document 级事件委托：捕获 popupshowing，按 class 过滤后刷新菜单。
+		this._panePopupDelegate = (event) => {
+			let t = event.target;
+			if (t && t.classList && t.classList.contains('context-pane-add-child-note-button-popup')) {
+				this.refreshPaneItemMenuPopup(event);
+			}
+		};
+		Zotero.getMainWindow().document.addEventListener('popupshowing', this._panePopupDelegate, true);
 
 		Zotero.ZotCard.Logger.log('Zotero.ZotCard.Events registered.');
 	},
@@ -76,8 +83,8 @@ Zotero.ZotCard.Events = Object.assign(Zotero.ZotCard.Events, {
 		if (this.refreshStandaloneMenuPopup) {
 			this._removeListener('zotero-tb-note-add', 'popupshowing', this.refreshStandaloneMenuPopup);
 		}
-		if (this.refreshPaneItemMenuPopup) {
-			this._removeListener('context-pane-add-child-note-button-popup', 'popupshowing', this.refreshPaneItemMenuPopup);
+		if (this._panePopupDelegate) {
+			Zotero.getMainWindow().document.removeEventListener('popupshowing', this._panePopupDelegate, true);
 		}
 	}
 });
