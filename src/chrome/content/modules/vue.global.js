@@ -14771,8 +14771,11 @@ var Vue = (function (exports) {
         decoder = document.createElement("div");
       }
       if (asAttr) {
-        decoder.innerHTML = `<div foo="${raw.replace(/"/g, "&quot;")}">`;
-        return decoder.children[0].getAttribute("foo");
+        // Zotero 9 (Gecko) 的 chrome 文档消毒会删除 div 上的未知属性 foo，
+        // 导致 getAttribute("foo") 返回 null、Vue 模板编译器崩溃。
+        // 改用标准属性 title（不会被消毒），解码语义不变。
+        decoder.innerHTML = `<div title="${raw.replace(/"/g, "&quot;")}">`;
+        return decoder.children[0].getAttribute("title");
       } else {
         decoder.innerHTML = raw;
         return decoder.textContent;
