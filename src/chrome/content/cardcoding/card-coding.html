@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>卡片编码</title>
+	<script src="chrome://zotero/content/include.js"></script>
+	<link rel="localization" href="zotcard.ftl" />
+	<link rel="stylesheet" href="../modules/common.css" />
+	<link rel="stylesheet" href="../modules/element-plus.css" />
+	<script src="../modules/vue.global.prod.js"></script>
+	<script src="../modules/element-plus.js"></script>
+	<script src="../modules/element-plus-zh-cn.js"></script>
+	<script src="../modules/element-plus-en.js"></script>
+	<script src="../modules/element-plus-zh-tw.js"></script>
+	<script src="../modules/element-plus-icons.js"></script>
+	<script src="../modules/zot-render-element-plus.js"></script>
+	<script id="jsfile"></script>
+	<script>
+		// 仅在 Zotero 内运行，直接加载正式脚本
+		document.getElementById('jsfile').src = "card-coding.js";
+	</script>
+	<style>
+		body { padding: 0; margin: 0; font-size: 13px; }
+		.header {
+			display: flex; align-items: center; justify-content: space-between;
+			padding: 8px 12px; border-bottom: 1px solid var(--el-border-color);
+			position: sticky; top: 0; background: var(--el-bg-color); z-index: 10;
+		}
+		.header .title { font-weight: bold; }
+		.tip { color: var(--el-text-color-secondary); padding: 8px 12px; }
+		.main { padding: 8px 12px 60px 12px; }
+		.tree-node { display: flex; align-items: center; gap: 8px; }
+		.tree-node .code {
+			display: inline-block; min-width: 42px; padding: 0 6px;
+			text-align: center; border-radius: 4px;
+			background: var(--el-color-primary-light-9);
+			color: var(--el-color-primary); font-family: monospace;
+		}
+		.tree-node .ctitle { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+	</style>
+</head>
+
+<body>
+	<div id="app">
+		<div class="header">
+			<span class="title">卡片编码（卢曼式）</span>
+			<span>
+				<el-button size="small" @click="handleClose">取消</el-button>
+				<el-button size="small" type="primary" :loading="saving" @click="handleSave">保存编码</el-button>
+			</span>
+		</div>
+		<div class="tip">拖拽卡片调整顺序；拖到某张卡片“内部”使其成为子卡片（分支）。编码（1 / 1a / 1a1 …）将写入卡片标题前缀，主界面据此排序。</div>
+		<div class="main">
+			<el-empty v-if="tree.length === 0" description="该文献下没有卡片笔记"></el-empty>
+			<el-tree
+				v-else
+				:data="tree"
+				node-key="id"
+				draggable
+				default-expand-all
+				:expand-on-click-node="false"
+				:allow-drop="allowDrop"
+				@node-drop="onDrop"
+			>
+				<template #default="{ node, data }">
+					<span class="tree-node">
+						<span class="code">{{ data.code }}</span>
+						<span class="ctitle">{{ data.title }}</span>
+					</span>
+				</template>
+			</el-tree>
+		</div>
+	</div>
+</body>
+</html>

@@ -475,6 +475,18 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 			zotcardMenu.disabled = false;
 		}
 
+		// card-coding（卡片编码：单选一条文献时显示）
+		let cardCodingMenu = Zotero.ZotCard.Doms.createMainWindowXULElement('menuitem', {
+			id: `${root}-zotcard-card-coding-menuitem`,
+			command: this.itemCardCoding,
+			parent: mnupopupZotCard
+		});
+		cardCodingMenu.setAttribute('label', Zotero.ZotCard.L10ns.getString('zotero-zotcard-card-coding-title'));
+		cardCodingMenu.hidden = !(onlySimple && onlyRegular);
+		if (!cardCodingMenu.hidden) {
+			zotcardMenu.disabled = false;
+		}
+
 
 		// Viewer
 		// card-viewer
@@ -1099,6 +1111,19 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		});
 		
 		Zotero.ZotCard.Dialogs.openCardImageCompression(items);
+	},
+
+	itemCardCoding() {
+		let selectedItems = Zotero.ZotCard.Items.getSelectedItems('regular');
+		if (!selectedItems || selectedItems.length !== 1) {
+			Zotero.ZotCard.Messages.warning(undefined, '请选中一条文献（卡片编码仅支持单选）');
+			return;
+		}
+		let item = selectedItems[0];
+		Zotero.ZotCard.Dialogs.openCardCoding([{
+			type: Zotero.ZotCard.Consts.cardManagerType.item,
+			id: item.id
+		}]);
 	},
 
 	itemCardPrint() {

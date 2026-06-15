@@ -7,6 +7,7 @@ zotero-zotcard-card-statistics-title = 字数统计
 zotero-zotcard-card-report-title = 卡片报告
 zotero-zotcard-card-replace-title = 卡片替换
 zotero-zotcard-card-image-compression-title = 卡片图片压缩
+zotero-zotcard-card-coding-title = 卡片编码
 
 zotero-zotcard-card-print-title = 卡片打印
 zotero-zotcard-card-edit-title = 独立窗口编辑
