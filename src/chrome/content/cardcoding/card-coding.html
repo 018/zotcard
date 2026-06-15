@@ -47,6 +47,7 @@
 			<span class="title">卡片编码（卢曼式）</span>
 			<span>
 				<el-button size="small" @click="handleClose">取消</el-button>
+				<el-button size="small" :disabled="saving" @click="handleClear">清除编码</el-button>
 				<el-button size="small" type="primary" :loading="saving" @click="handleSave">保存编码</el-button>
 			</span>
 		</div>

@@ -1,5 +1,5 @@
 const { createApp, ref, reactive, toRaw, computed, nextTick } = Vue;
-const { ElMessage } = ElementPlus;
+const { ElMessage, ElMessageBox } = ElementPlus;
 
 // 读取打开对话框时传入的参数：io.dataIn = [{type, id}]，取其中的父文献条目
 var io = window.arguments && window.arguments.length > 0 ? window.arguments[0] : undefined;
@@ -32,12 +32,17 @@ window.onload = function () {
         return s;
       }
 
-      // 生成某父节点下第 idx(从1起) 个子节点的编码
-      function childCode(parent, idx) {
-        if (!parent) return String(idx);                       // 根级：1,2,3...
+      // 数字按同级数量零填充，保证字典序排序正确（如 12 张卡 -> 01..12）
+      function pad(n, count) {
+        return String(n).padStart(String(count).length, '0');
+      }
+
+      // 生成某父节点下第 idx(从1起) 个子节点的编码；count 为同级节点总数
+      function childCode(parent, idx, count) {
+        if (!parent) return pad(idx, count);                   // 根级：数字（零填充）
         return lastType(parent) === 'num'
           ? parent + numToAlpha(idx)                           // 父末段为数字 -> 子用字母
-          : parent + String(idx);                              // 父末段为字母 -> 子用数字
+          : parent + pad(idx, count);                          // 父末段为字母 -> 子用数字（零填充）
       }
 
       // 从标题前导解析既有编码：'1a1 概念卡' -> '1a1'
@@ -67,7 +72,7 @@ window.onload = function () {
       // 递归给整棵树赋编码（用于预览与保存）
       function assignCodes(nodes, parent) {
         nodes.forEach((node, i) => {
-          node.code = childCode(parent, i + 1);
+          node.code = childCode(parent, i + 1, nodes.length);
           if (node.children && node.children.length) assignCodes(node.children, node.code);
         });
       }
@@ -117,8 +122,8 @@ window.onload = function () {
       function allowDrop() { return true; } // 允许 前/后/内部
       function onDrop() { assignCodes(tree, ''); } // 拖拽后重算预览编码
 
-      // ===== 写入编码到笔记标题 =====
-      async function writeCode(noteID, code) {
+      // ===== 写入/清除编码到笔记标题（code 为空字符串则仅清除）=====
+      async function applyCode(noteID, code) {
         let note = Zotero.Items.get(noteID);
         let html = note.getNote();
         let doc = new DOMParser().parseFromString(html, 'text/html');
@@ -136,27 +141,35 @@ window.onload = function () {
         if (titleEl.firstChild && titleEl.firstChild.nodeType === 3) {
           titleEl.firstChild.textContent = titleEl.firstChild.textContent.replace(/^\s*\d+(?:[a-z]+\d*)*\s+/i, '');
         }
-        // 在标题最前插入新编码
-        let span = doc.createElement('span');
-        span.className = 'zotcard-code';
-        span.textContent = code;
-        titleEl.insertBefore(doc.createTextNode(' '), titleEl.firstChild);
-        titleEl.insertBefore(span, titleEl.firstChild);
+        // 写入新编码（code 非空时）
+        if (code) {
+          let span = doc.createElement('span');
+          span.className = 'zotcard-code';
+          span.textContent = code;
+          titleEl.insertBefore(doc.createTextNode(' '), titleEl.firstChild);
+          titleEl.insertBefore(span, titleEl.firstChild);
+        }
 
         note.setNote(doc.body.innerHTML);
         await note.saveTx();
+      }
+
+      // 收集树中所有节点（深度优先）
+      function flatten() {
+        let flat = [];
+        (function collect(nodes) {
+          nodes.forEach(n => { flat.push(n); if (n.children) collect(n.children); });
+        })(tree);
+        return flat;
       }
 
       async function handleSave() {
         saving.value = true;
         try {
           assignCodes(tree, '');
-          let flat = [];
-          (function collect(nodes) {
-            nodes.forEach(n => { flat.push(n); if (n.children) collect(n.children); });
-          })(tree);
+          let flat = flatten();
           for (let n of flat) {
-            await writeCode(n.id, n.code);
+            await applyCode(n.id, n.code);
           }
           ElMessage && ElMessage.success('已写入 ' + flat.length + ' 张卡片的编码');
           setTimeout(() => window.close(), 800);
@@ -168,11 +181,35 @@ window.onload = function () {
         }
       }
 
+      async function handleClear() {
+        try {
+          await ElMessageBox.confirm('确定清除该文献下所有卡片的编码吗？', '清除编码', {
+            type: 'warning', confirmButtonText: '清除', cancelButtonText: '取消'
+          });
+        } catch (e) {
+          return; // 用户取消
+        }
+        saving.value = true;
+        try {
+          let flat = flatten();
+          for (let n of flat) {
+            await applyCode(n.id, '');
+          }
+          ElMessage && ElMessage.success('已清除 ' + flat.length + ' 张卡片的编码');
+          buildTree(); // 重建为无编码的平铺
+        } catch (e) {
+          Zotero.ZotCard.Logger.log(e);
+          ElMessage && ElMessage.error('清除失败：' + e);
+        } finally {
+          saving.value = false;
+        }
+      }
+
       function handleClose() { window.close(); }
 
       buildTree();
 
-      return { tree, saving, allowDrop, onDrop, handleSave, handleClose };
+      return { tree, saving, allowDrop, onDrop, handleSave, handleClear, handleClose };
     }
   });
 };
