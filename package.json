@@ -1,0 +1,27 @@
+{
+  "name": "zotcard",
+  "version": "3.3.0",
+  "type": "module",
+  "description": "ZotCard - 卡片笔记法提效工具（Zotero 插件）",
+  "homepage": "https://github.com/018/zotcard",
+  "author": "018",
+  "license": "MIT",
+  "config": {
+    "addonName": "ZotCard",
+    "addonID": "zotcard@zotero.org",
+    "addonRef": "zotcard",
+    "addonInstance": "ZotCard",
+    "prefsPrefix": "extensions.zotcard"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/018/zotcard.git"
+  },
+  "scripts": {
+    "start": "zotero-plugin serve",
+    "build": "zotero-plugin build"
+  },
+  "devDependencies": {
+    "zotero-plugin-scaffold": "^0.8.2"
+  }
+}

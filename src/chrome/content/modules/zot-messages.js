@@ -3,7 +3,7 @@ if (!Zotero.ZotCard.Messages) Zotero.ZotCard.Messages = {};
 
 Zotero.ZotCard.Messages = Object.assign(Zotero.ZotCard.Messages, {
 	init() {
-    Components.utils.import("resource://gre/modules/Services.jsm");
+    // Zotero 8 (FF115+) 已移除 Services.jsm，Services 现为全局对象，无需导入。
 		Zotero.ZotCard.Logger.log('Zotero.ZotCard.Messages inited.');
 	},
 
