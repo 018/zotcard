@@ -16,7 +16,7 @@ window.onload = function () {
       const previewWidth = ref(380); // 右侧预览区宽度（可拖拽）
       const ctxMenu = reactive({ visible: false, x: 0, y: 0 }); // 右键菜单
       const treeRef = ref(null);     // el-tree 组件引用（用于展开/折叠）
-      let parentItemId = null;       // 父文献条目 id（新建卡片时作为父级）
+      let scope = null;              // 当前编码范围 {type, id}：item（单文献）或 collection（聚合）
 
       // ===== 卢曼编码工具函数 =====
 
@@ -99,17 +99,40 @@ window.onload = function () {
       function recompute() { assignCodes(tree, ''); }
       function setAllEnabled(val) { flatten().forEach(n => n.enabled = val); recompute(); }
 
-      // ===== 加载：子笔记 -> 树 =====
+      // 收集分类（含子分类）下的所有卡片笔记 id：独立笔记 + 各文献的子笔记
+      function collectFromCollection(coll, ids) {
+        coll.getChildItems().forEach(it => {
+          if (it.isNote && it.isNote()) ids.push(it.id);
+          else if (it.isRegularItem && it.isRegularItem()) ids.push(...it.getNotes());
+        });
+        (coll.getChildCollections ? coll.getChildCollections() : []).forEach(sub => collectFromCollection(sub, ids));
+      }
+      // 按范围加载卡片笔记 id
+      function loadNoteIds(target) {
+        let ids = [];
+        if (!target) return ids;
+        if (target.type === 'collection') {
+          let coll = Zotero.Collections.get(target.id);
+          if (coll) collectFromCollection(coll, ids);
+        } else if (target.type === 'note') {
+          ids = [target.id];
+        } else {
+          let it = Zotero.Items.get(target.id); // item：该文献的子笔记
+          if (it) ids = it.getNotes();
+        }
+        return Array.from(new Set(ids)); // 去重（同一卡片可能在多个子分类）
+      }
+
+      // ===== 加载：卡片 -> 树 =====
       function buildTree() {
         let dataIn = io && io.dataIn;
         let target = Array.isArray(dataIn) ? dataIn[0] : dataIn;
         if (!target) return;
-        let item = Zotero.Items.get(target.id);
-        if (!item) return;
-        parentItemId = target.id;
+        scope = target;
+        let noteIds = loadNoteIds(target);
 
         let detectedPrefix = '', detectedSep = '';
-        let cards = item.getNotes().map(id => {
+        let cards = noteIds.map(id => {
           let note = Zotero.Items.get(id);
           let info = splitTitle(note.getNoteTitle());
           if (info.code && info.prefix && !detectedPrefix) {
@@ -271,12 +294,20 @@ window.onload = function () {
         }
         return '<div data-schema-version="9">' + clone.outerHTML + '</div>';
       }
-      // 创建一条子笔记（标题格式参照 refId 卡片），返回 { id, title }
+      // 创建一条卡片笔记（标题格式参照 refId 卡片），返回 { id, title }
+      // - 分类聚合：建为独立笔记并加入该分类
+      // - 单文献：建为该文献的子笔记
       async function createNote(refId) {
-        let parent = Zotero.Items.get(parentItemId);
         let note = new Zotero.Item('note');
-        note.parentKey = parent.key;
-        note.libraryID = parent.libraryID;
+        if (scope && scope.type === 'collection') {
+          let coll = Zotero.Collections.get(scope.id);
+          note.libraryID = coll.libraryID;
+          note.addToCollection(scope.id);
+        } else {
+          let parent = Zotero.Items.get(scope.id);
+          note.parentKey = parent.key;
+          note.libraryID = parent.libraryID;
+        }
         note.setNote(buildContentFrom(refId));
         let id = await note.saveTx();
         let nid = typeof id === 'number' ? id : note.id;

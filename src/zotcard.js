@@ -159,6 +159,16 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		zotcardCardReport.setAttribute('label', Zotero.ZotCard.L10ns.getString('zotero-zotcard-card-report-title'));
 		this.storeAddedElement(zotcardCardReport);
 		zotcardCardReport.hidden = !allowTypes.includes(type);
+
+		// 卡片编码（聚合）：把该分类下所有卡片汇成一棵卢曼树（目前仅支持分类）
+		let zotcardCardCoding = Zotero.ZotCard.Doms.createMainWindowXULElement('menuitem', {
+			id: `${root}-zotcard-card-coding`,
+			command: this.collectionCardCoding,
+			parent: zotero_collectionmenu,
+		});
+		zotcardCardCoding.setAttribute('label', Zotero.ZotCard.L10ns.getString('zotero-zotcard-card-coding-aggregate-title'));
+		this.storeAddedElement(zotcardCardCoding);
+		zotcardCardCoding.hidden = type !== 'collection';
 	},
 
 	_createMenuItem({parent, after}, type, onlyRegular, onlySimple) {
@@ -978,6 +988,18 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		}
 		
 		Zotero.ZotCard.Dialogs.openCardManagerTab(items);
+	},
+
+	collectionCardCoding() {
+		if (Zotero.getMainWindow().ZoteroPane.getCollectionTreeRow().type !== 'collection') {
+			Zotero.ZotCard.Messages.warning(undefined, '聚合编码目前仅支持在分类上使用');
+			return;
+		}
+		let collection = Zotero.getMainWindow().ZoteroPane.getSelectedCollection();
+		Zotero.ZotCard.Dialogs.openCardCoding([{
+			type: Zotero.ZotCard.Consts.cardManagerType.collection,
+			id: collection.id
+		}]);
 	},
 
 	collectionCardReport() {

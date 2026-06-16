@@ -8,6 +8,7 @@ zotero-zotcard-card-report-title = Card Report
 zotero-zotcard-card-replace-title = Card Replace
 zotero-zotcard-card-image-compression-title = Card Image Compression
 zotero-zotcard-card-coding-title = Card Coding
+zotero-zotcard-card-coding-aggregate-title = Card Coding (Aggregate)
 
 zotero-zotcard-card-print-title = Card Print
 zotero-zotcard-card-edit-title = Edit in a Separate Window
