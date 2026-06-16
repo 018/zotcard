@@ -102,7 +102,13 @@
 				<div class="tree-tools">
 					<el-button size="small" icon="Plus" @click="addSibling">新建同级</el-button>
 					<el-button size="small" icon="Plus" :disabled="!selected" @click="addChild">新建下级</el-button>
-					<span class="hint" v-if="!selected">先点选一张卡片，可在其旁/其下新建</span>
+					<span style="flex: 1"></span>
+					<el-button size="small" @click="expandAll">展开全部</el-button>
+					<el-button size="small" @click="collapseAll">折叠全部</el-button>
+					<span class="hint">展开到</span>
+					<el-button size="small" link @click="expandToLevel(2)">2级</el-button>
+					<el-button size="small" link @click="expandToLevel(3)">3级</el-button>
+					<el-button size="small" link @click="expandToLevel(4)">4级</el-button>
 				</div>
 				<div class="main">
 					<el-empty v-if="tree.length === 0" description="该文献下没有卡片笔记，可点“新建同级”创建"></el-empty>
@@ -113,6 +119,7 @@
 						draggable
 						default-expand-all
 						:expand-on-click-node="false"
+						ref="treeRef"
 						:allow-drop="allowDrop"
 						@node-drop="onDrop"
 						@node-click="onNodeClick"
@@ -151,6 +158,9 @@
 		<ul class="ctx-menu" v-show="ctxMenu.visible" :style="{ left: ctxMenu.x + 'px', top: ctxMenu.y + 'px' }" @click.stop>
 			<li @click="ctxAddSibling">新建同级</li>
 			<li @click="ctxAddChild">新建下级</li>
+			<li class="sep"></li>
+			<li @click="ctxExpandSubtree">展开此节点(含子孙)</li>
+			<li @click="ctxCollapseSubtree">折叠此节点(含子孙)</li>
 			<li class="sep"></li>
 			<li @click="ctxOpenEditor">在编辑器中打开</li>
 		</ul>

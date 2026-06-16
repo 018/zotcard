@@ -15,6 +15,7 @@ window.onload = function () {
       const previewHtml = ref('');   // 预览内容 HTML
       const previewWidth = ref(380); // 右侧预览区宽度（可拖拽）
       const ctxMenu = reactive({ visible: false, x: 0, y: 0 }); // 右键菜单
+      const treeRef = ref(null);     // el-tree 组件引用（用于展开/折叠）
       let parentItemId = null;       // 父文献条目 id（新建卡片时作为父级）
 
       // ===== 卢曼编码工具函数 =====
@@ -152,6 +153,29 @@ window.onload = function () {
       function allowDrop() { return true; } // 允许 前/后/内部
       function onDrop() { assignCodes(tree, ''); } // 拖拽后重算预览编码
 
+      // ===== 展开 / 折叠 =====
+      function setExpandedAll(val) {
+        let store = treeRef.value && treeRef.value.store;
+        if (!store) return;
+        Object.values(store.nodesMap).forEach(n => { n.expanded = val; });
+      }
+      function expandAll() { setExpandedAll(true); }
+      function collapseAll() { setExpandedAll(false); }
+      // 展开到第 level 级（只显示前 level 层）
+      function expandToLevel(level) {
+        let store = treeRef.value && treeRef.value.store;
+        if (!store) return;
+        Object.values(store.nodesMap).forEach(n => { n.expanded = n.level < level; });
+      }
+      // 展开/折叠指定节点的整个子树（含自身与所有子孙）
+      function setSubtreeExpanded(id, val) {
+        let store = treeRef.value && treeRef.value.store;
+        if (!store) return;
+        let node = store.nodesMap[id];
+        if (!node) return;
+        (function walk(n) { n.expanded = val; (n.childNodes || []).forEach(walk); })(node);
+      }
+
       // ===== 预览 / 编辑 =====
       function loadPreview(id) {
         let note = Zotero.Items.get(id);
@@ -174,6 +198,8 @@ window.onload = function () {
       async function ctxAddSibling() { hideCtx(); await addSibling(); }
       async function ctxAddChild() { hideCtx(); await addChild(); }
       function ctxOpenEditor() { hideCtx(); openEditor(); }
+      function ctxExpandSubtree() { hideCtx(); if (selected.value) setSubtreeExpanded(selected.value.id, true); }
+      function ctxCollapseSubtree() { hideCtx(); if (selected.value) setSubtreeExpanded(selected.value.id, false); }
       function refreshSelected() {
         if (!selected.value) return;
         loadPreview(selected.value.id);
@@ -400,7 +426,7 @@ window.onload = function () {
         if (ctxMenu.visible && menuEl && menuEl.contains(e.target)) e.preventDefault();
       }, true);
 
-      return { tree, saving, groupPrefix, groupSep, selected, previewHtml, previewWidth, ctxMenu, allowDrop, onDrop, onNodeClick, onContextMenu, hideCtx, ctxAddSibling, ctxAddChild, ctxOpenEditor, refreshSelected, openEditor, startResize, addSibling, addChild, recompute, setAllEnabled, handleSave, handleClear, handleClose };
+      return { tree, treeRef, saving, groupPrefix, groupSep, selected, previewHtml, previewWidth, ctxMenu, allowDrop, onDrop, onNodeClick, onContextMenu, hideCtx, ctxAddSibling, ctxAddChild, ctxOpenEditor, ctxExpandSubtree, ctxCollapseSubtree, refreshSelected, openEditor, startResize, addSibling, addChild, expandAll, collapseAll, expandToLevel, recompute, setAllEnabled, handleSave, handleClear, handleClose };
     }
   });
 };
