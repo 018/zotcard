@@ -9,6 +9,8 @@ window.onload = function () {
     setup() {
       const tree = reactive([]);
       const saving = ref(false);
+      const groupPrefix = ref('');   // 组号，如 S32（留空则无组号）
+      const groupSep = ref('/');     // 组号与卢曼码之间的分隔符
 
       // ===== 卢曼编码工具函数 =====
 
@@ -45,17 +47,18 @@ window.onload = function () {
           : parent + pad(idx, count);                          // 父末段为字母 -> 子用数字（零填充）
       }
 
-      // 从标题前导解析既有编码。编码后可紧跟任意“非字母数字”字符（## / 空格 / . / 、 等），
-      // 末尾负向断言避免把 '3D'、'2024' 这类内容误判为编码。
-      // 例：'1a1## 概念卡' -> '1a1'，'1 概念卡' -> '1'，'## 概念卡'/'3D打印' -> ''
-      function parseCode(title) {
-        let m = (title || '').match(/^\s*(\d+(?:[a-z]+\d*)*)(?![A-Za-z0-9])/);
-        return m ? m[1] : '';
-      }
-
-      // 去掉标题前导编码（含其后的空白），得到干净标题
-      function stripCode(title) {
-        return (title || '').replace(/^\s*\d+(?:[a-z]+\d*)*(?![A-Za-z0-9])\s*/, '').trim();
+      // 把标题前导拆成 { 组号 prefix, 分隔符 sep, 卢曼码 code, 干净标题 rest }。
+      // 形态一：组号+分隔符+卢曼码，如 'S32/1a1## 概念卡' -> {S32, /, 1a1, '## 概念卡'}
+      //   （组号为非空白且不含分隔符，避免把正文里的 1/2 之类误判）
+      // 形态二：纯卢曼码（编码后可紧跟任意非字母数字，如 '1a1## 概念卡' -> {'', '', 1a1, ...}）
+      //   末尾负向断言避免把 '3D'、'2024' 误判为编码。
+      function splitTitle(title) {
+        let t = title || '';
+        let m = t.match(/^\s*([^\s/.\-:_]+)([/.\-:_])(\d+(?:[a-z]+\d*)*)(?![A-Za-z0-9])\s*/);
+        if (m) return { prefix: m[1], sep: m[2], code: m[3], rest: t.slice(m[0].length).trim() };
+        m = t.match(/^\s*(\d+(?:[a-z]+\d*)*)(?![A-Za-z0-9])\s*/);
+        if (m) return { prefix: '', sep: '', code: m[1], rest: t.slice(m[0].length).trim() };
+        return { prefix: '', sep: '', code: '', rest: t.trim() };
       }
 
       // 比较两个卢曼编码（按段；数字按数值，字母按字典序）
@@ -98,19 +101,23 @@ window.onload = function () {
         let item = Zotero.Items.get(target.id);
         if (!item) return;
 
+        let detectedPrefix = '', detectedSep = '';
         let cards = item.getNotes().map(id => {
           let note = Zotero.Items.get(id);
-          let rawTitle = note.getNoteTitle();
-          let oc = parseCode(rawTitle);
+          let info = splitTitle(note.getNoteTitle());
+          if (info.code && info.prefix && !detectedPrefix) {
+            detectedPrefix = info.prefix; detectedSep = info.sep;   // 回填已有组号
+          }
           return {
             id: id,
-            title: stripCode(rawTitle) || '(无标题)',
-            oldCode: oc,
-            enabled: !!oc,        // 已有编码的默认参与，其余默认不参与
+            title: info.rest || '(无标题)',
+            oldCode: info.code,
+            enabled: !!info.code,   // 已有编码的默认参与，其余默认不参与
             code: '',
             children: []
           };
         });
+        if (detectedPrefix) { groupPrefix.value = detectedPrefix; groupSep.value = detectedSep; }
 
         let hasCodes = cards.some(c => c.oldCode);
         if (hasCodes) {
@@ -154,9 +161,9 @@ window.onload = function () {
           e.remove();
           if (n && n.nodeType === 3) n.textContent = n.textContent.replace(/^\s+/, '');
         });
-        // 移除首文本节点的前导明文编码（支持编码后无空格，如 '1a1##...'）
+        // 移除首文本节点的前导明文编码（支持可选的“组号+分隔符”前缀，以及编码后无空格，如 'S32/1a1##...'）
         if (titleEl.firstChild && titleEl.firstChild.nodeType === 3) {
-          titleEl.firstChild.textContent = titleEl.firstChild.textContent.replace(/^\s*\d+(?:[a-z]+\d*)*(?![A-Za-z0-9])\s*/, '');
+          titleEl.firstChild.textContent = titleEl.firstChild.textContent.replace(/^\s*(?:[^\s/.\-:_]+[/.\-:_])?\d+(?:[a-z]+\d*)*(?![A-Za-z0-9])\s*/, '');
         }
         // 写入新编码（code 非空时）
         if (code) {
@@ -180,13 +187,19 @@ window.onload = function () {
         return flat;
       }
 
+      // 卢曼码加上组号前缀：'1a1' -> 'S32/1a1'（无组号或无编码时原样/为空）
+      function fullCode(code) {
+        if (!code) return '';
+        return (groupPrefix.value ? groupPrefix.value + groupSep.value : '') + code;
+      }
+
       async function handleSave() {
         saving.value = true;
         try {
           assignCodes(tree, '');
           let flat = flatten();
           for (let n of flat) {
-            await applyCode(n.id, n.code);
+            await applyCode(n.id, fullCode(n.code));
           }
           ElMessage && ElMessage.success('已写入 ' + flat.length + ' 张卡片的编码');
           setTimeout(() => window.close(), 800);
@@ -226,7 +239,7 @@ window.onload = function () {
 
       buildTree();
 
-      return { tree, saving, allowDrop, onDrop, recompute, setAllEnabled, handleSave, handleClear, handleClose };
+      return { tree, saving, groupPrefix, groupSep, allowDrop, onDrop, recompute, setAllEnabled, handleSave, handleClear, handleClose };
     }
   });
 };

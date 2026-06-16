@@ -29,6 +29,8 @@
 		}
 		.header .title { font-weight: bold; }
 		.tip { color: var(--el-text-color-secondary); padding: 8px 12px; }
+		.group-row { display: flex; align-items: center; gap: 8px; padding: 0 12px 8px 12px; }
+		.group-row .preview-hint { color: var(--el-color-primary); font-family: monospace; }
 		.main { padding: 8px 12px 60px 12px; }
 		.tree-node { display: flex; align-items: center; gap: 8px; }
 		.tree-node .code {
@@ -56,6 +58,13 @@
 			</span>
 		</div>
 		<div class="tip">勾选要参与编码的卡片；拖拽调整顺序，拖到某卡片“内部”使其成为子卡片（分支）。保存后编码（1 / 1a / 1a1 …）写入卡片标题前缀（主界面据此排序）；未勾选的卡片将被清除编码。</div>
+		<div class="group-row">
+			<span>组号</span>
+			<el-input v-model="groupPrefix" size="small" placeholder="如 S32（留空=无组号）" style="width: 160px"></el-input>
+			<span>分隔符</span>
+			<el-input v-model="groupSep" size="small" maxlength="3" style="width: 56px"></el-input>
+			<span class="preview-hint" v-if="groupPrefix">效果：{{ groupPrefix + groupSep }}1a1</span>
+		</div>
 		<div class="main">
 			<el-empty v-if="tree.length === 0" description="该文献下没有卡片笔记"></el-empty>
 			<el-tree
@@ -71,7 +80,7 @@
 				<template #default="{ node, data }">
 					<span class="tree-node">
 						<el-checkbox v-model="data.enabled" @change="recompute" @click.stop></el-checkbox>
-						<span class="code" v-if="data.enabled">{{ data.code }}</span>
+						<span class="code" v-if="data.enabled">{{ (groupPrefix ? groupPrefix + groupSep : '') + data.code }}</span>
 						<span class="code code-off" v-else>—</span>
 						<span class="ctitle">{{ data.title }}</span>
 					</span>
