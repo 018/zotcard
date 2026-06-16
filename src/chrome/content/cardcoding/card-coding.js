@@ -147,8 +147,15 @@ window.onload = function () {
       function onDrop() { assignCodes(tree, ''); } // 拖拽后重算预览编码
 
       // ===== 写入/清除编码到笔记标题（code 为空字符串则仅清除）=====
+      // 返回 true 表示有改动并已保存；false 表示当前编码已正确、无需改动（不触碰修改时间）。
       async function applyCode(noteID, code) {
         let note = Zotero.Items.get(noteID);
+
+        // 先比较当前编码与目标编码，一致则跳过，避免无谓写入/改动修改时间
+        let cur = splitTitle(note.getNoteTitle());
+        let curFull = cur.code ? ((cur.prefix ? cur.prefix + cur.sep : '') + cur.code) : '';
+        if (curFull === (code || '')) return false;
+
         let html = note.getNote();
         let doc = new DOMParser().parseFromString(html, 'text/html');
 
@@ -176,6 +183,7 @@ window.onload = function () {
 
         note.setNote(doc.body.innerHTML);
         await note.saveTx();
+        return true;
       }
 
       // 收集树中所有节点（深度优先）
@@ -198,11 +206,12 @@ window.onload = function () {
         try {
           assignCodes(tree, '');
           let flat = flatten();
+          let changed = 0;
           for (let n of flat) {
-            await applyCode(n.id, fullCode(n.code));
+            if (await applyCode(n.id, fullCode(n.code))) changed++;
           }
-          ElMessage && ElMessage.success('已写入 ' + flat.length + ' 张卡片的编码');
-          setTimeout(() => window.close(), 800);
+          ElMessage && ElMessage.success(changed > 0 ? ('已更新 ' + changed + ' 张卡片的编码') : '无需改动（编码已是最新）');
+          // 保存后保持面板打开，方便继续调整（不再自动关闭）
         } catch (e) {
           Zotero.ZotCard.Logger.log(e);
           ElMessage && ElMessage.error('写入失败：' + e);
@@ -222,10 +231,11 @@ window.onload = function () {
         saving.value = true;
         try {
           let flat = flatten();
+          let changed = 0;
           for (let n of flat) {
-            await applyCode(n.id, '');
+            if (await applyCode(n.id, '')) changed++;
           }
-          ElMessage && ElMessage.success('已清除 ' + flat.length + ' 张卡片的编码');
+          ElMessage && ElMessage.success(changed > 0 ? ('已清除 ' + changed + ' 张卡片的编码') : '没有需要清除的编码');
           buildTree(); // 重建为无编码的平铺
         } catch (e) {
           Zotero.ZotCard.Logger.log(e);
