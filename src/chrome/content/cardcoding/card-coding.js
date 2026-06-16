@@ -11,6 +11,9 @@ window.onload = function () {
       const saving = ref(false);
       const groupPrefix = ref('');   // 组号，如 S32（留空则无组号）
       const groupSep = ref('/');     // 组号与卢曼码之间的分隔符
+      const selected = ref(null);    // 当前预览的卡片节点
+      const previewHtml = ref('');   // 预览内容 HTML
+      const previewWidth = ref(380); // 右侧预览区宽度（可拖拽）
 
       // ===== 卢曼编码工具函数 =====
 
@@ -146,6 +149,48 @@ window.onload = function () {
       function allowDrop() { return true; } // 允许 前/后/内部
       function onDrop() { assignCodes(tree, ''); } // 拖拽后重算预览编码
 
+      // ===== 预览 / 编辑 =====
+      function loadPreview(id) {
+        let note = Zotero.Items.get(id);
+        if (!note) { previewHtml.value = ''; return; }
+        let html = note.getNote() || '';
+        // 让卡片里的附件图片能显示
+        previewHtml.value = html.replace(/data-attachment-key="(.*?)"/g, 'data-attachment-key="$1" src="zotero://attachment/library/items/$1"');
+      }
+      function onNodeClick(data) { selected.value = data; loadPreview(data.id); }
+      function refreshSelected() {
+        if (!selected.value) return;
+        loadPreview(selected.value.id);
+        // 同步刷新标题（可能刚在编辑器里改过）
+        let note = Zotero.Items.get(selected.value.id);
+        if (note) selected.value.title = splitTitle(note.getNoteTitle()).rest || '(无标题)';
+      }
+      function openEditor() {
+        if (!selected.value) return;
+        try {
+          Zotero.getMainWindow().ZoteroPane.openNoteWindow(selected.value.id);
+        } catch (e) {
+          Zotero.ZotCard.Logger.log(e);
+          ElMessage && ElMessage.error('打开编辑器失败：' + e);
+        }
+      }
+      // 拖拽分隔条调整右侧预览宽度
+      function startResize(e) {
+        e.preventDefault();
+        let startX = e.clientX;
+        let startW = previewWidth.value;
+        function onMove(ev) {
+          let w = startW - (ev.clientX - startX);   // 分隔条左移 -> 预览变宽
+          previewWidth.value = Math.max(220, Math.min(w, window.innerWidth - 260));
+        }
+        function onUp() {
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+        }
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      }
+
       // ===== 写入/清除编码到笔记标题（code 为空字符串则仅清除）=====
       // 返回 true 表示有改动并已保存；false 表示当前编码已正确、无需改动（不触碰修改时间）。
       async function applyCode(noteID, code) {
@@ -249,7 +294,7 @@ window.onload = function () {
 
       buildTree();
 
-      return { tree, saving, groupPrefix, groupSep, allowDrop, onDrop, recompute, setAllEnabled, handleSave, handleClear, handleClose };
+      return { tree, saving, groupPrefix, groupSep, selected, previewHtml, previewWidth, allowDrop, onDrop, onNodeClick, refreshSelected, openEditor, startResize, recompute, setAllEnabled, handleSave, handleClear, handleClose };
     }
   });
 };

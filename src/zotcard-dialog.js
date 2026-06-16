@@ -224,7 +224,7 @@ Zotero.ZotCard.Dialogs = Object.assign(Zotero.ZotCard.Dialogs, {
 		let io = {
 			dataIn: items
 		}
-		let win = Zotero.getMainWindow().openDialog('chrome://zotcard/content/cardcoding/card-coding.html', 'card-coding', 'chrome,menubar=no,toolbar=no,dialog=no,resizable,centerscreen,height=600,width=480', io);
+		let win = Zotero.getMainWindow().openDialog('chrome://zotcard/content/cardcoding/card-coding.html', 'card-coding', 'chrome,menubar=no,toolbar=no,dialog=no,resizable,centerscreen,height=640,width=900', io);
 		win.focus();
 	},
 });
