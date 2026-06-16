@@ -14,6 +14,8 @@ window.onload = function () {
       const selected = ref(null);    // 当前预览的卡片节点
       const previewHtml = ref('');   // 预览内容 HTML
       const previewWidth = ref(380); // 右侧预览区宽度（可拖拽）
+      const ctxMenu = reactive({ visible: false, x: 0, y: 0 }); // 右键菜单
+      let parentItemId = null;       // 父文献条目 id（新建卡片时作为父级）
 
       // ===== 卢曼编码工具函数 =====
 
@@ -103,6 +105,7 @@ window.onload = function () {
         if (!target) return;
         let item = Zotero.Items.get(target.id);
         if (!item) return;
+        parentItemId = target.id;
 
         let detectedPrefix = '', detectedSep = '';
         let cards = item.getNotes().map(id => {
@@ -158,6 +161,19 @@ window.onload = function () {
         previewHtml.value = html.replace(/data-attachment-key="(.*?)"/g, 'data-attachment-key="$1" src="zotero://attachment/library/items/$1"');
       }
       function onNodeClick(data) { selected.value = data; loadPreview(data.id); }
+      // 右键卡片：选中它并在光标处弹出菜单
+      function onContextMenu(event, data) {
+        event.preventDefault();
+        selected.value = data;
+        loadPreview(data.id);
+        ctxMenu.x = event.clientX;
+        ctxMenu.y = event.clientY;
+        ctxMenu.visible = true;
+      }
+      function hideCtx() { ctxMenu.visible = false; }
+      async function ctxAddSibling() { hideCtx(); await addSibling(); }
+      async function ctxAddChild() { hideCtx(); await addChild(); }
+      function ctxOpenEditor() { hideCtx(); openEditor(); }
       function refreshSelected() {
         if (!selected.value) return;
         loadPreview(selected.value.id);
@@ -189,6 +205,85 @@ window.onload = function () {
         }
         document.addEventListener('mousemove', onMove);
         document.addEventListener('mouseup', onUp);
+      }
+
+      // ===== 新建卡片（同级 / 下级）=====
+      function escapeHtml(s) {
+        return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      }
+      function makeNode(id, title) {
+        return { id: id, title: title, oldCode: '', enabled: true, code: '', children: [] };
+      }
+      // 在树中定位某 id 节点：返回 { siblings(所在数组), index, node }
+      function findInTree(id, nodes) {
+        for (let i = 0; i < nodes.length; i++) {
+          if (nodes[i].id === id) return { siblings: nodes, index: i, node: nodes[i] };
+          if (nodes[i].children && nodes[i].children.length) {
+            let r = findInTree(id, nodes[i].children);
+            if (r) return r;
+          }
+        }
+        return null;
+      }
+      // 根据参考卡片生成新笔记内容：克隆其标题元素（保留格式如 h1/##），去掉其中的编码
+      function buildContentFrom(refId) {
+        if (!refId) return '<div data-schema-version="9"><p>新卡片</p></div>';
+        let refNote = Zotero.Items.get(refId);
+        let html = refNote ? refNote.getNote() : '';
+        let doc = new DOMParser().parseFromString(html, 'text/html');
+        let titleEl = doc.body.querySelector('h1,h2,h3,h4,h5,h6,p');
+        if (!titleEl) return '<div data-schema-version="9"><p>新卡片</p></div>';
+        let clone = titleEl.cloneNode(true);
+        // 去掉编码 span
+        clone.querySelectorAll('span.zotcard-code').forEach(e => {
+          let n = e.nextSibling; e.remove();
+          if (n && n.nodeType === 3) n.textContent = n.textContent.replace(/^\s+/, '');
+        });
+        // 去掉首文本节点前导明文编码（含可选组号前缀）
+        if (clone.firstChild && clone.firstChild.nodeType === 3) {
+          clone.firstChild.textContent = clone.firstChild.textContent.replace(/^\s*(?:[^\s/.\-:_]+[/.\-:_])?\d+(?:[a-z]+\d*)*(?![A-Za-z0-9])\s*/, '');
+        }
+        return '<div data-schema-version="9">' + clone.outerHTML + '</div>';
+      }
+      // 创建一条子笔记（标题格式参照 refId 卡片），返回 { id, title }
+      async function createNote(refId) {
+        let parent = Zotero.Items.get(parentItemId);
+        let note = new Zotero.Item('note');
+        note.parentKey = parent.key;
+        note.libraryID = parent.libraryID;
+        note.setNote(buildContentFrom(refId));
+        let id = await note.saveTx();
+        let nid = typeof id === 'number' ? id : note.id;
+        let title = splitTitle(Zotero.Items.get(nid).getNoteTitle()).rest || '新卡片';
+        return { id: nid, title: title };
+      }
+      function afterAdd(node) {
+        recompute();
+        selected.value = node;
+        loadPreview(node.id);
+      }
+      async function addSibling() {
+        // 以选中卡片为参考；无选中则用默认标题，加到根级末尾
+        let r = await createNote(selected.value ? selected.value.id : null);
+        let node = makeNode(r.id, r.title);
+        if (selected.value) {
+          let f = findInTree(selected.value.id, tree);
+          if (f) f.siblings.splice(f.index + 1, 0, node);
+          else tree.push(node);
+        } else {
+          tree.push(node);
+        }
+        afterAdd(node);
+      }
+      async function addChild() {
+        if (!selected.value) return;
+        let r = await createNote(selected.value.id);
+        let node = makeNode(r.id, r.title);
+        let f = findInTree(selected.value.id, tree);
+        if (!f) { tree.push(node); afterAdd(node); return; }
+        if (!f.node.children) f.node.children = [];
+        f.node.children.push(node);
+        afterAdd(node);
       }
 
       // ===== 写入/清除编码到笔记标题（code 为空字符串则仅清除）=====
@@ -293,8 +388,19 @@ window.onload = function () {
       function handleClose() { window.close(); }
 
       buildTree();
+      // 点击菜单以外的任何地方都关闭右键菜单（捕获阶段，避免被 el-tree 拦截）
+      document.addEventListener('click', (e) => {
+        if (!ctxMenu.visible) return;
+        let menuEl = document.querySelector('.ctx-menu');
+        if (!menuEl || !menuEl.contains(e.target)) ctxMenu.visible = false;
+      }, true);
+      // 滚动 / 再次右键空白也关闭
+      document.addEventListener('contextmenu', (e) => {
+        let menuEl = document.querySelector('.ctx-menu');
+        if (ctxMenu.visible && menuEl && menuEl.contains(e.target)) e.preventDefault();
+      }, true);
 
-      return { tree, saving, groupPrefix, groupSep, selected, previewHtml, previewWidth, allowDrop, onDrop, onNodeClick, refreshSelected, openEditor, startResize, recompute, setAllEnabled, handleSave, handleClear, handleClose };
+      return { tree, saving, groupPrefix, groupSep, selected, previewHtml, previewWidth, ctxMenu, allowDrop, onDrop, onNodeClick, onContextMenu, hideCtx, ctxAddSibling, ctxAddChild, ctxOpenEditor, refreshSelected, openEditor, startResize, addSibling, addChild, recompute, setAllEnabled, handleSave, handleClear, handleClose };
     }
   });
 };

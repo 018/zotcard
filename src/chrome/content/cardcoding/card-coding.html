@@ -36,6 +36,8 @@
 		.tip { color: var(--el-text-color-secondary); padding: 8px 12px; }
 		.group-row { display: flex; align-items: center; gap: 8px; padding: 0 12px 8px 12px; }
 		.group-row .preview-hint { color: var(--el-color-primary); font-family: monospace; }
+		.tree-tools { display: flex; align-items: center; gap: 8px; padding: 0 12px 4px 12px; }
+		.tree-tools .hint { color: var(--el-text-color-placeholder); }
 		.main { padding: 8px 12px; }
 		.tree-node { display: flex; align-items: center; gap: 8px; }
 		.tree-node .code {
@@ -58,6 +60,17 @@
 		.right .pv-title { font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 		.right .pv-body { flex: 1; overflow: auto; padding: 8px 12px; }
 		.right .pv-body img { max-width: 100%; }
+		/* 右键菜单 */
+		.ctx-menu {
+			position: fixed; z-index: 9999; min-width: 130px; margin: 0; padding: 4px 0;
+			list-style: none; background: var(--el-bg-color);
+			border: 1px solid var(--el-border-color); border-radius: 4px;
+			box-shadow: var(--el-box-shadow-light);
+		}
+		.ctx-menu li { padding: 6px 16px; cursor: pointer; white-space: nowrap; }
+		.ctx-menu li:hover { background: var(--el-color-primary-light-9); color: var(--el-color-primary); }
+		.ctx-menu li.sep { padding: 0; margin: 4px 0; height: 0; border-top: 1px solid var(--el-border-color-lighter); cursor: default; }
+		.ctx-menu li.sep:hover { background: transparent; }
 	</style>
 </head>
 
@@ -86,8 +99,13 @@
 					<el-input v-model="groupSep" size="small" maxlength="3" style="width: 56px"></el-input>
 					<span class="preview-hint" v-if="groupPrefix">效果：{{ groupPrefix + groupSep }}1a1</span>
 				</div>
+				<div class="tree-tools">
+					<el-button size="small" icon="Plus" @click="addSibling">新建同级</el-button>
+					<el-button size="small" icon="Plus" :disabled="!selected" @click="addChild">新建下级</el-button>
+					<span class="hint" v-if="!selected">先点选一张卡片，可在其旁/其下新建</span>
+				</div>
 				<div class="main">
-					<el-empty v-if="tree.length === 0" description="该文献下没有卡片笔记"></el-empty>
+					<el-empty v-if="tree.length === 0" description="该文献下没有卡片笔记，可点“新建同级”创建"></el-empty>
 					<el-tree
 						v-else
 						:data="tree"
@@ -98,6 +116,7 @@
 						:allow-drop="allowDrop"
 						@node-drop="onDrop"
 						@node-click="onNodeClick"
+						@node-contextmenu="onContextMenu"
 					>
 						<template #default="{ node, data }">
 							<span class="tree-node">
@@ -127,6 +146,14 @@
 				<div class="pv-body" v-html="previewHtml"></div>
 			</div>
 		</div>
+
+		<!-- 右键菜单 -->
+		<ul class="ctx-menu" v-show="ctxMenu.visible" :style="{ left: ctxMenu.x + 'px', top: ctxMenu.y + 'px' }" @click.stop>
+			<li @click="ctxAddSibling">新建同级</li>
+			<li @click="ctxAddChild">新建下级</li>
+			<li class="sep"></li>
+			<li @click="ctxOpenEditor">在编辑器中打开</li>
+		</ul>
 	</div>
 </body>
 </html>
