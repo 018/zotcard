@@ -37,6 +37,7 @@
 			background: var(--el-color-primary-light-9);
 			color: var(--el-color-primary); font-family: monospace;
 		}
+		.tree-node .code.code-off { background: transparent; color: var(--el-text-color-placeholder); }
 		.tree-node .ctitle { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 	</style>
 </head>
@@ -44,14 +45,17 @@
 <body>
 	<div id="app">
 		<div class="header">
-			<span class="title">卡片编码（卢曼式）</span>
+			<span class="title">卡片编码（卢曼式）
+				<el-button link type="primary" size="small" @click="setAllEnabled(true)">全选</el-button>
+				<el-button link type="info" size="small" @click="setAllEnabled(false)">全不选</el-button>
+			</span>
 			<span>
 				<el-button size="small" @click="handleClose">取消</el-button>
 				<el-button size="small" :disabled="saving" @click="handleClear">清除编码</el-button>
 				<el-button size="small" type="primary" :loading="saving" @click="handleSave">保存编码</el-button>
 			</span>
 		</div>
-		<div class="tip">拖拽卡片调整顺序；拖到某张卡片“内部”使其成为子卡片（分支）。编码（1 / 1a / 1a1 …）将写入卡片标题前缀，主界面据此排序。</div>
+		<div class="tip">勾选要参与编码的卡片；拖拽调整顺序，拖到某卡片“内部”使其成为子卡片（分支）。保存后编码（1 / 1a / 1a1 …）写入卡片标题前缀（主界面据此排序）；未勾选的卡片将被清除编码。</div>
 		<div class="main">
 			<el-empty v-if="tree.length === 0" description="该文献下没有卡片笔记"></el-empty>
 			<el-tree
@@ -66,7 +70,9 @@
 			>
 				<template #default="{ node, data }">
 					<span class="tree-node">
-						<span class="code">{{ data.code }}</span>
+						<el-checkbox v-model="data.enabled" @change="recompute" @click.stop></el-checkbox>
+						<span class="code" v-if="data.enabled">{{ data.code }}</span>
+						<span class="code code-off" v-else>—</span>
 						<span class="ctitle">{{ data.title }}</span>
 					</span>
 				</template>

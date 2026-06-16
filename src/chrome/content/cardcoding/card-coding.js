@@ -45,15 +45,17 @@ window.onload = function () {
           : parent + pad(idx, count);                          // 父末段为字母 -> 子用数字（零填充）
       }
 
-      // 从标题前导解析既有编码：'1a1 概念卡' -> '1a1'
+      // 从标题前导解析既有编码。编码后可紧跟任意“非字母数字”字符（## / 空格 / . / 、 等），
+      // 末尾负向断言避免把 '3D'、'2024' 这类内容误判为编码。
+      // 例：'1a1## 概念卡' -> '1a1'，'1 概念卡' -> '1'，'## 概念卡'/'3D打印' -> ''
       function parseCode(title) {
-        let m = (title || '').match(/^\s*(\d+(?:[a-z]+\d*)*)\s/i);
-        return m ? m[1].toLowerCase() : '';
+        let m = (title || '').match(/^\s*(\d+(?:[a-z]+\d*)*)(?![A-Za-z0-9])/);
+        return m ? m[1] : '';
       }
 
-      // 去掉标题前导编码，得到干净标题
+      // 去掉标题前导编码（含其后的空白），得到干净标题
       function stripCode(title) {
-        return (title || '').replace(/^\s*\d+(?:[a-z]+\d*)*\s+/i, '').trim();
+        return (title || '').replace(/^\s*\d+(?:[a-z]+\d*)*(?![A-Za-z0-9])\s*/, '').trim();
       }
 
       // 比较两个卢曼编码（按段；数字按数值，字母按字典序）
@@ -70,12 +72,23 @@ window.onload = function () {
       }
 
       // 递归给整棵树赋编码（用于预览与保存）
+      // 只给“参与编码”(enabled) 的节点编号；未参与的节点及其子树不编码
       function assignCodes(nodes, parent) {
-        nodes.forEach((node, i) => {
-          node.code = childCode(parent, i + 1, nodes.length);
+        let on = nodes.filter(n => n.enabled);
+        on.forEach((node, i) => {
+          node.code = childCode(parent, i + 1, on.length);
           if (node.children && node.children.length) assignCodes(node.children, node.code);
         });
+        nodes.filter(n => !n.enabled).forEach(node => {
+          node.code = '';
+          clearSubtreeCodes(node.children);
+        });
       }
+      function clearSubtreeCodes(nodes) {
+        (nodes || []).forEach(n => { n.code = ''; clearSubtreeCodes(n.children); });
+      }
+      function recompute() { assignCodes(tree, ''); }
+      function setAllEnabled(val) { flatten().forEach(n => n.enabled = val); recompute(); }
 
       // ===== 加载：子笔记 -> 树 =====
       function buildTree() {
@@ -88,10 +101,12 @@ window.onload = function () {
         let cards = item.getNotes().map(id => {
           let note = Zotero.Items.get(id);
           let rawTitle = note.getNoteTitle();
+          let oc = parseCode(rawTitle);
           return {
             id: id,
             title: stripCode(rawTitle) || '(无标题)',
-            oldCode: parseCode(rawTitle),
+            oldCode: oc,
+            enabled: !!oc,        // 已有编码的默认参与，其余默认不参与
             code: '',
             children: []
           };
@@ -105,7 +120,9 @@ window.onload = function () {
           let roots = [];
           cards.forEach(c => { byCode[c.oldCode] = c; });
           cards.forEach(c => {
+            // 向上逐级回溯，找到最近存在的祖先（应对中间层级缺失/不连续，如 1a1a 缺 1a1）
             let p = parentCode(c.oldCode);
+            while (p && !byCode[p]) p = parentCode(p);
             if (p && byCode[p]) byCode[p].children.push(c);
             else roots.push(c);
           });
@@ -137,9 +154,9 @@ window.onload = function () {
           e.remove();
           if (n && n.nodeType === 3) n.textContent = n.textContent.replace(/^\s+/, '');
         });
-        // 移除首文本节点的前导明文编码
+        // 移除首文本节点的前导明文编码（支持编码后无空格，如 '1a1##...'）
         if (titleEl.firstChild && titleEl.firstChild.nodeType === 3) {
-          titleEl.firstChild.textContent = titleEl.firstChild.textContent.replace(/^\s*\d+(?:[a-z]+\d*)*\s+/i, '');
+          titleEl.firstChild.textContent = titleEl.firstChild.textContent.replace(/^\s*\d+(?:[a-z]+\d*)*(?![A-Za-z0-9])\s*/, '');
         }
         // 写入新编码（code 非空时）
         if (code) {
@@ -209,7 +226,7 @@ window.onload = function () {
 
       buildTree();
 
-      return { tree, saving, allowDrop, onDrop, handleSave, handleClear, handleClose };
+      return { tree, saving, allowDrop, onDrop, recompute, setAllEnabled, handleSave, handleClear, handleClose };
     }
   });
 };
