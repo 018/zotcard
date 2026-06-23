@@ -15,6 +15,19 @@ Zotero.ZotCard.Messages = Object.assign(Zotero.ZotCard.Messages, {
     Zotero.alert(window || Zotero.getMainWindow(), Zotero.getString('general.success'), message);
   },
 
+  // 非阻塞轻提示：右上角弹出、数秒后自动消失，不需要点确认
+  toast(message, headline) {
+    try {
+      let pw = new Zotero.ProgressWindow({ closeOnClick: true });
+      pw.changeHeadline(headline || 'ZotCard');
+      pw.show();
+      pw.addDescription(message);
+      pw.startCloseTimer(1000);
+    } catch (e) {
+      Zotero.ZotCard.Logger.log(e);
+    }
+  },
+
   error(window, message) {
     Zotero.alert(window || Zotero.getMainWindow(), Zotero.getString('general.error'), message);
   },

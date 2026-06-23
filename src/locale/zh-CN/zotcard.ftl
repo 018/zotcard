@@ -9,6 +9,8 @@ zotero-zotcard-card-replace-title = 卡片替换
 zotero-zotcard-card-image-compression-title = 卡片图片压缩
 zotero-zotcard-card-coding-title = 卡片编码
 zotero-zotcard-card-coding-aggregate-title = 卡片编码（聚合）
+zotero-zotcard-copy-tags-title = 复制标签
+zotero-zotcard-paste-tags-title = 粘贴标签
 
 zotero-zotcard-card-print-title = 卡片打印
 zotero-zotcard-card-edit-title = 独立窗口编辑

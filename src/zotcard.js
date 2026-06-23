@@ -8,6 +8,7 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 	addedElementIDs: [],
 	addedWordElementIDs: [],
 	_notifierID: 0,
+	tagClipboard: [],   // 标签剪贴板：复制标签 -> 粘贴标签
 
 	// ####### init #######
 	
@@ -496,6 +497,34 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		if (!cardCodingMenu.hidden) {
 			zotcardMenu.disabled = false;
 		}
+
+		// 标签：复制 / 粘贴（任意条目，覆盖 文献↔卡片 各方向）
+		let hasSelected = items && items.length > 0;
+		let tagSeparator = Zotero.ZotCard.Doms.createMainWindowXULMenuSeparator({
+			id: `${root}-zotcard-tags-separator`,
+			parent: mnupopupZotCard
+		});
+		tagSeparator.hidden = !hasSelected;
+
+		let copyTagsMenu = Zotero.ZotCard.Doms.createMainWindowXULElement('menuitem', {
+			id: `${root}-zotcard-copy-tags-menuitem`,
+			command: this.itemCopyTags,
+			parent: mnupopupZotCard
+		});
+		copyTagsMenu.setAttribute('label', Zotero.ZotCard.L10ns.getString('zotero-zotcard-copy-tags-title'));
+		copyTagsMenu.hidden = !hasSelected;
+		if (!copyTagsMenu.hidden) { zotcardMenu.disabled = false; }
+
+		let pasteTagsMenu = Zotero.ZotCard.Doms.createMainWindowXULElement('menuitem', {
+			id: `${root}-zotcard-paste-tags-menuitem`,
+			command: this.itemPasteTags,
+			parent: mnupopupZotCard
+		});
+		let _tagClip = Zotero.ZotCard.tagClipboard || [];
+		pasteTagsMenu.setAttribute('label', Zotero.ZotCard.L10ns.getString('zotero-zotcard-paste-tags-title') + (_tagClip.length ? ` (${_tagClip.length})` : ''));
+		pasteTagsMenu.hidden = !hasSelected;
+		pasteTagsMenu.disabled = _tagClip.length === 0;
+		if (!pasteTagsMenu.hidden) { zotcardMenu.disabled = false; }
 
 
 		// Viewer
@@ -1146,6 +1175,43 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 			type: Zotero.ZotCard.Consts.cardManagerType.item,
 			id: item.id
 		}]);
+	},
+
+	// 复制标签：把选中条目（可多选，取并集）的标签存入剪贴板
+	itemCopyTags() {
+		let items = Zotero.ZotCard.Items.getSelectedItems();
+		if (!items || items.length === 0) {
+			Zotero.ZotCard.Messages.warning(undefined, '请先选中要复制标签的条目');
+			return;
+		}
+		let set = new Set();
+		items.forEach(it => it.getTags().forEach(t => set.add(t.tag)));
+		Zotero.ZotCard.tagClipboard = Array.from(set);
+		Zotero.ZotCard.Messages.toast(`已复制 ${Zotero.ZotCard.tagClipboard.length} 个标签`);
+	},
+
+	// 粘贴标签：把剪贴板里的标签全部加到选中条目（已有的跳过）
+	async itemPasteTags() {
+		let tags = Zotero.ZotCard.tagClipboard || [];
+		if (tags.length === 0) {
+			Zotero.ZotCard.Messages.warning(undefined, '没有已复制的标签，请先“复制标签”');
+			return;
+		}
+		let items = Zotero.ZotCard.Items.getSelectedItems();
+		if (!items || items.length === 0) {
+			Zotero.ZotCard.Messages.warning(undefined, '请先选中要粘贴标签的条目');
+			return;
+		}
+		let count = 0;
+		for (let it of items) {
+			let existing = new Set(it.getTags().map(t => t.tag));
+			let added = false;
+			tags.forEach(tag => {
+				if (!existing.has(tag)) { it.addTag(tag, 0); added = true; }
+			});
+			if (added) { await it.saveTx(); count++; }
+		}
+		Zotero.ZotCard.Messages.toast(`已粘贴 ${tags.length} 个标签到 ${count} 个条目`);
 	},
 
 	itemCardPrint() {
