@@ -1,6 +1,6 @@
 if (!Zotero.ZotCard) Zotero.ZotCard = {};
 if (!Zotero.ZotCard.Dialogs) Zotero.ZotCard.Dialogs = {};
-Components.utils.import('resource://gre/modules/Services.jsm');
+// Zotero 8 (FF115+) 已移除 Services.jsm，Services 现为全局对象，无需导入。
 
 Zotero.ZotCard.Dialogs = Object.assign(Zotero.ZotCard.Dialogs, {
 
@@ -218,5 +218,13 @@ Zotero.ZotCard.Dialogs = Object.assign(Zotero.ZotCard.Dialogs, {
 		}
 		let windowCardViewer = Zotero.getMainWindow().openDialog('chrome://zotcard/content/cardimagecompression/card-image-compression.html', 'card-image-compression', 'chrome,menubar=no,toolbar=no,dialog=no,resizable,centerscreen,height=' + Zotero.getMainWindow().screen.availHeight + ',width=' + Zotero.getMainWindow().screen.availWidth, io);
 		windowCardViewer.focus();
+	},
+
+	openCardCoding(items) {
+		let io = {
+			dataIn: items
+		}
+		let win = Zotero.getMainWindow().openDialog('chrome://zotcard/content/cardcoding/card-coding.html', 'card-coding', 'chrome,menubar=no,toolbar=no,dialog=no,resizable,centerscreen,height=640,width=900', io);
+		win.focus();
 	},
 });

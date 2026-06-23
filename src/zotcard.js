@@ -8,6 +8,7 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 	addedElementIDs: [],
 	addedWordElementIDs: [],
 	_notifierID: 0,
+	tagClipboard: [],   // 标签剪贴板：复制标签 -> 粘贴标签
 
 	// ####### init #######
 	
@@ -159,6 +160,16 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		zotcardCardReport.setAttribute('label', Zotero.ZotCard.L10ns.getString('zotero-zotcard-card-report-title'));
 		this.storeAddedElement(zotcardCardReport);
 		zotcardCardReport.hidden = !allowTypes.includes(type);
+
+		// 卡片编码（聚合）：把该分类下所有卡片汇成一棵卢曼树（目前仅支持分类）
+		let zotcardCardCoding = Zotero.ZotCard.Doms.createMainWindowXULElement('menuitem', {
+			id: `${root}-zotcard-card-coding`,
+			command: this.collectionCardCoding,
+			parent: zotero_collectionmenu,
+		});
+		zotcardCardCoding.setAttribute('label', Zotero.ZotCard.L10ns.getString('zotero-zotcard-card-coding-aggregate-title'));
+		this.storeAddedElement(zotcardCardCoding);
+		zotcardCardCoding.hidden = type !== 'collection';
 	},
 
 	_createMenuItem({parent, after}, type, onlyRegular, onlySimple) {
@@ -475,6 +486,46 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 			zotcardMenu.disabled = false;
 		}
 
+		// card-coding（卡片编码：单选一条文献时显示）
+		let cardCodingMenu = Zotero.ZotCard.Doms.createMainWindowXULElement('menuitem', {
+			id: `${root}-zotcard-card-coding-menuitem`,
+			command: this.itemCardCoding,
+			parent: mnupopupZotCard
+		});
+		cardCodingMenu.setAttribute('label', Zotero.ZotCard.L10ns.getString('zotero-zotcard-card-coding-title'));
+		cardCodingMenu.hidden = !(onlySimple && onlyRegular);
+		if (!cardCodingMenu.hidden) {
+			zotcardMenu.disabled = false;
+		}
+
+		// 标签：复制 / 粘贴（任意条目，覆盖 文献↔卡片 各方向）
+		let hasSelected = items && items.length > 0;
+		let tagSeparator = Zotero.ZotCard.Doms.createMainWindowXULMenuSeparator({
+			id: `${root}-zotcard-tags-separator`,
+			parent: mnupopupZotCard
+		});
+		tagSeparator.hidden = !hasSelected;
+
+		let copyTagsMenu = Zotero.ZotCard.Doms.createMainWindowXULElement('menuitem', {
+			id: `${root}-zotcard-copy-tags-menuitem`,
+			command: this.itemCopyTags,
+			parent: mnupopupZotCard
+		});
+		copyTagsMenu.setAttribute('label', Zotero.ZotCard.L10ns.getString('zotero-zotcard-copy-tags-title'));
+		copyTagsMenu.hidden = !hasSelected;
+		if (!copyTagsMenu.hidden) { zotcardMenu.disabled = false; }
+
+		let pasteTagsMenu = Zotero.ZotCard.Doms.createMainWindowXULElement('menuitem', {
+			id: `${root}-zotcard-paste-tags-menuitem`,
+			command: this.itemPasteTags,
+			parent: mnupopupZotCard
+		});
+		let _tagClip = Zotero.ZotCard.tagClipboard || [];
+		pasteTagsMenu.setAttribute('label', Zotero.ZotCard.L10ns.getString('zotero-zotcard-paste-tags-title') + (_tagClip.length ? ` (${_tagClip.length})` : ''));
+		pasteTagsMenu.hidden = !hasSelected;
+		pasteTagsMenu.disabled = _tagClip.length === 0;
+		if (!pasteTagsMenu.hidden) { zotcardMenu.disabled = false; }
+
 
 		// Viewer
 		// card-viewer
@@ -498,118 +549,76 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		this.storeAddedElement(cardManagerMenu);
 	},
 
-	_createPaneMenuItem(menuseparator, type) {
-		Zotero.ZotCard.Logger.log({type});
-		
-		let pref = Zotero.ZotCard.Cards.initPrefs(type);
-		let menuitem = Zotero.ZotCard.Doms.createMainWindowXULElement('menuitem', {
-			id: `context-pane-add-child-note-button-popup-zotcard-${type}`,
-			command: () => {
-				this.newCardByPane(type, true);
-			},
-			after: menuseparator
-		});
-		menuitem.setAttribute('label', pref.label);
-		
-		menuitem.hidden = !pref.visible;
-		menuitem.disabled = !pref.card;
-		return menuitem;
-	},
+	createPaneMenu(popup) {
+		// Zotero 9 中该弹出菜单由 id 改为 class（context-pane-add-child-note-button-popup），
+		// 且惰性创建、可能存在多个实例（条目面板 + 阅读器各一个）。
+		// 因此对“当前正在弹出的 popup”操作，并用标记类 zotcard-pane-added
+		// 在每次弹出时先清后建，避免重复与 id 冲突。
+		popup = popup || Zotero.getMainWindow().document.querySelector('.context-pane-add-child-note-button-popup');
+		if (!popup) return;
 
-	createPaneMenu() {
-		let root = 'context-pane-add-child-note-button-popup';
-		let elPanePopup = Zotero.getMainWindow().document.getElementById(root);
-		let menuseparator1 = Zotero.ZotCard.Doms.createMainWindowXULMenuSeparator({
-			id: `${root}-zotcard-separator1`,
-			parent: elPanePopup
-		});
-		this.storeAddedElement(menuseparator1);
+		// 移除上一次添加的 ZotCard 项，重建
+		popup.querySelectorAll('.zotcard-pane-added').forEach(e => e.remove());
 
-		let hasMenuitem = 0;
+		let doc = Zotero.getMainWindow().document;
+		let addSeparator = () => {
+			let s = doc.createXULElement('menuseparator');
+			s.classList.add('zotcard-pane-added');
+			popup.appendChild(s);
+			return s;
+		};
+		let addItem = (label, onCommand, disabled) => {
+			let mi = doc.createXULElement('menuitem');
+			mi.classList.add('zotcard-pane-added');
+			mi.setAttribute('label', label);
+			mi.disabled = !!disabled;
+			mi.addEventListener('command', onCommand);
+			popup.appendChild(mi);
+			return mi;
+		};
+
+		// 默认卡片
+		let sep1 = addSeparator();
+		let hasDefault = 0;
 		Zotero.ZotCard.Consts.defCardTypes.forEach(type => {
-			let menuitem = this._createPaneMenuItem(menuseparator1, type);
-			this.storeAddedElement(menuitem);
-			if (!menuitem.hidden) {
-				hasMenuitem++;
-			}
+			let pref = Zotero.ZotCard.Cards.initPrefs(type);
+			if (!pref.visible) return;
+			addItem(pref.label, () => this.newCardByPane(type, true), !pref.card);
+			hasDefault++;
 		});
+		sep1.hidden = hasDefault === 0;
 
-		let menuseparator2 = Zotero.ZotCard.Doms.createMainWindowXULMenuSeparator({
-			id: `${root}-zotcard-separator2`,
-			parent: elPanePopup
-		});
-		this.storeAddedElement(menuseparator2);
-		menuseparator2.hidden = hasMenuitem === 0;
-
-		Zotero.getMainWindow().document.querySelectorAll(`#context-pane-add-child-note-button-popup .custom-card`).forEach(e => {
-			e.hidden = true;
-		})
-		hasMenuitem = 0;
-		let quantity = Zotero.ZotCard.Prefs.get('card_quantity', Zotero.ZotCard.Consts.card_quantity);
-		for (let index = parseInt(quantity) - 1; index >= 0; index--) {
+		// 自定义卡片
+		let sep2 = addSeparator();
+		let hasCustom = 0;
+		let quantity = parseInt(Zotero.ZotCard.Prefs.get('card_quantity', Zotero.ZotCard.Consts.card_quantity));
+		for (let index = 0; index < quantity; index++) {
 			let type = Zotero.ZotCard.Cards.customCardType(index);
-			let menuitem = this._createPaneMenuItem(menuseparator2, type);
-			menuitem.setAttribute('class', 'custom-card');
-			this.storeAddedElement(menuitem);
-			if (!menuitem.hidden) {
-				hasMenuitem++;
-			}
+			let pref = Zotero.ZotCard.Cards.initPrefs(type);
+			if (!pref.visible) continue;
+			addItem(pref.label, () => this.newCardByPane(type, true), !pref.card);
+			hasCustom++;
 		}
+		sep2.hidden = hasCustom === 0;
 
-		// batch
-		let menuseparator3 = Zotero.ZotCard.Doms.createMainWindowXULMenuSeparator({
-			id: `${root}-zotcard-separator3`,
-			parent: elPanePopup
+		// 批量建卡
+		addSeparator();
+		addItem(Zotero.ZotCard.L10ns.getString('zotcard-newpane-batch'), () => {
+			let io = {};
+			Zotero.getMainWindow().openDialog('chrome://zotcard/content/batchnewcard/batchnewcard.html', 'batchnewcard', 'chrome,modal,centerscreen,scrollbars', io);
+			if (io.dataOut && io.dataOut.length > 0) {
+				io.dataOut.forEach(element => {
+					for (let i = 0; i < element.value; i++) {
+						this.newCardByPane(element.type, false);
+					}
+				});
+			}
 		});
-		menuseparator3.hidden = hasMenuitem === 0;
-		this.storeAddedElement(menuseparator3);
 
-		menuitem = Zotero.ZotCard.Doms.createMainWindowXULElement('menuitem', {
-			id: `${root}-zotcard-batch`,
-			command: () => {
-				let io = {};
-				Zotero.getMainWindow().openDialog('chrome://zotcard/content/batchnewcard/batchnewcard.html', 'batchnewcard', 'chrome,modal,centerscreen,scrollbars', io);
-				if (io.dataOut && io.dataOut.length > 0) {
-					var _this = this
-					io.dataOut.forEach(async function (element) {
-						for (let index = 0; index < element.value; index++) {
-							_this.newCardByPane(element.type, false);
-						}
-					})
-				}
-			},
-			parent: elPanePopup
-		});
-		menuitem.setAttribute('label', Zotero.ZotCard.L10ns.getString('zotcard-newpane-batch'));
-		this.storeAddedElement(menuitem);
-
-		let menuseparator4 = Zotero.ZotCard.Doms.createMainWindowXULMenuSeparator({
-			id: `${root}-zotcard-separator4`,
-			parent: elPanePopup
-		});
-		this.storeAddedElement(menuseparator4);
-
-		// card-viewer
-		menuitem = Zotero.ZotCard.Doms.createMainWindowXULElement('menuitem', {
-			id: `${root}-zotcard-card-viewer`,
-			command: () =>{
-				this.paneCardViewer();
-			},
-			parent: elPanePopup
-		});
-		menuitem.setAttribute('label', Zotero.ZotCard.L10ns.getString('zotero-zotcard-card-viewer-title'));
-		this.storeAddedElement(menuitem);
-
-		// card-manager
-		menuitem = Zotero.ZotCard.Doms.createMainWindowXULElement('menuitem', {
-			id: `${root}-zotcard-card-manager`,
-			command: () =>{
-				this.paneCardManager();
-			},
-			parent: elPanePopup
-		});
-		menuitem.setAttribute('label', Zotero.ZotCard.L10ns.getString('zotero-zotcard-card-manager-title'));
-		this.storeAddedElement(menuitem);
+		// 卡片查看器 / 卡片管理
+		addSeparator();
+		addItem(Zotero.ZotCard.L10ns.getString('zotero-zotcard-card-viewer-title'), () => this.paneCardViewer());
+		addItem(Zotero.ZotCard.L10ns.getString('zotero-zotcard-card-manager-title'), () => this.paneCardManager());
 	},
 
 	_createStandaloneMenuItem(menuseparator, type) {
@@ -1010,6 +1019,18 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		Zotero.ZotCard.Dialogs.openCardManagerTab(items);
 	},
 
+	collectionCardCoding() {
+		if (Zotero.getMainWindow().ZoteroPane.getCollectionTreeRow().type !== 'collection') {
+			Zotero.ZotCard.Messages.warning(undefined, '聚合编码目前仅支持在分类上使用');
+			return;
+		}
+		let collection = Zotero.getMainWindow().ZoteroPane.getSelectedCollection();
+		Zotero.ZotCard.Dialogs.openCardCoding([{
+			type: Zotero.ZotCard.Consts.cardManagerType.collection,
+			id: collection.id
+		}]);
+	},
+
 	collectionCardReport() {
 		let items;
 		let type;
@@ -1141,6 +1162,56 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		});
 		
 		Zotero.ZotCard.Dialogs.openCardImageCompression(items);
+	},
+
+	itemCardCoding() {
+		let selectedItems = Zotero.ZotCard.Items.getSelectedItems('regular');
+		if (!selectedItems || selectedItems.length !== 1) {
+			Zotero.ZotCard.Messages.warning(undefined, '请选中一条文献（卡片编码仅支持单选）');
+			return;
+		}
+		let item = selectedItems[0];
+		Zotero.ZotCard.Dialogs.openCardCoding([{
+			type: Zotero.ZotCard.Consts.cardManagerType.item,
+			id: item.id
+		}]);
+	},
+
+	// 复制标签：把选中条目（可多选，取并集）的标签存入剪贴板
+	itemCopyTags() {
+		let items = Zotero.ZotCard.Items.getSelectedItems();
+		if (!items || items.length === 0) {
+			Zotero.ZotCard.Messages.warning(undefined, '请先选中要复制标签的条目');
+			return;
+		}
+		let set = new Set();
+		items.forEach(it => it.getTags().forEach(t => set.add(t.tag)));
+		Zotero.ZotCard.tagClipboard = Array.from(set);
+		Zotero.ZotCard.Messages.toast(`已复制 ${Zotero.ZotCard.tagClipboard.length} 个标签`);
+	},
+
+	// 粘贴标签：把剪贴板里的标签全部加到选中条目（已有的跳过）
+	async itemPasteTags() {
+		let tags = Zotero.ZotCard.tagClipboard || [];
+		if (tags.length === 0) {
+			Zotero.ZotCard.Messages.warning(undefined, '没有已复制的标签，请先“复制标签”');
+			return;
+		}
+		let items = Zotero.ZotCard.Items.getSelectedItems();
+		if (!items || items.length === 0) {
+			Zotero.ZotCard.Messages.warning(undefined, '请先选中要粘贴标签的条目');
+			return;
+		}
+		let count = 0;
+		for (let it of items) {
+			let existing = new Set(it.getTags().map(t => t.tag));
+			let added = false;
+			tags.forEach(tag => {
+				if (!existing.has(tag)) { it.addTag(tag, 0); added = true; }
+			});
+			if (added) { await it.saveTx(); count++; }
+		}
+		Zotero.ZotCard.Messages.toast(`已粘贴 ${tags.length} 个标签到 ${count} 个条目`);
 	},
 
 	itemCardPrint() {
@@ -1382,8 +1453,8 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		}
 	},
 
-	refreshPaneItemMenuPopup() {
-		this.createPaneMenu();
+	refreshPaneItemMenuPopup(event) {
+		this.createPaneMenu(event && event.target);
 	},
 
 	refreshStandaloneMenuPopup() {
@@ -1526,7 +1597,9 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		for (let id of this.addedElementIDs) {
 			doc.getElementById(id)?.remove();
 		}
-		doc.querySelector('[href="zotcard.ftl"]').remove();
+		// 移除注入到笔记面板弹出菜单里的 ZotCard 项（Z9，用 class 标记）
+		doc.querySelectorAll('.zotcard-pane-added').forEach(e => e.remove());
+		doc.querySelector('[href="zotcard.ftl"]')?.remove();
 		this.removeAddedWordElement();
 		this._clearTabTimedRun();
 	},

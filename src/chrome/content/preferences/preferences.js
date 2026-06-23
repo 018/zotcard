@@ -1,5 +1,9 @@
 if (!Zotero.ZotCard) Zotero.ZotCard = {};
 
+// Zotero 7+/9：使用 Zotero 封装的 FilePicker（open() 返回 Promise，init 用 BrowsingContext），
+// 替代已失效的旧 nsIFilePicker 回调写法。
+const { FilePicker } = ChromeUtils.importESModule('chrome://zotero/content/modules/filePicker.mjs');
+
 Zotero.ZotCard.Preferences = {
 	_l10n: new Localization(["preferences.ftl", "zotcard.ftl"], true),
 
@@ -7,61 +11,65 @@ Zotero.ZotCard.Preferences = {
 		Zotero.ZotCard.Logger.ding();
 	},
 
-	backup: function() {
+	backup: async function() {
+		try {
 		let now = Zotero.ZotCard.DateTimes.formatDate(new Date(), Zotero.ZotCard.DateTimes.yyyyMMddHHmmss);
-		let fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
-		fp.init(window, this._l10n.formatValueSync('zotero-zotcard-preferences-backup'), Ci.nsIFilePicker.modeSave);
+		let fp = new FilePicker();
+		fp.init(window, this._l10n.formatValueSync('zotero-zotcard-preferences-backup'), fp.modeSave);
 		fp.appendFilter('ZotCard Backup', '*.zotcard');
-		fp.defaultString = now;
-		fp.open(function (returnConstant) {
-            if (returnConstant === 0 || returnConstant === 2) {
-				let file = fp.file;
-				file.QueryInterface(Ci.nsIFile);
-				let backup = {
-					last_updated: now,
-					card_quantity: Zotero.ZotCard.Prefs.get('card_quantity'),
-					word_count_style: Zotero.ZotCard.Prefs.get('word_count_style'),
-					startOfWeek: Zotero.ZotCard.Prefs.get('startOfWeek'),
-					cardmgr_profiles: Zotero.ZotCard.Prefs.getJson('cardmgr.profiles'),
-					cardmgr_savefilters: Zotero.ZotCard.Prefs.getJson('cardmgr.savefilters'),
-					cardviewer_profiles: Zotero.ZotCard.Prefs.getJson('cardmgr.cardviewer_profiles'),
-					recently_move_collections: Zotero.ZotCard.Prefs.getJson('movemgr.recently_move_collections'),
-					movemgr_recently_move_collection_quantity: Zotero.ZotCard.Prefs.get('movemgr.recently_move_collection_quantity'),
-					imagemgr_tinify_api_key: Zotero.ZotCard.Prefs.get('imagemgr.tinify_api_key'),
-					meditmgr: Zotero.ZotCard.Prefs.getJson('meditmgr'),
-					printcard: Zotero.ZotCard.Prefs.getJson('printcard'),
-					// noteBGColor: Zotero.ZotCard.Notes.getNoteBGColor()
-				};
+		fp.defaultExtension = 'zotcard';
+		fp.defaultString = now + '.zotcard';
+		let rv = await fp.show();
+		if (rv === fp.returnOK || rv === fp.returnReplace) {
+			let path = fp.file; // 字符串路径
+			if (!path.toLowerCase().endsWith('.zotcard')) path += '.zotcard';
 
-				Zotero.ZotCard.Consts.defCardTypes.forEach(type => {
-					backup[type] = Zotero.ZotCard.Cards.initPrefs(type);
-				});
+			let backup = {
+				last_updated: now,
+				card_quantity: Zotero.ZotCard.Prefs.get('card_quantity'),
+				word_count_style: Zotero.ZotCard.Prefs.get('word_count_style'),
+				startOfWeek: Zotero.ZotCard.Prefs.get('startOfWeek'),
+				cardmgr_profiles: Zotero.ZotCard.Prefs.getJson('cardmgr.profiles'),
+				cardmgr_savefilters: Zotero.ZotCard.Prefs.getJson('cardmgr.savefilters'),
+				cardviewer_profiles: Zotero.ZotCard.Prefs.getJson('cardviewer.profiles'),
+				movemgr_recently_move_collections: Zotero.ZotCard.Prefs.getJson('movemgr.recently_move_collections'),
+				movemgr_recently_move_collection_quantity: Zotero.ZotCard.Prefs.get('movemgr.recently_move_collection_quantity'),
+				imagemgr_tinify_api_key: Zotero.ZotCard.Prefs.get('imagemgr.tinify_api_key'),
+				meditmgr: Zotero.ZotCard.Prefs.getJson('meditmgr'),
+				printcard: Zotero.ZotCard.Prefs.getJson('printcard'),
+				// noteBGColor: Zotero.ZotCard.Notes.getNoteBGColor()
+			};
 
-				for (let index = 0; index < backup.card_quantity; index++) {
-					const type = Zotero.ZotCard.Cards.customCardType(index);
-					backup[type] = Zotero.ZotCard.Cards.initPrefs(type);
-				}
+			Zotero.ZotCard.Consts.defCardTypes.forEach(type => {
+				backup[type] = Zotero.ZotCard.Cards.initPrefs(type);
+			});
 
-				Zotero.ZotCard.Logger.log(backup);
-				
-				Zotero.File.putContents(Zotero.File.pathToFile(file.path + '.zotcard'), JSON.stringify(backup));
-				Zotero.ZotCard.Messages.success(window, this._l10n.formatValueSync('zotero-zotcard-preferences-backup-successful'));
+			for (let index = 0; index < backup.card_quantity; index++) {
+				const type = Zotero.ZotCard.Cards.customCardType(index);
+				backup[type] = Zotero.ZotCard.Cards.initPrefs(type);
 			}
-		}.bind(this))
+
+			Zotero.ZotCard.Logger.log(backup);
+
+			await Zotero.File.putContentsAsync(path, JSON.stringify(backup));
+			Zotero.ZotCard.Messages.success(window, this._l10n.formatValueSync('zotero-zotcard-preferences-backup-successful'));
+		}
+		} catch (e) {
+			Zotero.ZotCard.Logger.log(e);
+			Zotero.ZotCard.Messages.warning(window, 'ZotCard 备份出错: ' + e);
+		}
 	},
 
-	restore: function() {
-		let fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
-		fp.init(window, this._l10n.formatValueSync('zotero-zotcard-preferences-restore'), Ci.nsIFilePicker.modeOpen);
+	restore: async function() {
+		let fp = new FilePicker();
+		fp.init(window, this._l10n.formatValueSync('zotero-zotcard-preferences-restore'), fp.modeOpen);
 		fp.appendFilter('ZotCard Backup', '*.zotcard');
-		fp.open(function (returnConstant) {
-			if (returnConstant === 0) {
-				let file = fp.file;
-				file.QueryInterface(Ci.nsIFile);
-				let content = Zotero.File.getContents(file.path);
-				if (content) {
-					try {
-						let backup = JSON.parse(content);
+		let rv = await fp.show();
+		if (rv === fp.returnOK) {
+			let content = await Zotero.File.getContentsAsync(fp.file);
+			if (content) {
+				try {
+					let backup = JSON.parse(content);
 						if (backup.last_updated) {
 							if (backup.card_quantity) {
 								Zotero.ZotCard.Prefs.set('card_quantity', backup.card_quantity);
@@ -113,13 +121,13 @@ Zotero.ZotCard.Preferences = {
 							} else {
 								Zotero.ZotCard.Prefs.clear('imagemgr.tinify_api_key');
 							}
-							Zotero.ZotCard.Notes.noteBGColor(backup.noteBGColor);
+							if (backup.noteBGColor) { Zotero.ZotCard.Notes.noteBGColor(backup.noteBGColor); }
 
 							Zotero.ZotCard.Consts.defCardTypes.forEach(type => {
 								if (backup[type]) {
 									Zotero.ZotCard.Prefs.set(`${type}`, backup[type].card);
 									Zotero.ZotCard.Prefs.set(`${type}.label`, backup[type].label);
-									Zotero.ZotCard.Prefs.set(`${type}.visible`, backup[type].visible);
+									Zotero.Prefs.set(`zotcard.${type}.visible`, backup[type].visible); // 直接写，确保 false 也能存
 								} else {
 									Zotero.ZotCard.Prefs.clear(`${type}`);
 									Zotero.ZotCard.Prefs.clear(`${type}.label`);
@@ -132,7 +140,7 @@ Zotero.ZotCard.Preferences = {
 								if (backup[type]) {
 									Zotero.ZotCard.Prefs.set(`${type}`, backup[type].card);
 									Zotero.ZotCard.Prefs.set(`${type}.label`, backup[type].label);
-									Zotero.ZotCard.Prefs.set(`${type}.visible`, backup[type].visible);
+									Zotero.Prefs.set(`zotcard.${type}.visible`, backup[type].visible); // 直接写，确保 false 也能存
 								} else {
 									Zotero.ZotCard.Prefs.clear(`${type}`);
 									Zotero.ZotCard.Prefs.clear(`${type}.label`);
@@ -151,7 +159,6 @@ Zotero.ZotCard.Preferences = {
 					Zotero.ZotCard.Messages.warning(window, this._l10n.formatValueSync('zotero-zotcard-preferences-restore-error-file'));
 				}
 			}
-		}.bind(this))
 	},
 
 	reset: function() {

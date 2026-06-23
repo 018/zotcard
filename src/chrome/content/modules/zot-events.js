@@ -14,6 +14,26 @@ Zotero.ZotCard.Events = Object.assign(Zotero.ZotCard.Events, {
 		Zotero.ZotCard.Logger.log('Zotero.ZotCard.Events inited.');
 	},
 
+	// 空值安全地绑定事件：元素不存在时只记日志、跳过，不抛异常导致整个 startup 中断。
+	// Zotero 9 中部分主界面元素被改名/移除，这个守卫能让插件其余部分正常加载。
+	_addListener(id, type, handler) {
+		let el = Zotero.getMainWindow().document.getElementById(id);
+		if (el) {
+			el.addEventListener(type, handler, false);
+			Zotero.ZotCard.Logger.log(`event '${type}' on #${id} registered.`);
+		} else {
+			Zotero.ZotCard.Logger.log(`[ZotCard] element #${id} not found, skip '${type}'.`);
+		}
+	},
+
+	_removeListener(id, type, handler) {
+		let el = Zotero.getMainWindow().document.getElementById(id);
+		if (el) {
+			el.removeEventListener(type, handler, false);
+			Zotero.ZotCard.Logger.log(`event '${type}' on #${id} removed.`);
+		}
+	},
+
 	register({itemsViewOnSelect, noteEditorKeyup, refreshCollectionMenuPopup, refreshItemMenuPopup, refreshStandaloneMenuPopup, refreshPaneItemMenuPopup}) {
 		this.itemsViewOnSelect = itemsViewOnSelect;
 		this.noteEditorKeyup = noteEditorKeyup;
@@ -21,26 +41,27 @@ Zotero.ZotCard.Events = Object.assign(Zotero.ZotCard.Events, {
 		this.refreshItemMenuPopup = refreshItemMenuPopup;
 		this.refreshStandaloneMenuPopup = refreshStandaloneMenuPopup;
 		this.refreshPaneItemMenuPopup = refreshPaneItemMenuPopup;
-		
+
 		if (Zotero.getMainWindow().ZoteroPane.itemsView.waitForLoad) {
 			Zotero.getMainWindow().ZoteroPane.itemsView.waitForLoad().then(function () {
-				Zotero.getMainWindow().Zotero.getMainWindow().ZoteroPane.itemsView.onSelect.addListener(this.itemsViewOnSelect);
+				Zotero.getMainWindow().ZoteroPane.itemsView.onSelect.addListener(this.itemsViewOnSelect);
 				Zotero.ZotCard.Logger.log('itemsViewOnSelect registered.');
 			}.bind(this));
 		}
 
-		// Zotero.getMainWindow().document.getElementById('zotero-items-tree').addEventListener('select', this.itemsViewOnSelect.bind(this), false);
-		// Zotero.ZotCard.Logger.log('itemsViewOnSelect registered.');
-		Zotero.getMainWindow().document.getElementById('zotero-note-editor').addEventListener('keyup', this.noteEditorKeyup, false);
-		Zotero.ZotCard.Logger.log('noteEditorKeyup registered.');
-		Zotero.getMainWindow().document.getElementById('zotero-collectionmenu').addEventListener('popupshowing', this.refreshCollectionMenuPopup, false);
-		Zotero.ZotCard.Logger.log('refreshCollectionMenuPopup registered.');
-		Zotero.getMainWindow().document.getElementById('zotero-itemmenu').addEventListener('popupshowing', this.refreshItemMenuPopup, false);
-		Zotero.ZotCard.Logger.log('refreshItemMenuPopup registered.');
-		Zotero.getMainWindow().document.getElementById('zotero-tb-note-add').addEventListener('popupshowing', this.refreshStandaloneMenuPopup, false);
-		Zotero.ZotCard.Logger.log('refreshStandaloneMenuPopup registered.');
-		Zotero.getMainWindow().document.getElementById('context-pane-add-child-note-button-popup').addEventListener('popupshowing', this.refreshPaneItemMenuPopup, false);
-		Zotero.ZotCard.Logger.log('refreshPaneItemMenuPopup registered.');
+		this._addListener('zotero-note-editor', 'keyup', this.noteEditorKeyup);
+		this._addListener('zotero-collectionmenu', 'popupshowing', this.refreshCollectionMenuPopup);
+		this._addListener('zotero-itemmenu', 'popupshowing', this.refreshItemMenuPopup);
+		this._addListener('zotero-tb-note-add', 'popupshowing', this.refreshStandaloneMenuPopup);
+		// Zotero 9：笔记面板的“新建子笔记”弹出菜单由 id 改为 class，且惰性创建、可能多实例。
+		// 改用 document 级事件委托：捕获 popupshowing，按 class 过滤后刷新菜单。
+		this._panePopupDelegate = (event) => {
+			let t = event.target;
+			if (t && t.classList && t.classList.contains('context-pane-add-child-note-button-popup')) {
+				this.refreshPaneItemMenuPopup(event);
+			}
+		};
+		Zotero.getMainWindow().document.addEventListener('popupshowing', this._panePopupDelegate, true);
 
 		Zotero.ZotCard.Logger.log('Zotero.ZotCard.Events registered.');
 	},
@@ -48,27 +69,22 @@ Zotero.ZotCard.Events = Object.assign(Zotero.ZotCard.Events, {
 	shutdown() {
 		if (this.itemsViewOnSelect) {
 			Zotero.getMainWindow().ZoteroPane.itemsView.onSelect.removeListener(this.itemsViewOnSelect);
-			Zotero.ZotCard.Logger.log('noteEditorKeyup removed.');
+			Zotero.ZotCard.Logger.log('itemsViewOnSelect removed.');
 		}
 		if (this.noteEditorKeyup) {
-			Zotero.getMainWindow().document.getElementById('zotero-note-editor').removeEventListener('keyup', this.noteEditorKeyup, false);
-			Zotero.ZotCard.Logger.log('noteEditorOnKeyup removed.');
+			this._removeListener('zotero-note-editor', 'keyup', this.noteEditorKeyup);
 		}
 		if (this.refreshCollectionMenuPopup) {
-			Zotero.getMainWindow().document.getElementById('zotero-collectionmenu').removeEventListener('popupshowing', this.refreshCollectionMenuPopup, false);
-			Zotero.ZotCard.Logger.log('refreshCollectionMenuPopup removed.');
+			this._removeListener('zotero-collectionmenu', 'popupshowing', this.refreshCollectionMenuPopup);
 		}
 		if (this.refreshItemMenuPopup) {
-			Zotero.getMainWindow().document.getElementById('zotero-itemmenu').removeEventListener('popupshowing', this.refreshItemMenuPopup, false);
-			Zotero.ZotCard.Logger.log('refreshItemMenuPopup removed.');
+			this._removeListener('zotero-itemmenu', 'popupshowing', this.refreshItemMenuPopup);
 		}
 		if (this.refreshStandaloneMenuPopup) {
-			Zotero.getMainWindow().document.getElementById('zotero-tb-note-add').removeEventListener('popupshowing', this.refreshStandaloneMenuPopup, false);
-			Zotero.ZotCard.Logger.log('refreshStandaloneMenuPopup removed.');
+			this._removeListener('zotero-tb-note-add', 'popupshowing', this.refreshStandaloneMenuPopup);
 		}
-		if (this.refreshPaneItemMenuPopup) {
-			Zotero.getMainWindow().document.getElementById('context-pane-add-child-note-button-popup').removeEventListener('popupshowing', this.refreshPaneItemMenuPopup, false);
-			Zotero.ZotCard.Logger.log('refreshPaneItemMenuPopup removed.');
+		if (this._panePopupDelegate) {
+			Zotero.getMainWindow().document.removeEventListener('popupshowing', this._panePopupDelegate, true);
 		}
 	}
 });

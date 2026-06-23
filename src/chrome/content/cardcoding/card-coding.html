@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>卡片编码</title>
+	<script src="chrome://zotero/content/include.js"></script>
+	<link rel="localization" href="zotcard.ftl" />
+	<link rel="stylesheet" href="../modules/common.css" />
+	<link rel="stylesheet" href="../modules/element-plus.css" />
+	<script src="../modules/vue.global.prod.js"></script>
+	<script src="../modules/element-plus.js"></script>
+	<script src="../modules/element-plus-zh-cn.js"></script>
+	<script src="../modules/element-plus-en.js"></script>
+	<script src="../modules/element-plus-zh-tw.js"></script>
+	<script src="../modules/element-plus-icons.js"></script>
+	<script src="../modules/zot-render-element-plus.js"></script>
+	<script id="jsfile"></script>
+	<script>
+		// 仅在 Zotero 内运行，直接加载正式脚本
+		document.getElementById('jsfile').src = "card-coding.js";
+	</script>
+	<style>
+		html, body { height: 100%; }
+		body { padding: 0; margin: 0; font-size: 13px; }
+		#app { display: flex; flex-direction: column; height: 100vh; }
+		.header {
+			display: flex; align-items: center; justify-content: space-between;
+			padding: 8px 12px; border-bottom: 1px solid var(--el-border-color);
+			background: var(--el-bg-color);
+		}
+		.header .title { font-weight: bold; }
+		/* 左右分栏主体 */
+		.body { flex: 1; display: flex; min-height: 0; }
+		.left { flex: 1; display: flex; flex-direction: column; overflow: auto; min-width: 0; }
+		.tip { color: var(--el-text-color-secondary); padding: 8px 12px; }
+		.group-row { display: flex; align-items: center; gap: 8px; padding: 0 12px 8px 12px; }
+		.group-row .preview-hint { color: var(--el-color-primary); font-family: monospace; }
+		.tree-tools { display: flex; align-items: center; gap: 8px; padding: 0 12px 4px 12px; }
+		.tree-tools .hint { color: var(--el-text-color-placeholder); }
+		.main { padding: 8px 12px; }
+		.tree-node { display: flex; align-items: center; gap: 8px; }
+		.tree-node .code {
+			display: inline-block; min-width: 42px; padding: 0 6px;
+			text-align: center; border-radius: 4px;
+			background: var(--el-color-primary-light-9);
+			color: var(--el-color-primary); font-family: monospace;
+		}
+		.tree-node .code.code-off { background: transparent; color: var(--el-text-color-placeholder); }
+		.tree-node .ctitle { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+		/* 拖拽分隔条 */
+		.divider { flex: none; width: 6px; cursor: col-resize; background: var(--el-border-color); }
+		.divider:hover { background: var(--el-color-primary); }
+		/* 右侧预览区 */
+		.right { flex: none; display: flex; flex-direction: column; min-width: 0; }
+		.right .pv-head {
+			display: flex; align-items: center; justify-content: space-between; gap: 8px;
+			padding: 6px 12px; border-bottom: 1px solid var(--el-border-color-lighter);
+		}
+		.right .pv-title { font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+		.right .pv-body { flex: 1; overflow: auto; padding: 8px 12px; }
+		.right .pv-body img { max-width: 100%; }
+		/* 右键菜单 */
+		.ctx-menu {
+			position: fixed; z-index: 9999; min-width: 130px; margin: 0; padding: 4px 0;
+			list-style: none; background: var(--el-bg-color);
+			border: 1px solid var(--el-border-color); border-radius: 4px;
+			box-shadow: var(--el-box-shadow-light);
+		}
+		.ctx-menu li { padding: 6px 16px; cursor: pointer; white-space: nowrap; }
+		.ctx-menu li:hover { background: var(--el-color-primary-light-9); color: var(--el-color-primary); }
+		.ctx-menu li.sep { padding: 0; margin: 4px 0; height: 0; border-top: 1px solid var(--el-border-color-lighter); cursor: default; }
+		.ctx-menu li.sep:hover { background: transparent; }
+	</style>
+</head>
+
+<body>
+	<div id="app">
+		<div class="header">
+			<span class="title">卡片编码（卢曼式）
+				<el-button link type="primary" size="small" @click="setAllEnabled(true)">全选</el-button>
+				<el-button link type="info" size="small" @click="setAllEnabled(false)">全不选</el-button>
+			</span>
+			<span>
+				<el-button size="small" @click="handleClose">取消</el-button>
+				<el-button size="small" :disabled="saving" @click="handleClear">清除编码</el-button>
+				<el-button size="small" type="primary" :loading="saving" @click="handleSave">保存编码</el-button>
+			</span>
+		</div>
+
+		<div class="body">
+			<!-- 左侧：设置 + 树 -->
+			<div class="left">
+				<div class="tip">勾选要参与编码的卡片；拖拽调整顺序，拖到某卡片“内部”使其成为子卡片（分支）。点卡片标题可在右侧预览内容。保存后编码写入标题前缀（主界面据此排序）；未勾选的卡片将被清除编码。</div>
+				<div class="group-row">
+					<span>组号</span>
+					<el-input v-model="groupPrefix" size="small" placeholder="如 S32（留空=无组号）" style="width: 160px"></el-input>
+					<span>分隔符</span>
+					<el-input v-model="groupSep" size="small" maxlength="3" style="width: 56px"></el-input>
+					<span class="preview-hint" v-if="groupPrefix">效果：{{ groupPrefix + groupSep }}1a1</span>
+				</div>
+				<div class="tree-tools">
+					<el-button size="small" icon="Plus" @click="addSibling">新建同级</el-button>
+					<el-button size="small" icon="Plus" :disabled="!selected" @click="addChild">新建下级</el-button>
+					<span style="flex: 1"></span>
+					<el-button size="small" @click="expandAll">展开全部</el-button>
+					<el-button size="small" @click="collapseAll">折叠全部</el-button>
+					<span class="hint">展开到</span>
+					<el-button size="small" link @click="expandToLevel(2)">2级</el-button>
+					<el-button size="small" link @click="expandToLevel(3)">3级</el-button>
+					<el-button size="small" link @click="expandToLevel(4)">4级</el-button>
+				</div>
+				<div class="main">
+					<el-empty v-if="tree.length === 0" description="该文献下没有卡片笔记，可点“新建同级”创建"></el-empty>
+					<el-tree
+						v-else
+						:data="tree"
+						node-key="id"
+						draggable
+						default-expand-all
+						:expand-on-click-node="false"
+						ref="treeRef"
+						:allow-drop="allowDrop"
+						@node-drop="onDrop"
+						@node-click="onNodeClick"
+						@node-contextmenu="onContextMenu"
+					>
+						<template #default="{ node, data }">
+							<span class="tree-node">
+								<el-checkbox v-model="data.enabled" @change="recompute" @click.stop></el-checkbox>
+								<span class="code" v-if="data.enabled">{{ (groupPrefix ? groupPrefix + groupSep : '') + data.code }}</span>
+								<span class="code code-off" v-else>—</span>
+								<span class="ctitle">{{ data.title }}</span>
+							</span>
+						</template>
+					</el-tree>
+				</div>
+			</div>
+
+			<!-- 可拖拽分隔条（仅在显示预览时出现） -->
+			<div class="divider" v-if="selected" @mousedown="startResize"></div>
+
+			<!-- 右侧：预览 -->
+			<div class="right" v-if="selected" :style="{ width: previewWidth + 'px' }">
+				<div class="pv-head">
+					<span class="pv-title">{{ selected.title }}</span>
+					<span style="flex: none">
+						<el-button size="small" @click="refreshSelected">刷新</el-button>
+						<el-button size="small" type="primary" @click="openEditor">在编辑器中打开</el-button>
+						<el-button size="small" link @click="selected = null">收起</el-button>
+					</span>
+				</div>
+				<div class="pv-body" v-html="previewHtml"></div>
+			</div>
+		</div>
+
+		<!-- 右键菜单 -->
+		<ul class="ctx-menu" v-show="ctxMenu.visible" :style="{ left: ctxMenu.x + 'px', top: ctxMenu.y + 'px' }" @click.stop>
+			<li @click="ctxAddSibling">新建同级</li>
+			<li @click="ctxAddChild">新建下级</li>
+			<li class="sep"></li>
+			<li @click="ctxExpandSubtree">展开此节点(含子孙)</li>
+			<li @click="ctxCollapseSubtree">折叠此节点(含子孙)</li>
+			<li class="sep"></li>
+			<li @click="ctxOpenEditor">在编辑器中打开</li>
+		</ul>
+	</div>
+</body>
+</html>

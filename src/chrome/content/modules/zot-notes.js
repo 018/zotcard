@@ -327,7 +327,7 @@ Zotero.ZotCard.Notes = Object.assign(Zotero.ZotCard.Notes, {
 
   // .primary-editor { background-color: #0F0 } .primary-editor p { line-height: 20; }
   noteBGColor(color) {
-    let val = Zotero.Prefs.get('note.css');
+    let val = Zotero.Prefs.get('note.css') || '';
     val = val.replace(/body +{ background-color: (#[0-9A-Fa-f]{6}); }/g, '');
     if (val) {
       if (color) {

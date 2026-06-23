@@ -3,7 +3,7 @@ if (!Zotero.ZotCard.Messages) Zotero.ZotCard.Messages = {};
 
 Zotero.ZotCard.Messages = Object.assign(Zotero.ZotCard.Messages, {
 	init() {
-    Components.utils.import("resource://gre/modules/Services.jsm");
+    // Zotero 8 (FF115+) 已移除 Services.jsm，Services 现为全局对象，无需导入。
 		Zotero.ZotCard.Logger.log('Zotero.ZotCard.Messages inited.');
 	},
 
@@ -13,6 +13,19 @@ Zotero.ZotCard.Messages = Object.assign(Zotero.ZotCard.Messages, {
 
   success(window, message) {
     Zotero.alert(window || Zotero.getMainWindow(), Zotero.getString('general.success'), message);
+  },
+
+  // 非阻塞轻提示：右上角弹出、数秒后自动消失，不需要点确认
+  toast(message, headline) {
+    try {
+      let pw = new Zotero.ProgressWindow({ closeOnClick: true });
+      pw.changeHeadline(headline || 'ZotCard');
+      pw.show();
+      pw.addDescription(message);
+      pw.startCloseTimer(1000);
+    } catch (e) {
+      Zotero.ZotCard.Logger.log(e);
+    }
   },
 
   error(window, message) {

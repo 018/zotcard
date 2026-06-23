@@ -1,6 +1,6 @@
 const { createApp, ref, reactive, toRaw, computed, nextTick } = Vue;
 const { ElMessageBox, ElLoading } = ElementPlus;
-var { OS } = ChromeUtils.importESModule("chrome://zotero/content/osfile.mjs");
+// Zotero 9：弃用 OS.File（osfile），改用全局 IOUtils（见下方 IOUtils.stat）。
 
 // dataIn: [{type: 'library', id: 1}, {type: 'collection', id: 1}, {type: 'search', id: 1}, {type: 'item', id: 1}, {type: 'note', id: 1}]
 // cards: [{...}]
@@ -69,7 +69,7 @@ if (!io) {
                 let key = m.match(/data-attachment-key="(.*?)"/)[1];
                 let image = Zotero.Items.getByLibraryAndKey(item.libraryID, key);
                 let path = image.getFilePath();
-                let info = await OS.File.stat(path);
+                let info = await IOUtils.stat(path);
                 images.push({
                   key: key,
                   url: `zotero://attachment/library/items/${key}`,

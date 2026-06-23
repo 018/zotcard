@@ -1,7 +1,7 @@
 const { createApp, ref, reactive, toRaw } = Vue
 const { ElMessageBox } = ElementPlus
 
-!ZotElementPlus.isZoteroDev && Components.utils.import('resource://gre/modules/Services.jsm');
+// Zotero 8 (FF115+) 已移除 Services.jsm，Services 现为全局对象，无需导入。
 
 window.onload = function () {
   const _l10n = ZotElementPlus.isZoteroDev ? undefined : new Localization(["multi-edit-manager.ftl", "zotcard.ftl"], true);

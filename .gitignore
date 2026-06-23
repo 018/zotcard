@@ -8,5 +8,10 @@ out
 target
 .DS_Store
 
+# 开发工具链（scaffold 热重载）
+node_modules
+.env
+.scaffold
+
 视频
 other
