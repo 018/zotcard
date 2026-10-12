@@ -1026,7 +1026,7 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 				break;
 		}
 		
-		Zotero.ZotCard.Dialogs.openCardManager(items);
+		Zotero.ZotCard.Dialogs.openCardManagerTab(items);
 	},
 
 	collectionCardReport() {
