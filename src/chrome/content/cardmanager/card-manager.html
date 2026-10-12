@@ -24,6 +24,7 @@
 		body {
 			padding: 0;
 			margin: 0;
+			background-color: #FFFFFF;
 		}
 
 		.header {
@@ -254,26 +255,6 @@
 							</el-dropdown-menu>
 						</template>
 					</el-dropdown>
-					<!-- <el-divider direction="vertical"></el-divider>
-					<el-link :underline="false" @click="handleTools('top')">
-						<el-icon>
-							<svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-								xmlns="http://www.w3.org/2000/svg">
-								<path
-									d="M2.5 2H13.5C13.646 2 13.7658 2.04683 13.8595 2.1405C13.9532 2.23417 14 2.354 14 2.5C14 2.646 13.9532 2.76583 13.8595 2.8595C13.7658 2.95317 13.646 3 13.5 3H2.5C2.354 3 2.23417 2.95317 2.1405 2.8595C2.04683 2.76583 2 2.646 2 2.5C2 2.354 2.04683 2.23417 2.1405 2.1405C2.23417 2.04683 2.354 2 2.5 2ZM8.5 6.969V14.0005H7.5V6.86L3.703 10.657L3 9.954L7.953 5.001L12.906 9.954L12.187 10.657L8.5 6.969Z"
-									fill="#303133" />
-							</svg>
-						</el-icon>
-					</el-link>
-					<el-link :underline="false" @click="handleTools('up')"><el-icon>
-							<Top></Top>
-						</el-icon></el-link>
-					<el-link :underline="false" @click="handleTools('down')"><el-icon>
-							<Bottom></Bottom>
-						</el-icon></el-link>
-					<el-link :underline="false" @click="handleTools('bottom')"><el-icon>
-							<Download></Download>
-						</el-icon></el-link> -->
 					<el-divider direction="vertical"></el-divider>
 					<el-link :disabled="total === 0" :underline="false" @click="handleTools('selectedall')" data-l10n-id="zotcard-card-manager-toolbar-selectedall-title"><el-icon>
 						<Circle-Check-Filled></Circle-Check-Filled>
@@ -324,7 +305,7 @@
 							</el-space>
 							<el-space>
 								<el-button @click="handleCancelCardViewer"><span data-l10n-id="zotcard-card-manager-show_card_viewer-cancel">取消1</span></el-button>
-								<el-button @click="handleCardViewer" type="success" plain :disabled="renders.cardViewerPopover.total <= 0"><span data-l10n-id="zotcard-card-manager-show_card_viewer-open">立即读卡1</span></el-button>
+								<el-button @click="handleCardViewer" type="success" plain :disabled="lessThanEqual(renders.cardViewerPopover.total)"><span data-l10n-id="zotcard-card-manager-show_card_viewer-open">立即读卡1</span></el-button>
 							</el-space>
 						</el-space>
 					</el-popover>
@@ -346,14 +327,14 @@
 					</el-radio-group>
 				</el-space>
 				<el-space class="el-link-text">
-					<el-link :disabled="moreLoadeds < total || total === 0" v-for="f in ['date', 'dateAdded', 'dateModified', 'title']" :underline="false" @click="handleOrderby(f)" :type="filters.orderby === f ? 'primary' : ''">
+					<el-link :disabled="moreThanZero(total - moreLoadeds) || total === 0" v-for="f in ['date', 'dateAdded', 'dateModified', 'title']" :underline="false" @click="handleOrderby(f)" :type="filters.orderby === f ? 'primary' : ''">
 						<el-icon>
 							<D-Caret v-if="filters.orderby !== f"></D-Caret>
 							<Caret-Bottom v-else-if="renders.isOrderbyDesc(f)"></Caret-Bottom>
 							<Caret-Top v-else></Caret-Top>
 						</el-icon> <span :data-l10n-id="`zotcard-card-manager-${f}`">{{ f }}</span>
 					</el-link>
-					<el-link v-if="profiles.parseWords" :disabled="moreLoadeds < total || total === 0" v-for="f in ['words', 'lines', 'sizes']" :underline="false" @click="handleOrderby(f)" :type="filters.orderby === f ? 'primary' : ''">
+					<el-link v-if="profiles.parseWords" :disabled="moreThanZero(total - moreLoadeds) || total === 0" v-for="f in ['words', 'lines', 'sizes']" :underline="false" @click="handleOrderby(f)" :type="filters.orderby === f ? 'primary' : ''">
 						<el-icon>
 							<D-Caret v-if="filters.orderby !== f"></D-Caret>
 							<Caret-Bottom v-else-if="renders.isOrderbyDesc(f)"></Caret-Bottom>
@@ -363,10 +344,10 @@
 				</el-space>
 			</div>
 		</el-affix>
-		<el-progress v-if="moreLoadeds < total" :percentage="moreLoadeds * 100.0 / total" :show-text="false" :stroke-width="2"></el-progress>
+		<el-progress v-if="moreThanZero(total - moreLoadeds)" :percentage="moreLoadeds * 100.0 / total" :show-text="false" :stroke-width="2"></el-progress>
 
 		<!-- cards -->
-		<div v-if="cards.length > 0">
+		<div v-if="moreThanZero(cards.length)">
 			<el-space v-infinite-scroll="loadMore" :infinite-scroll-disabled="scroll.disabled" class="main" wrap direction="horizontal"  alignment="flex-start" :prefix-cls="'card' + profiles.columns">
 				<el-card v-for="n in loads" :body-style="{ height: (cards[n - 1].isExpand ? profiles.height + 'px' : 0), fontSize: profiles.contentFontSize + 'px' }" :key="cards[n - 1].id" v-loading="!cards[n - 1].noteLoaded" :shadow="cards[n - 1].isShow ? 'always' : 'never'" :class="(cards[n - 1].isSelected ? 'is-selected' : '') + ' ' + (!cards[n - 1].isShow ? 'is-hide' : '')">
 					<template #header>
@@ -379,7 +360,7 @@
 						</div>
 					</template>
 					<el-carousel style="height: 100%;" v-if="cards[n - 1].isExpand" :autoplay="false" :loop="false" :pause-on-hover="false"
-						@change="(idx) => handleCarouselChange(idx, cards[n - 1])">
+						@change="handleCarouselChange($event, cards[n - 1])">
 						<!-- card content -->
 						<el-carousel-item>
 							<div class="card-tools">
@@ -409,27 +390,6 @@
 											</el-dropdown-menu>
 										</template>
 									</el-dropdown>
-									<!-- <el-divider direction="vertical"></el-divider>
-									<el-link :underline="false" @click="handleCardTools('top', cards[n - 1])">
-										<el-icon>
-											<svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-												xmlns="http://www.w3.org/2000/svg">
-												<path
-													d="M2.5 2H13.5C13.646 2 13.7658 2.04683 13.8595 2.1405C13.9532 2.23417 14 2.354 14 2.5C14 2.646 13.9532 2.76583 13.8595 2.8595C13.7658 2.95317 13.646 3 13.5 3H2.5C2.354 3 2.23417 2.95317 2.1405 2.8595C2.04683 2.76583 2 2.646 2 2.5C2 2.354 2.04683 2.23417 2.1405 2.1405C2.23417 2.04683 2.354 2 2.5 2ZM8.5 6.969V14.0005H7.5V6.86L3.703 10.657L3 9.954L7.953 5.001L12.906 9.954L12.187 10.657L8.5 6.969Z"
-													fill="#303133" />
-											</svg>
-										</el-icon>
-									</el-link>
-									<el-link :underline="false" @click="handleCardTools('up', cards[n - 1])"><el-icon>
-											<Top></Top>
-										</el-icon></el-link>
-									<el-link :underline="false" @click="handleCardTools('down', cards[n - 1])"><el-icon>
-											<Bottom></Bottom>
-										</el-icon></el-link>
-									<el-link :underline="false"
-										@click="handleCardTools('bottom', cards[n - 1])"><el-icon>
-											<Download></Download>
-										</el-icon></el-link> -->
 									<el-divider direction="vertical"></el-divider>
 									<el-link :underline="false"
 										@click="handleCardTools('print', cards[n - 1])" data-l10n-id="zotcard-card-manager-toolbar-print-title"><el-icon>
@@ -439,7 +399,6 @@
 									<el-link :underline="false"
 										@click="handleCardTools('collapse', cards[n - 1])" data-l10n-id="zotcard-card-manager-toolbar-collapse-title"><el-icon><Caret-Top></Caret-Top></el-icon></el-link>
 									<el-divider direction="vertical"></el-divider>
-									<!-- <el-link :underline="false"><el-icon><img src="chrome://zotcard/content/images/zotero32.png" style="object-fit: fill;"><img></el-icon></el-link> -->
 									<el-link :underline="false" @click="handleCardTools('zotero', cards[n - 1])" data-l10n-id="zotcard-card-manager-toolbar-zotero-title">
 										<img src="chrome://zotero/skin/z.svg" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
 									</el-link>
@@ -460,7 +419,7 @@
 												<img :src="`chrome://zotero/skin/item-type/16/light/${cards[n - 1].more.parentItem.itemType.replace(/([A-Z])/g, '-$1').toLowerCase()}@2x.svg`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
 												<span>{{ cards[n - 1].more.parentItem.title }}</span>
 											</el-link>
-											<el-space v-else-if="cards[n - 1].more.collections.length > 0">
+											<el-space v-else-if="moreThanZero(cards[n - 1].more.collections.length)">
 												<div v-for="c in cards[n - 1].more.collections" :key="c.id">
 													<el-link :underline="false" @click="handleLink(ZotCardConsts.cardManagerType.collection, c.id)">
 														<img :src="c.treeViewImage" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
@@ -474,7 +433,7 @@
 									<div class="row">
 										<span class="label" data-l10n-id="zotcard-card-manager-relations">卡片相关1</span>
 										<span class="value">
-											<el-space v-if="cards[n - 1].more.relations.length > 0">
+											<el-space v-if="moreThanZero(cards[n - 1].more.relations.length)">
 												<div v-for="r in cards[n - 1].more.relations" :key="r.id">
 													<el-link :underline="false" @click="handleLink(ZotCardConsts.cardManagerType.item, r.id)">
 														<img :src="`chrome://zotero/skin/item-type/16/light/${r.itemType.replace(/([A-Z])/g, '-$1').toLowerCase()}@2x.svg`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
@@ -490,7 +449,7 @@
 									</div>
 									<div class="row">
 										<span class="label" data-l10n-id="zotcard-card-manager-tags">卡片标签1</span><span class="value el-link-text">
-											<el-space v-if="cards[n - 1].more.tags.length > 0">
+											<el-space v-if="moreThanZero(cards[n - 1].more.tags.length)">
 												<div v-for="t in cards[n - 1].more.tags" :key="t.tag">
 													<img v-if="t.type === ZotCardConsts.tagType.zotero" :src="`chrome://zotero/skin/16/universal/tag.svg`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
 													<span :style="{color: t.color}">{{ t.tag }}</span>
@@ -538,7 +497,7 @@
 		</div>
 		<el-empty v-else>
 			<template #description>
-				<span class="nodata" v-if="filters.parentIDs.length > 0">{{l10n('zotcard-card-manager-nofilterdata', {total})}}</span>
+				<span class="nodata" v-if="moreThanZero(filters.parentIDs.length)">{{l10n('zotcard-card-manager-nofilterdata', {total})}}</span>
 				<span class="nodata" v-else>
 					<span data-l10n-id="zotcard-card-manager-nodata">请在这里选择文献库：1</span>
 					<el-badge is-dot class="item">
@@ -600,7 +559,7 @@
 										type="daterange"
 										:shortcuts="renders.date_picker_shortcuts"
 										value-format="YYYY-MM-DD"
-										:disabled="moreLoadeds < total"
+										:disabled="moreThanZero(total - moreLoadeds)"
 										@change="handleFilterChange('date')"
 									></el-date-picker>
 								</el-form-item>
@@ -608,7 +567,7 @@
 									<template #label>
 										<label data-l10n-id="zotcard-card-manager-cardtype">卡片类型1</label>
 									</template>
-									<el-select v-model="filters.cardtypes" multiple class="fill" @change="handleFilterChange('cardtypes')" :disabled="moreLoadeds < total">
+									<el-select v-model="filters.cardtypes" multiple class="fill" @change="handleFilterChange('cardtypes')" :disabled="moreThanZero(total - moreLoadeds)">
 										<el-option
 										  v-for="item in renders.options.cardtypes"
 										  :key="item"
@@ -622,7 +581,7 @@
 									<template #label>
 										<label data-l10n-id="zotcard-card-manager-tags">卡片标签1</label>
 									</template>
-									<el-select v-model="filters.tags" multiple collapse-tags class="fill" @change="handleFilterChange('tags')" :disabled="moreLoadeds < total">
+									<el-select v-model="filters.tags" multiple collapse-tags class="fill" @change="handleFilterChange('tags')" :disabled="moreThanZero(total - moreLoadeds)">
 										<el-option
 										  v-for="item in renders.options.tags"
 										  :key="item.type + '-' + item.tag"
@@ -637,7 +596,7 @@
 									<template #label>
 										<label data-l10n-id="zotcard-card-manager-tags">卡片标签1</label>
 									</template>
-									<el-select v-model="filters.tags1" multiple collapse-tags class="fill" @change="handleFilterChange('tags1')" :disabled="moreLoadeds < total">
+									<el-select v-model="filters.tags1" multiple collapse-tags class="fill" @change="handleFilterChange('tags1')" :disabled="moreThanZero(total - moreLoadeds)">
 										<el-option
 										  v-for="item in renders.options.tags"
 										  :key="item.type + '-' + item.tag"
@@ -652,7 +611,7 @@
 									<template #label>
 										<label data-l10n-id="zotcard-card-manager-tags">卡片标签1</label>
 									</template>
-									<el-select v-model="filters.tags2" multiple collapse-tags class="fill" @change="handleFilterChange('tags2')" :disabled="moreLoadeds < total">
+									<el-select v-model="filters.tags2" multiple collapse-tags class="fill" @change="handleFilterChange('tags2')" :disabled="moreThanZero(total - moreLoadeds)">
 										<el-option
 										  v-for="item in renders.options.tags"
 										  :key="item.type + '-' + item.tag"
@@ -667,7 +626,7 @@
 									<template #label>
 										<label data-l10n-id="zotcard-card-manager-tags">卡片标签1</label>
 									</template>
-									<el-select v-model="filters.tags3" multiple collapse-tags class="fill" @change="handleFilterChange('tags3')" :disabled="moreLoadeds < total">
+									<el-select v-model="filters.tags3" multiple collapse-tags class="fill" @change="handleFilterChange('tags3')" :disabled="moreThanZero(total - moreLoadeds)">
 										<el-option
 										  v-for="item in renders.options.tags"
 										  :key="item.type + '-' + item.tag"
@@ -682,7 +641,7 @@
 									<template #label>
 										<label data-l10n-id="zotcard-card-manager-tags">卡片标签1</label>
 									</template>
-									<el-select v-model="filters.tags4" multiple collapse-tags class="fill" @change="handleFilterChange('tags4')" :disabled="moreLoadeds < total">
+									<el-select v-model="filters.tags4" multiple collapse-tags class="fill" @change="handleFilterChange('tags4')" :disabled="moreThanZero(total - moreLoadeds)">
 										<el-option
 										  v-for="item in renders.options.tags"
 										  :key="item.type + '-' + item.tag"

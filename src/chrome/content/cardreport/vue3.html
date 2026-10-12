@@ -17,7 +17,7 @@
 	<script src="vue3.js"></script>
 
 	<script>
-		var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+		// var { Services } = ChromeUtils.importESModule("resource://gre/modules/Services.sys.mjs");
 		Services.scriptloader.loadSubScript("chrome://zotero/content/include.js", this);
 		Services.scriptloader.loadSubScript("resource://zotero/require.js", this);
 

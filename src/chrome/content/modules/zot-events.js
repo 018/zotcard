@@ -39,10 +39,18 @@ Zotero.ZotCard.Events = Object.assign(Zotero.ZotCard.Events, {
 		Zotero.ZotCard.Logger.log('refreshItemMenuPopup registered.');
 		Zotero.getMainWindow().document.getElementById('zotero-tb-note-add').addEventListener('popupshowing', this.refreshStandaloneMenuPopup, false);
 		Zotero.ZotCard.Logger.log('refreshStandaloneMenuPopup registered.');
-		Zotero.getMainWindow().document.getElementById('context-pane-add-child-note-button-popup').addEventListener('popupshowing', this.refreshPaneItemMenuPopup, false);
+		// Zotero.getMainWindow().document.querySelector('.context-pane-add-child-note-button-popup').addEventListener('popupshowing', this.refreshPaneItemMenuPopup, false);
+		Zotero.getMainWindow().document.addEventListener('popupshowing', this.refreshPaneItemMenuPopup, false);
+		// Zotero.getMainWindow().ZoteroContextPane.context._getCurrentNotesContext().querySelector(".context-pane-add-child-note-button-popup")
 		Zotero.ZotCard.Logger.log('refreshPaneItemMenuPopup registered.');
 
 		Zotero.ZotCard.Logger.log('Zotero.ZotCard.Events registered.');
+	},
+
+	refreshPaneItemMenuPopup(event) {
+		if (event.target.id === 'context-pane-add-child-note-button-popup') {
+			this.refreshPaneItemMenuPopup(event);
+		}
 	},
 
 	shutdown() {

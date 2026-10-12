@@ -137,10 +137,10 @@
 					</el-radio-group>
 				</el-space>
 			</el-space>
-			<el-space v-if="cards.length > 1">
+			<el-space v-if="moreThanZero(cards.length)">
 				<span>{{ renders.currentIndex + 1 }}</span><span>/</span>{{ renders.total }}<span></span>
 			</el-space>
-			<el-space v-if="cards.length > 1" class="el-link-text">
+			<el-space v-if="moreThanZero(cards.length)" class="el-link-text">
 				<el-link :underline="false" @click="handleOrderby('random')" :type="filters.orderby === 'random' ? 'primary' : ''">
 					<el-icon>
 						<Switch v-if="filters.orderby === 'random'"></Switch>
@@ -199,7 +199,7 @@
 										</el-dropdown-menu>
 									</template>
 								</el-dropdown>
-								<el-link v-if="cards.length > 1" :underline="false"
+								<el-link v-if="moreThanZero(cards.length)" :underline="false"
 										@click="handleCardTools('remove', cards[n - 1])" data-l10n-id="zotcard-card-manager-toolbar-remove-title"><el-icon><Circle-Close /></el-icon></el-link>
 								<el-link :underline="false"
 									@click="handleCardTools('delete', cards[n - 1])" data-l10n-id="zotcard-card-manager-toolbar-delete-title"><el-icon>
@@ -237,7 +237,7 @@
 										<img :src="`chrome://zotero/skin/item-type/16/light/${cards[n - 1].more.parentItem.itemType.replace(/([A-Z])/g, '-$1').toLowerCase()}@2x.svg`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
 										<span>{{ cards[n - 1].more.parentItem.title }}</span>
 									</el-link>
-									<el-space v-else-if="cards[n - 1].more.collections.length > 0">
+									<el-space v-else-if="moreThanZero(cards[n - 1].more.collections.length)">
 										<div v-for="c in cards[n - 1].more.collections" :key="c.id">
 											<el-link :underline="false" @click="handleLink(ZotCardConsts.cardManagerType.collection, c.id)">
 												<img :src="c.treeViewImage" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
@@ -249,7 +249,7 @@
 								</el-descriptions-item>
 								<el-descriptions-item span="3">
 									<template #label><span data-l10n-id="zotcard-card-manager-relations">卡片相关1</span></template>
-									<el-space v-if="cards[n - 1].more.relations.length > 0">
+									<el-space v-if="moreThanZero(cards[n - 1].more.relations.length)">
 										<div v-for="r in cards[n - 1].more.relations" :key="r.id">
 											<el-link :underline="false" @click="handleLink(ZotCardConsts.cardManagerType.item, r.id)">
 												<img :src="`chrome://zotero/skin/item-type/16/light/${r.itemType.replace(/([A-Z])/g, '-$1').toLowerCase()}@2x.svg`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
@@ -265,7 +265,7 @@
 								</el-descriptions-item>
 								<el-descriptions-item span="2">
 									<template #label><span data-l10n-id="zotcard-card-manager-tags">卡片标签1</span><span class="el-link-text"></template>
-									<el-space v-if="cards[n - 1].more.tags.length > 0">
+									<el-space v-if="moreThanZero(cards[n - 1].more.tags.length)">
 										<div v-for="t in cards[n - 1].more.tags" :key="t.tag">
 											<img v-if="t.type === ZotCardConsts.tagType.zotero" :src="`chrome://zotero/skin/tag.svg`" onerror="this.src='../images/zotero32.png'" class="el-icon"><img>
 											<span :style="{color: t.color}">{{ t.tag }}</span>

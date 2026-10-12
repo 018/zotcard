@@ -188,7 +188,7 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 			year = item ? item.getField('year') : undefined;
 
 			var itemLink = item ? Zotero.ZotCard.Items.getZoteroUrl(item.key) : '';
-			var id = item ? item.getID() : undefined;
+			var id = item ? item.id : undefined;
 			var collectionLink = collection ? Zotero.ZotCard.Collections.getZoteroUrl(collection.key) : '';
 			var json = item ? item.toJSON() : {};
 			var itemFields = Zotero.ItemFields.getAll().map(e => e.name);
@@ -209,6 +209,7 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 			}
 
 			var clipboardText = Zotero.ZotCard.Clipboards.getClipboard();
+			Zotero.ZotCard.Logger.log("clipboardText: " + clipboardText);
 			var tags = [];
 			var dateAdded = '';
 			var dateModified = '';
@@ -284,7 +285,7 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 									spliceItemFields(key);
 									break;
 								case '[object String]':
-									econtent += 'var ' + key + ' = "' + element.replace(/"|'/g, "\\\"").replace(/\n/g, "\\n") + '";\n';
+									econtent += 'var ' + key + ' = "' + element.replace(/{/g, "\\{").replace(/"/g, "\\\"").replace(/'/g, "\\\'").replace(/\n/g, "\\n") + '";\n';
 									spliceItemFields(key);
 									break;
 								case '[object Object]':
@@ -311,6 +312,7 @@ Zotero.ZotCard.Cards = Object.assign(Zotero.ZotCard.Cards, {
 			econtent += 'var dateModified = "' + dateModified + '";\n';
 			econtent += 'var text = "' + (text ? text.replace(/"|'/g, "\\\"") : '') + '";\nreturn `' + template + '`;\n})()';
 			let content;
+			Zotero.ZotCard.Logger.log("econtent: " + econtent);
 			try {
 				content = Zotero.getMainWindow().eval(econtent);
 

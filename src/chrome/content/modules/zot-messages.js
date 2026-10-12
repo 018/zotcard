@@ -3,7 +3,7 @@ if (!Zotero.ZotCard.Messages) Zotero.ZotCard.Messages = {};
 
 Zotero.ZotCard.Messages = Object.assign(Zotero.ZotCard.Messages, {
 	init() {
-    Components.utils.import("resource://gre/modules/Services.jsm");
+    // ChromeUtils.importESModule("resource://gre/modules/Services.sys.mjs");
 		Zotero.ZotCard.Logger.log('Zotero.ZotCard.Messages inited.');
 	},
 

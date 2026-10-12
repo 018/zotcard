@@ -64,9 +64,9 @@ Zotero.ZotCard.Logger = Object.assign(Zotero.ZotCard.Logger, {
     Zotero.debug(`${this._outPrefix()} ${filename}:${line}@${method}: ${message}`);
   },
 
-  ding() {
+  ding(message='') {
     var {method, filename, line} = this.getStack();
-    Zotero.debug(`${this._outPrefix()} ${filename}:${line}@${method} ${Zotero.isMac ? '📌' : '!'}`);
+    Zotero.debug(`${this._outPrefix()} ${filename}:${line}@${method} ${Zotero.isMac ? '📌' : '!'} ${message}`);
   },
 
   stack() {

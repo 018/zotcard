@@ -518,7 +518,13 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 
 	createPaneMenu() {
 		let root = 'context-pane-add-child-note-button-popup';
-		let elPanePopup = Zotero.getMainWindow().document.getElementById(root);
+		// let elPanePopup = Zotero.getMainWindow().document.getElementById(root);
+		let currentNotesContext = Zotero.getMainWindow().ZoteroContextPane.context._getCurrentNotesContext();
+		if (!currentNotesContext) {
+			Zotero.ZotCard.Logger.log(`Not Found Current Notes Context`);
+			return;
+		}
+		let elPanePopup = currentNotesContext.querySelector("." + root);
 		let menuseparator1 = Zotero.ZotCard.Doms.createMainWindowXULMenuSeparator({
 			id: `${root}-zotcard-separator1`,
 			parent: elPanePopup
@@ -917,21 +923,34 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 		note.setNote(noteContent || '');
 		let itemID = await note.saveTx();
 
-		Zotero.getActiveZoteroPane().updateLayout();
+		await Zotero.getActiveZoteroPane().updateLayout();
 
 		if (focus) {
-			var noteRows = reader._window.document.querySelectorAll('.note-row').length;
 			var times = 0;
 			var interval = setInterval(() => {
 				times++;
-				if (noteRows < reader._window.document.querySelectorAll('.note-row').length) {
-					reader._window.document.querySelector('.note-row').click();
-					clearInterval(interval);
+				let currentNotesContext = Zotero.getMainWindow().ZoteroContextPane.context._getCurrentNotesContext();
+				if (currentNotesContext) {
+					let noteRows = currentNotesContext.querySelectorAll("context-notes-list note-row")
+
+					Zotero.ZotCard.Logger.log(`itemID: ${itemID}`);
+					Zotero.ZotCard.Logger.log(`noteRows: ${noteRows}`);
+					if (noteRows && noteRows.length > 0) {
+						for (let index = 0; index < noteRows.length; index++) {
+							const noteRow = noteRows[index];
+							Zotero.ZotCard.Logger.log(`noteRow: ${noteRow.note.id}`);
+							if (noteRow.note.id === itemID) {
+								clearInterval(interval);
+								noteRow.click();
+								break;
+							}
+						}
+					}
 				}
 				if (times > 3) {
 					clearInterval(interval);
 				}
-			}, 1000);
+			}, 500);
 		}
 
 		return itemID;
@@ -1007,7 +1026,7 @@ Zotero.ZotCard = Object.assign(Zotero.ZotCard, {
 				break;
 		}
 		
-		Zotero.ZotCard.Dialogs.openCardManagerTab(items);
+		Zotero.ZotCard.Dialogs.openCardManager(items);
 	},
 
 	collectionCardReport() {

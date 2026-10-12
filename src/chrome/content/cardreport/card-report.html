@@ -114,7 +114,7 @@
 					<el-statistic :value="renders.statistics.total" value-style="color: #f56c6c">
 						<template #title>
 						<div style="display: inline-flex; align-items: center">
-							<spam data-l10n-id="zotcard-card-report-total">累计卡片数1</spam>
+							<span data-l10n-id="zotcard-card-report-total">累计卡片数1</span>
 						</div>
 						</template>
 					</el-statistic>
@@ -123,7 +123,7 @@
 					<el-statistic :value="renders.statistics.words" value-style="color: #8d4bf6">
 						<template #title>
 						<div style="display: inline-flex; align-items: center">
-							<spam data-l10n-id="zotcard-card-report-words">累计字数1</spam>
+							<span data-l10n-id="zotcard-card-report-words">累计字数1</span>
 						</div>
 						</template>
 					</el-statistic>
@@ -132,7 +132,7 @@
 					<el-statistic :value="renders.statistics.avg_words" value-style="color: #e6a23c">
 						<template #title>
 						<div style="display: inline-flex; align-items: center">
-							<spam data-l10n-id="zotcard-card-report-avg_words">平均一卡字数1</spam>
+							<span data-l10n-id="zotcard-card-report-avg_words">平均一卡字数1</span>
 						</div>
 						</template>
 					</el-statistic>
@@ -141,7 +141,7 @@
 					<el-statistic :value="renders.statistics.content_scale" value-style="color: #909399">
 						<template #title>
 						<div style="display: inline-flex; align-items: center">
-							<spam data-l10n-id="zotcard-card-report-content_scale">累计内容占比1</spam>
+							<span data-l10n-id="zotcard-card-report-content_scale">累计内容占比1</span>
 						</div>
 						</template>
 						<template #suffix>
@@ -153,7 +153,7 @@
 					<el-statistic :value="renders.statistics.days" value-style="color: #303133">
 						<template #title>
 						<div style="display: inline-flex; align-items: center">
-							<spam data-l10n-id="zotcard-card-report-days">累计写卡天数1</spam>
+							<span data-l10n-id="zotcard-card-report-days">累计写卡天数1</span>
 						</div>
 						</template>
 					</el-statistic>
@@ -162,7 +162,7 @@
 					<el-statistic :value="renders.statistics.days_scale" value-style="color: #909399">
 						<template #title>
 						<div style="display: inline-flex; align-items: center">
-							<spam data-l10n-id="zotcard-card-report-days_scale">写卡天数占比1</spam>
+							<span data-l10n-id="zotcard-card-report-days_scale">写卡天数占比1</span>
 						</div>
 						</template>
 						<template #suffix>
@@ -174,7 +174,7 @@
 					<el-statistic :value="renders.statistics.avg_cards" value-style="color: #409eff">
 						<template #title>
 						<div style="display: inline-flex; align-items: center">
-							<spam data-l10n-id="zotcard-card-report-avg_cards">平均一天写卡1</spam>
+							<span data-l10n-id="zotcard-card-report-avg_cards">平均一天写卡1</span>
 						</div>
 						</template>
 					</el-statistic>
@@ -183,7 +183,7 @@
 					<el-statistic :value="renders.statistics.sizes" value-style="color: #303133">
 						<template #title>
 						<div style="display: inline-flex; align-items: center">
-							<spam data-l10n-id="zotcard-card-report-sizes">占空间1</spam>
+							<span data-l10n-id="zotcard-card-report-sizes">占空间1</span>
 						</div>
 						</template>
 						<template #suffix>
@@ -193,10 +193,16 @@
 				</div>
 			</el-space>
 			<p>
-				<spam>{{ l10n('zotcard-card-report-last', {last: renders.polarization.date.last}) }}</spam>
-				<spam v-if="renders.today.nonCardDay === 0">{{ l10n('zotcard-card-report-todayCard') }}</spam>
-				<spam v-if="renders.today.nonCardDay > 0">{{ l10n('zotcard-card-report-nonCard', {day: renders.today.nonCardDay}) }}</spam>
-				<spam v-if="renders.today.nonCardDay < 0">{{ l10n('zotcard-card-report-advancedCard', {day: Math.abs(renders.today.nonCardDay)}) }}</spam>
+				<span>{{ l10n('zotcard-card-report-last', {last: renders.polarization.date.last}) }}</span>
+				<span v-if="renders.today.nonCardDay === 0">
+					{{ l10n('zotcard-card-report-todayCard') }}
+				</span>
+				<span v-else-if="moreThanZero(renders.today.nonCardDay)">
+					{{ l10n('zotcard-card-report-nonCard', {day: Math.abs(renders.today.nonCardDay)}) }}
+				</span>
+				<span v-else>
+					{{ l10n('zotcard-card-report-advancedCard', {day: Math.abs(renders.today.nonCardDay)}) }}
+				</span>
 			</p>
 		</div>
 		<div class="section">

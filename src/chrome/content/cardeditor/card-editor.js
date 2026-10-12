@@ -449,7 +449,7 @@ if (!io || !io.noteID) {
 							let zotCards = {
 								name: 'ZotCard',
 								values: [
-									{ value: () => item.getID(), name: ZotElementPlus.isZoteroDev ? 'id' : _l10n.formatValueSync('zotcard-preferences-id') },
+									{ value: () => item.id, name: ZotElementPlus.isZoteroDev ? 'id' : _l10n.formatValueSync('zotcard-preferences-id') },
 									{ value: () => Zotero.ZotCard.Clipboards.getClipboard(), name: ZotElementPlus.isZoteroDev ? 'clipboardText' : _l10n.formatValueSync('zotcard-preferences-clipboardText') },
 									{ value: Zotero.ZotCard.DateTimes.formatDate(nowDate, Zotero.ZotCard.DateTimes.yyyyMMdd), name: ZotElementPlus.isZoteroDev ? 'today' : _l10n.formatValueSync('zotcard-preferences-today') },
 									{ value: Zotero.ZotCard.DateTimes.formatDate(nowDate, Zotero.ZotCard.DateTimes.yyyyMM), name: ZotElementPlus.isZoteroDev ? 'month' : _l10n.formatValueSync('zotcard-preferences-month') },

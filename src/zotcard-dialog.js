@@ -1,6 +1,6 @@
 if (!Zotero.ZotCard) Zotero.ZotCard = {};
 if (!Zotero.ZotCard.Dialogs) Zotero.ZotCard.Dialogs = {};
-Components.utils.import('resource://gre/modules/Services.jsm');
+// ChromeUtils.importESModule("resource://gre/modules/Services.sys.mjs");
 
 Zotero.ZotCard.Dialogs = Object.assign(Zotero.ZotCard.Dialogs, {
 

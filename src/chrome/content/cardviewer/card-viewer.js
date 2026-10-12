@@ -312,6 +312,11 @@ if (!io) {
 
         _init();
 
+
+        function moreThanZero (val){
+          return val > 0;
+        }
+
         return {
           ZotCardConsts,
           cards,
@@ -319,6 +324,9 @@ if (!io) {
           profiles,
           filters,
           handleOrderby,
+          
+          moreThanZero,
+          
           handleTools,
           handleCardTools,
           handleUIChange,

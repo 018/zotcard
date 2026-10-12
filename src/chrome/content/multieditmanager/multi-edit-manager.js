@@ -1,7 +1,7 @@
 const { createApp, ref, reactive, toRaw } = Vue
 const { ElMessageBox } = ElementPlus
 
-!ZotElementPlus.isZoteroDev && Components.utils.import('resource://gre/modules/Services.jsm');
+// !ZotElementPlus.isZoteroDev && ChromeUtils.importESModule("resource://gre/modules/Services.sys.mjs");
 
 window.onload = function () {
   const _l10n = ZotElementPlus.isZoteroDev ? undefined : new Localization(["multi-edit-manager.ftl", "zotcard.ftl"], true);

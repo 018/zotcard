@@ -20,6 +20,9 @@ Zotero.ZotCard.Utils = Object.assign(Zotero.ZotCard.Utils, {
 
   // 0.32433 -> 32.4
   scale(number, n) {
+    if (!number) {
+      return '';
+    }
     if (!n) {
       n = 0;
     }

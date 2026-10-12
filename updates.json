@@ -3,9 +3,9 @@
     "zotcard@zotero.org": {
       "updates": [
         {
-          "version": "3.3.0",
-          "update_link": "https://github.com/018/zotcard/releases/latest/download/zotcard-3.3.0.xpi",
-          "update_hash": "sha256:a39440f80350fc415dcb2faa850f8582ac0d34ae44aef419f098c0309819b552",
+          "version": "4.0.1",
+          "update_link": "https://github.com/018/zotcard/releases/latest/download/zotcard-4.0.1.xpi",
+          "update_hash": "sha256:792f90157b60a33676ea2dcda21f829f7b3c91e25a636fb93e8b3c04e0ee3362",
           "applications": {
             "zotero": {
               "strict_min_version": "6.999"

@@ -136,7 +136,8 @@ window.onload = async function () {
                   }));
 
                   // load items
-                  let rets = await Zotero.Items.getAll(data.extras.id, true, false).filter(e => (e.isRegularItem() || e.isNote()) && e.getCollections().length === 0);
+                  let rets = await Zotero.Items.getAll(data.extras.id, true, false);
+                  rets = rets.filter(e => (e.isRegularItem() || e.isNote()) && e.getCollections().length === 0);
                   nodes.push(...rets.map(i => {
                     return {
                       label: i.getDisplayTitle(),
@@ -262,7 +263,8 @@ window.onload = async function () {
                   }));
 
                   // load items
-                  let rets = await Zotero.Items.getAll(data.extras.id, true, false).filter(e => (e.isRegularItem() || e.isNote()) && e.getCollections().length === 0);
+                  let rets = await Zotero.Items.getAll(data.extras.id, true, false);
+                  rets = rets.filter(e => (e.isRegularItem() || e.isNote()) && e.getCollections().length === 0);
                   nodes.push(...rets.map(i => {
                     return {
                       label: i.getDisplayTitle(),
@@ -1138,6 +1140,27 @@ window.onload = async function () {
 
       _init();
 
+      Zotero.ZotCard.Logger.error(`ZotCardConsts: ${ZotCardConsts}`);
+      Zotero.ZotCard.Logger.error(`cards: ${cards ? cards : 'null'}`);
+      Zotero.ZotCard.Logger.error(`renders: ${renders}`);
+      Zotero.ZotCard.Logger.error(`profiles: ${profiles}`);
+      Zotero.ZotCard.Logger.error(`filters: ${filters}`);
+      Zotero.ZotCard.Logger.error(`saveFilter: ${saveFilter}`);
+      Zotero.ZotCard.Logger.error(`scroll: ${scroll}`);
+      Zotero.ZotCard.Logger.error(`moreLoadeds: ${moreLoadeds}`);
+      Zotero.ZotCard.Logger.error(`total: ${total}`);
+      Zotero.ZotCard.Logger.error(`loads: ${loads}`);
+      Zotero.ZotCard.Logger.error(`handleOrderby: ${handleOrderby}`);
+
+      function moreThanZero (val){
+        return val > 0;
+      }
+
+      function lessThanEqual(val){
+        return val <= 0;
+      }
+
+
       return {
         ZotCardConsts,
         cards,
@@ -1150,6 +1173,10 @@ window.onload = async function () {
         total,
         loads,
         handleOrderby,
+        
+        moreThanZero,
+        lessThanEqual,
+
         handleLink,
         loadMore,
         handleModeChange,
